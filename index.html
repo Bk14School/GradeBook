@@ -198,10 +198,35 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
    GRADE TABLE
    ===================================================== */
 .tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
-.gtbl{width:100%;border-collapse:collapse;font-size:.84rem;min-width:580px;}
-.gtbl th{padding:8px 8px;text-align:center;border:1px solid rgba(255,255,255,.12);white-space:nowrap;color:#fff;}
-.gtbl td{padding:6px 7px;text-align:center;border:1px solid var(--border);vertical-align:middle;}
+.gtbl{width:100%;border-collapse:separate;border-spacing:0;font-size:.84rem;min-width:580px;}
+.gtbl th{padding:8px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12);white-space:nowrap;color:#fff;}
+.gtbl td{padding:6px 7px;text-align:center;border-right:1px solid var(--border);border-bottom:1px solid var(--border);vertical-align:middle;}
 .gtbl tbody tr:hover td{background:#f8fafc!important;}
+
+/* ── Sticky header rows ── */
+.gtbl thead tr:first-child th { position:sticky; top:0; z-index:30; }
+.gtbl thead tr:last-child  th { position:sticky; top:37px; z-index:30; }
+
+/* ── Sticky columns: ที่(col0)=0  รหัส(col1)=36px  ชื่อ(col2)=108px ──  */
+.gtbl thead th.s-c0 { left:0;    z-index:50; }
+.gtbl thead th.s-c1 { left:36px; z-index:50; }
+.gtbl thead th.s-c2 { left:108px;z-index:50; }
+
+.gtbl tbody td.s-c0 { position:sticky; left:0;    z-index:10; background:#1e293b; color:#94a3b8; font-size:.78rem; }
+.gtbl tbody td.s-c1 { position:sticky; left:36px; z-index:10; background:#1e293b; color:#94a3b8; font-size:.74rem; }
+.gtbl tbody td.s-c2 { position:sticky; left:108px;z-index:10; background:#fff;    text-align:left; font-weight:500; min-width:145px; }
+
+/* เส้น + เงาหลังคอลัมน์ชื่อ เพื่อแยกส่วนที่ตรึงออกจาก scroll content */
+.gtbl thead th.s-c2,
+.gtbl tbody td.s-c2 {
+  border-right: 2px solid #6366f1 !important;
+  box-shadow: 3px 0 8px rgba(99,102,241,.15);
+}
+
+/* row hover — คง bg ของ sticky cols ไว้ */
+.gtbl tbody tr:hover td.s-c0 { background:#334155 !important; }
+.gtbl tbody tr:hover td.s-c1 { background:#334155 !important; }
+.gtbl tbody tr:hover td.s-c2 { background:#f0f4ff !important; }
 
 .th-base{background:#1e293b;}
 .th-att{background:#334155;}
@@ -737,9 +762,9 @@ function buildHead(){
   const n1=SI[1].length,n2=SI[2].length,rm1=getRawMax(1),rm2=getRawMax(2);
 
   let r1=`
-    <th rowspan="2" class="th-base" style="width:36px;">ที่</th>
-    <th rowspan="2" class="th-base" style="width:72px;">รหัส</th>
-    <th rowspan="2" class="th-base" style="text-align:left;min-width:145px;">ชื่อ-นามสกุล</th>
+    <th rowspan="2" class="th-base s-c0" style="width:36px;">ที่</th>
+    <th rowspan="2" class="th-base s-c1" style="width:72px;">รหัส</th>
+    <th rowspan="2" class="th-base s-c2" style="text-align:left;min-width:145px;">ชื่อ-นามสกุล</th>
     <th rowspan="2" class="th-att" style="width:115px;">มาเรียน</th>`;
 
   if(n1>0) r1+=`<th colspan="${n1+1}" class="th-t1s sc1">📝 คะแนนย่อย เทอม 1</th>`;
@@ -800,9 +825,9 @@ function buildBody(){
     const tc=v=>v===0?'nil':'ok', gc=g2===0?'nil':g2<50?'fail':'ok';
 
     return`<tr data-sid="${s.studentId}">
-      <td class="text-muted" style="font-size:.78rem;">${idx+1}</td>
-      <td style="font-size:.74rem;color:#94a3b8;">${s.studentId}</td>
-      <td style="text-align:left;font-weight:500;">${s.name}</td>
+      <td class="s-c0">${idx+1}</td>
+      <td class="s-c1">${s.studentId}</td>
+      <td class="s-c2">${s.name}</td>
       <td><span class="sp p">ม ${st.present||0}</span> <span class="sp a">ข ${st.absent||0}</span> <span class="sp l">ล ${st.leave||0}</span></td>
       ${t1sc}${t1rC}
       <td class="td-sc1"><span class="t1sc">${t1sc_v!==''?t1sc_v:'-'}</span></td>
