@@ -438,7 +438,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
                 <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1</div>
                 <div class="cfg-inline">
                   <span class="cfg-lbl">เก็บ</span>
-                  <input type="number" class="cfg-n" id="c_t1a" value="35" onchange="onCfg()">
+<input type="number" class="cfg-n" id="c_t1a" value="35" onchange="onCfg(); saveConfigOnly();">
                   <span class="cfg-lbl">สอบ</span>
                   <input type="number" class="cfg-n" id="c_t1e" value="15" onchange="onCfg()">
                 </div>
@@ -937,6 +937,52 @@ async function saveGrades(){
     toast('✅ '+msg);
   }catch(e){toast(e.message,'error');}
   pg_();
+}
+  async function saveConfigOnly() {
+  const year = document.getElementById('gYear').value;
+  const cls = document.getElementById('gClass').value;
+  const subj = document.getElementById('gSubj').value;
+
+  if (!subj || subj === "-- ไม่พบวิชา --") return;
+
+  // 1. เตรียมค่า Config ปัจจุบันจากหน้าจอ
+  const config = {
+    t1_acc: +document.getElementById('c_t1a').value,
+    t1_exam: +document.getElementById('c_t1e').value,
+    t2_acc: +document.getElementById('c_t2a').value,
+    t2_exam: +document.getElementById('c_t2e').value,
+    subItems: { 
+      t1: SI[1], 
+      t2: SI[2] 
+    },
+    rawMax: { 
+      t1: getRawMax(1), 
+      t2: getRawMax(2) 
+    }
+  };
+
+  // ตรวจสอบความถูกต้องพื้นฐาน
+  if (config.t1_acc + config.t1_exam !== 50) return toast('เทอม 1: เก็บ+สอบ ต้องรวมได้ 50', 'warning');
+  if (config.t2_acc + config.t2_exam !== 50) return toast('เทอม 2: เก็บ+สอบ ต้องรวมได้ 50', 'warning');
+
+  pg('กำลังบันทึกสัดส่วนคะแนน...');
+  try {
+    // 2. เรียก API เดิม แต่ส่ง gradeRecords เป็น [] เพื่อให้อัปเดตแค่ A2
+    await api('saveGrades', {
+      year: year,
+      classroom: cls,
+      subject: subj,
+      config: config,
+      gradeRecords: [] 
+    });
+    
+    // 3. แจ้งเตือนสำเร็จ
+    toast('✅ อัปเดตสัดส่วนคะแนนลงฐานข้อมูลแล้ว');
+  } catch (e) {
+    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
+  } finally {
+    pg_();
+  }
 }
 </script>
 </body>
