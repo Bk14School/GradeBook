@@ -355,23 +355,37 @@ async function adminSetupYear() {
 // GRADING SYSTEM
 // ==========================================
 // Mock ข้อมูลวิชา (ของจริงควรดึงจาก API หรือปรับตามต้องการ)
-const SUBJECTS_MAP = {
-  "ป.1":["ภาษาไทย","คณิตศาสตร์","วิทยาศาสตร์","สังคมศึกษา","ภาษาอังกฤษ","สุขศึกษา","ศิลปะ"],
-  "ป.2":["ภาษาไทย","คณิตศาสตร์","วิทยาศาสตร์","สังคมศึกษา","ภาษาอังกฤษ","สุขศึกษา","ศิลปะ"],
-  "ม.1":["ภาษาไทย","คณิตศาสตร์พื้นฐาน","คณิตศาสตร์เพิ่มเติม","วิทยาศาสตร์","ประวัติศาสตร์","ภาษาอังกฤษ"]
-  // ... เพิ่มรายวิชาให้ครบ ...
-};
 
-function updateSubjectDropdown() {
+
+// แก้ไขฟังก์ชัน updateSubjectDropdown ในไฟล์ index.html
+async function updateSubjectDropdown() {
   const cls = document.getElementById('gradeClassroom').value;
   const sel = document.getElementById('gradeSubject');
-  sel.innerHTML = '';
   
-  const subjects = SUBJECTS_MAP[cls] || ["วิชาพื้นฐาน 1", "วิชาพื้นฐาน 2"];
-  subjects.forEach(subj => {
-    sel.innerHTML += `<option value="${subj}">${subj}</option>`;
-  });
+  sel.innerHTML = '<option>กำลังโหลด...</option>';
+  
+  try {
+    // 1. เรียก API ไปดึงรายชื่อวิชาจาก Google Sheets
+    const subjects = await api('getSubjects', { classroom: cls });
+    
+    // 2. เคลียร์ Dropdown และใส่ข้อมูลใหม่
+    sel.innerHTML = '';
+    if (subjects.length === 0) {
+      sel.innerHTML = '<option>ไม่พบวิชา</option>';
+    } else {
+      subjects.forEach(subj => {
+        sel.innerHTML += `<option value="${subj}">${subj}</option>`;
+      });
+    }
+  } catch (e) {
+    showToast('ดึงรายชื่อวิชาไม่สำเร็จ', 'error');
+    sel.innerHTML = '<option>โหลดล้มเหลว</option>';
+  }
 }
+
+// และในตอนเริ่มต้น ให้เรียก updateSubjectDropdown() ทันทีหลังจากล็อกอินสำเร็จ
+// (ในฟังก์ชัน doLogin หรือหลังโหลดหน้าเว็บ)
+  
 
 // เมื่อเปิดหน้ามาครั้งแรก (ถ้าไม่ใช่แอดมิน)
 updateSubjectDropdown();
