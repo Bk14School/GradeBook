@@ -504,6 +504,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 
       <!-- TABLE -->
       <div class="card" style="padding:11px;">
+        <div class="card" style="padding:10px; display:flex; gap:10px; align-items:center;">
+  <small style="font-weight:700; color:#64748b;">มุมมองการแสดงผล:</small>
+  <button class="btn-sm" onclick="toggleView('t1')">ดูเฉพาะ เทอม 1</button>
+  <button class="btn-sm" onclick="toggleView('t2')">ดูเฉพาะ เทอม 2</button>
+  <button class="btn-sm" onclick="toggleView('all')">ดูทั้งหมด</button>
+</div>
         <div class="tbl-wrap">
           <table class="gtbl" id="gtbl">
             <thead id="gtHead"></thead>
@@ -937,6 +943,21 @@ async function saveGrades(){
     toast('✅ '+msg);
   }catch(e){toast(e.message,'error');}
   pg_();
+}
+  function toggleView(view) {
+  const cols1 = document.querySelectorAll('.sc1, .td-sub1, .td-raw1, .td-sc1, .s-t1e, .t1tot');
+  const cols2 = document.querySelectorAll('.sc2, .td-sub2, .td-raw2, .td-sc2, .s-t2e, .t2tot');
+  
+  if (view === 't1') {
+    cols1.forEach(e => e.style.display = '');
+    cols2.forEach(e => e.style.display = 'none');
+  } else if (view === 't2') {
+    cols1.forEach(e => e.style.display = 'none');
+    cols2.forEach(e => e.style.display = '');
+  } else {
+    cols1.forEach(e => e.style.display = '');
+    cols2.forEach(e => e.style.display = '');
+  }
 }
 </script>
 </body>
