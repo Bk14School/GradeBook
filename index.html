@@ -152,6 +152,19 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 
 <!-- ======= Admin Page ======= -->
 <div id="adminPage" class="page-section">
+  <div id="adminPage" class="page-section">
+  <div class="container-main">
+    <div class="app-card">
+      <h3 class="fw-bold">จัดการครูผู้สอน</h3>
+      <div class="table-wrap">
+        <table class="grade-table" id="teacherTable">
+          <thead><tr><th>ชื่อครู</th><th>ชั้น</th><th>วิชาที่สอน (เลือกได้มากกว่า 1)</th><th>บันทึก</th></tr></thead>
+          <tbody id="teacherTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
   <div class="container-main" style="max-width: 600px; margin-top: 40px;">
     <div class="app-card text-center">
       <div class="login-logo" style="margin: 0 auto 20px; width: 60px; height: 60px; font-size: 1.5rem;">⚙️</div>
@@ -359,27 +372,16 @@ async function adminSetupYear() {
 
 // แก้ไขฟังก์ชัน updateSubjectDropdown ในไฟล์ index.html
 async function updateSubjectDropdown() {
-  const cls = document.getElementById('gradeClassroom').value;
   const sel = document.getElementById('gradeSubject');
+  sel.innerHTML = '';
   
-  sel.innerHTML = '<option>กำลังโหลด...</option>';
-  
-  try {
-    // 1. เรียก API ไปดึงรายชื่อวิชาจาก Google Sheets
-    const subjects = await api('getSubjects', { classroom: cls });
-    
-    // 2. เคลียร์ Dropdown และใส่ข้อมูลใหม่
-    sel.innerHTML = '';
-    if (subjects.length === 0) {
-      sel.innerHTML = '<option>ไม่พบวิชา</option>';
-    } else {
-      subjects.forEach(subj => {
-        sel.innerHTML += `<option value="${subj}">${subj}</option>`;
-      });
-    }
-  } catch (e) {
-    showToast('ดึงรายชื่อวิชาไม่สำเร็จ', 'error');
-    sel.innerHTML = '<option>โหลดล้มเหลว</option>';
+  // ถ้าเป็นแอดมิน ให้โหลดวิชาของห้องที่เลือก
+  if (currentUser.isAdmin) {
+    const subjects = await api('getSubjects', { classroom: document.getElementById('gradeClassroom').value });
+    subjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+  } else {
+    // ถ้าเป็นครูทั่วไป ให้โชว์เฉพาะวิชาที่แอดมินตั้งค่าให้ (เก็บใน currentUser.mySubjects)
+    currentUser.mySubjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
   }
 }
 
@@ -507,6 +509,48 @@ async function saveGrades() {
     showToast('บันทึกไม่สำเร็จ: ' + e.message, 'error');
   }
   hideProgress();
+}
+  // โหลดรายชื่อครูมาแสดงในหน้า Admin
+// แก้ไขฟังก์ชัน loadTeacherTable
+async function loadTeacherTable() {
+  showProgress('กำลังโหลดข้อมูลครู...');
+  try {
+    const teachers = await api('getTeacherList');
+    // 1. ดึงรายวิชาทั้งหมดจากชีทเพื่อนำมาทำ Checkbox
+    // เราสร้างฟังก์ชันใหม่ใน API ชื่อ 'getAllSubjects' 
+    const allSubjectsData = await api('getAllSubjects'); 
+    
+    const tbody = document.getElementById('teacherTbody');
+    
+    tbody.innerHTML = teachers.map(t => {
+      const id = t[0], name = t[1], cls = t[3];
+      if(cls === '*') return '';
+      
+      // หาช่องวิชาที่ตรงกับชั้นเรียนนี้จากข้อมูลที่ดึงมา
+      const subs = allSubjectsData[cls] || [];
+      const checkboxes = subs.map(s => 
+        `<label class="me-2"><input type="checkbox" value="${s}" class="sub-check-${id}"> ${s}</label>`
+      ).join('');
+      
+      return `<tr>
+        <td>${name}</td>
+        <td>${cls}</td>
+        <td class="text-start">${checkboxes}</td>
+        <td><button class="btn btn-sm btn-primary" onclick="saveTeacher('${id}','${name}','${cls}')">บันทึก</button></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    showToast('โหลดข้อมูลพลาด: ' + e.message, 'error');
+  }
+  hideProgress();
+}
+
+// บันทึกการเลือกวิชา
+async function saveTeacher(id, name, cls) {
+  const selected = [];
+  document.querySelectorAll(`.sub-check-${id}:checked`).forEach(c => selected.push(c.value));
+  await api('saveTeacherAssignments', { teacherId: id, teacherName: name, classroom: cls, subjects: selected.join(',') });
+  showToast('บันทึกวิชาสอนของครู ' + name + ' แล้ว', 'success');
 }
 </script>
 </body>
