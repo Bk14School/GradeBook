@@ -370,14 +370,22 @@ async function adminSetupYear() {
 // Mock ข้อมูลวิชา (ของจริงควรดึงจาก API หรือปรับตามต้องการ)
 
 
-
-
-// และในตอนเริ่มต้น ให้เรียก updateSubjectDropdown() ทันทีหลังจากล็อกอินสำเร็จ
-// (ในฟังก์ชัน doLogin หรือหลังโหลดหน้าเว็บ)
+// แก้ไขฟังก์ชัน updateSubjectDropdown ในไฟล์ index.html
+async function updateSubjectDropdown() {
+  const sel = document.getElementById('gradeSubject');
+  sel.innerHTML = '';
   
+  // ถ้าเป็นแอดมิน ให้โหลดวิชาของห้องที่เลือก
+  if (currentUser.isAdmin) {
+    const subjects = await api('getSubjects', { classroom: document.getElementById('gradeClassroom').value });
+    subjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+  } else {
+    // ถ้าเป็นครูทั่วไป ให้โชว์เฉพาะวิชาที่แอดมินตั้งค่าให้ (เก็บใน currentUser.mySubjects)
+    currentUser.mySubjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+  }
+}
 
-// เมื่อเปิดหน้ามาครั้งแรก (ถ้าไม่ใช่แอดมิน)
-updateSubjectDropdown();
+
 
 async function loadGrades() {
   const year = document.getElementById('gradeYear').value;
