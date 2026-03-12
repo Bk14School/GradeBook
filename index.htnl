@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบบันทึกคะแนน</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-light: #e0e7ff;
+      --primary-dark: #4f46e5;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #334155;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --shadow: 0 10px 30px rgba(0,0,0,0.05);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    body { 
+      font-family: 'Prompt', sans-serif; 
+      background: var(--bg); 
+      color: var(--text); 
+      margin: 0; 
+      min-height: 100vh; 
+    }
+
+    /* ===== Navbar ===== */
+    .app-nav { 
+      background: rgba(255, 255, 255, 0.95); 
+      backdrop-filter: blur(10px); 
+      padding: 12px 0; 
+      box-shadow: var(--shadow); 
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .app-nav .container { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .app-nav .brand { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      color: var(--primary-dark); 
+      text-decoration: none; 
+      font-weight: 700; 
+      font-size: 1.05rem; 
+    }
+
+    .brand-logo { 
+      width: 40px; 
+      height: 40px; 
+      border-radius: 50%; 
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: #fff; 
+      font-weight: 700; 
+      font-size: 0.9rem; 
+    }
+
+    .nav-info { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+    }
+
+    .teacher-badge { 
+      background: var(--primary-light); 
+      color: var(--primary-dark); 
+      padding: 6px 14px; 
+      border-radius: 50px; 
+      font-size: 0.85rem; 
+      font-weight: 600;
+      display: none;
+    }
+
+    .nav-btn { 
+      background: #fff; 
+      color: var(--text-muted); 
+      border: 1px solid var(--border); 
+      padding: 8px 16px; 
+      border-radius: 50px; 
+      font-size: 0.85rem; 
+      font-weight: 500; 
+      cursor: pointer; 
+      transition: all 0.2s;
+      font-family: inherit;
+      display: none;
+    }
+
+    .nav-btn:hover { 
+      color: var(--primary); 
+      border-color: var(--primary-light); 
+      background: var(--primary-light); 
+    }
+
+    .nav-btn.danger { color: var(--danger); border-color: #fecaca; }
+    .nav-btn.danger:hover { background: #fef2f2; }
+
+    /* ===== Pages ===== */
+    .page-section { 
+      display: none; 
+      animation: fadeIn 0.3s ease;
+    }
+
+    .page-section.active { 
+      display: block; 
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .container-main { 
+      max-width: 1100px; 
+      margin: 0 auto; 
+      padding: 24px 16px;
+    }
+
+    /* ===== Login Page ===== */
+    .login-wrap { 
+      min-height: calc(100vh - 62px); 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 60%, #f3e8ff 100%); 
+      padding: 20px;
+    }
+
+    .login-card { 
+      background: #fff; 
+      border-radius: var(--radius); 
+      box-shadow: var(--shadow); 
+      padding: 48px 40px; 
+      width: 100%; 
+      max-width: 400px; 
+      text-align: center;
+    }
+
+    .login-logo { 
+      width: 80px; 
+      height: 80px; 
+      border-radius: 50%; 
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      margin: 0 auto 20px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: #fff; 
+      font-size: 2rem; 
+      font-weight: 700; 
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .login-card h2 { 
+      font-size: 1.4rem; 
+      font-weight: 700; 
+      color: var(--text); 
+      margin-bottom: 4px;
+    }
+
+    .login-card p { 
+      color: var(--text-muted); 
+      font-size: 0.9rem; 
+      margin-bottom: 28px;
+    }
+
+    .form-control { 
+      text-align: center; 
+      padding: 14px; 
+      font-size: 1rem; 
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-family: inherit;
+    }
+
+    .btn-login { 
+      width: 100%; 
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff; 
+      border: none; 
+      padding: 14px; 
+      border-radius: 12px; 
+      font-size: 1rem; 
+      font-weight: 600; 
+      cursor: pointer; 
+      font-family: inherit;
+      transition: all 0.3s;
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+      margin-top: 16px;
+    }
+
+    .btn-login:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    /* ===== Cards ===== */
+    .app-card { 
+      background: var(--card-bg); 
+      border-radius: var(--radius); 
+      box-shadow: var(--shadow); 
+      padding: 28px; 
+      margin-bottom: 20px; 
+      border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .card-title { 
+      font-size: 1.15rem; 
+      font-weight: 700; 
+      color: var(--text); 
+      margin-bottom: 20px; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+    }
+
+    /* ===== Form ===== */
+    .form-row { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+      gap: 16px; 
+      margin-bottom: 20px;
+    }
+
+    .form-group { 
+      display: flex; 
+      flex-direction: column;
+    }
+
+    .form-group label { 
+      font-size: 0.9rem; 
+      font-weight: 600; 
+      margin-bottom: 6px; 
+      color: var(--text);
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    /* ===== Table ===== */
+    .table-responsive { 
+      border-radius: 12px; 
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .table { 
+      font-size: 0.9rem;
+      margin-bottom: 0;
+    }
+
+    .table th { 
+      background: var(--primary-dark); 
+      color: #fff; 
+      font-weight: 600;
+      padding: 12px;
+    }
+
+    .table td { 
+      padding: 12px;
+      vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+      background: var(--primary-light);
+    }
+
+    /* ===== Button ===== */
+    .btn { 
+      padding: 8px 16px; 
+      border-radius: 8px; 
+      font-weight: 600;
+      cursor: pointer; 
+      transition: all 0.2s;
+      font-family: inherit;
+      border: none;
+    }
+
+    .btn-primary { 
+      background: var(--primary); 
+      color: #fff;
+    }
+
+    .btn-primary:hover { 
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-secondary { 
+      background: var(--bg); 
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { 
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .btn-danger { 
+      background: var(--danger); 
+      color: #fff;
+    }
+
+    /* ===== Status Badge ===== */
+    .badge { 
+      display: inline-block; 
+      padding: 4px 12px; 
+      border-radius: 50px; 
+      font-size: 0.8rem; 
+      font-weight: 600;
+    }
+
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-info { background: #dbeafe; color: #1d4ed8; }
+
+    /* ===== Progress ===== */
+    #progressOverlay { 
+      display: none; 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(255, 255, 255, 0.85); 
+      backdrop-filter: blur(4px); 
+      z-index: 9998; 
+      justify-content: center; 
+      align-items: center;
+    }
+
+    .progress-card { 
+      background: #fff; 
+      border-radius: var(--radius); 
+      padding: 36px 48px; 
+      text-align: center; 
+      box-shadow: var(--shadow); 
+      min-width: 280px;
+    }
+
+    .spinner { 
+      width: 48px; 
+      height: 48px; 
+      border: 4px solid var(--primary-light); 
+      border-top-color: var(--primary); 
+      border-radius: 50%; 
+      animation: spin 0.8s linear infinite; 
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { 
+      to { transform: rotate(360deg); } 
+    }
+
+    /* ===== Toast ===== */
+    .toast-wrap { 
+      position: fixed; 
+      bottom: 20px; 
+      right: 20px; 
+      z-index: 9999; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 8px; 
+      pointer-events: none;
+    }
+
+    .toast { 
+      padding: 12px 20px; 
+      border-radius: 8px; 
+      font-size: 0.9rem; 
+      font-weight: 500; 
+      color: #fff; 
+      box-shadow: var(--shadow); 
+      animation: slideIn 0.3s ease; 
+      pointer-events: auto;
+    }
+
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    .toast.info { background: var(--info); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 640px) {
+      .login-card { 
+        padding: 32px 20px; 
+      }
+
+      .app-nav .brand { 
+        font-size: 0.95rem; 
+      }
+
+      .app-nav .container { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 8px;
+      }
+
+      .form-row { 
+        grid-template-columns: 1fr; 
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="app-nav">
+  <div class="container">
+    <a class="brand" href="#" onclick="if(currentUser) openGradingPage(); return false;">
+      <div class="brand-logo">📊</div>
+      <span class="d-none d-sm-inline">ระบบบันทึกคะแนน</span>
+    </a>
+    <div class="nav-info">
+      <div class="teacher-badge" id="teacherBadge">🎓 ครู...</div>
+      <button class="nav-btn" id="btnNavGrading" onclick="openGradingPage()">📝 บันทึกคะแนน</button>
+      <button class="nav-btn" id="btnNavSettings" onclick="openSettingsPage()">⚙️ ตั้งค่า</button>
+      <button class="nav-btn danger" id="btnLogout" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Progress Overlay -->
+<div id="progressOverlay">
+  <div class="progress-card">
+    <div class="spinner"></div>
+    <p id="progressText" style="font-weight: 600; color: var(--primary-dark); font-size: 1rem; margin: 0;">กำลังโหลด...</p>
+  </div>
+</div>
+
+<!-- Login Page -->
+<div id="loginPage" class="page-section active">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">📊</div>
+      <h2>ระบบบันทึกคะแนน</h2>
+      <p id="loginSchoolName">โรงเรียนบ้านคลอง 14</p>
+      
+      <div class="mb-4">
+        <input type="password" id="loginPassword" class="form-control" placeholder="กรอกรหัสผ่าน" onkeypress="if(event.key==='Enter') doLogin()">
+      </div>
+
+      <button class="btn-login" onclick="doLogin()">🔐 เข้าสู่ระบบ</button>
+      
+      <p class="text-muted mt-4 mb-0" style="font-size: .8rem;">💡 ใช้รหัสผ่านครูเดียวกับระบบเช็คชื่อ</p>
+    </div>
+  </div>
+</div>
+
+<!-- Grading Page -->
+<div id="gradingPage" class="page-section">
+  <div class="container-main">
+    <div class="app-card">
+      <div class="card-title">📝 บันทึกคะแนน</div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>เลือกชั้นเรียน</label>
+          <select id="gradingClassroom" onchange="onClassroomChanged()">
+            <option value="">-- เลือกชั้นเรียน --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>เทอม</label>
+          <select id="gradingTerm">
+            <option value="1">เทอม 1</option>
+            <option value="2">เทอม 2</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>วิชา</label>
+          <select id="gradingSubject" onchange="onSubjectChanged()">
+            <option value="">-- เลือกวิชา --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" onclick="loadGradingData()">🔄 โหลด</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>สัดส่วนคะแนน</label>
+          <div id="weightDisplay" style="padding: 10px; background: var(--primary-light); border-radius: 8px; color: var(--primary-dark); font-weight: 600;">70% : 30%</div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table" id="gradingTable">
+          <thead>
+            <tr>
+              <th style="width: 40px;">#</th>
+              <th style="width: 100px;">รหัส</th>
+              <th>ชื่อ-นามสกุล</th>
+              <th style="width: 80px;">ทดสอบ %</th>
+              <th style="width: 80px;">กลาง %</th>
+              <th style="width: 80px;">ปลาย %</th>
+              <th style="width: 80px;">การมา %</th>
+              <th style="width: 80px;">คะแนน</th>
+              <th style="width: 60px;">เกรด</th>
+            </tr>
+          </thead>
+          <tbody id="gradingBody">
+            <tr><td colspan="9" class="text-center py-5 text-muted">เลือกชั้นเรียนและวิชา แล้วกด โหลด</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 16px; display: flex; gap: 8px;">
+        <button class="btn btn-primary" onclick="saveGradingData()">💾 บันทึก</button>
+        <button class="btn btn-secondary" onclick="exportGradingCSV()">📥 Export CSV</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Page -->
+<div id="settingsPage" class="page-section">
+  <div class="container-main">
+    <div class="app-card">
+      <div class="card-title">⚙️ ตั้งค่าของครู</div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>ชื่อครู</label>
+          <input type="text" id="settingsTeacherName" readonly>
+        </div>
+        <div class="form-group">
+          <label>วิชาที่สอน</label>
+          <input type="text" id="settingsTeacherSubjects" readonly>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>สัดส่วนคะแนนของคุณ (XX:YY)</label>
+          <input type="text" id="settingsWeight" placeholder="70:30" pattern="^\d+:\d+$">
+          <small style="color: var(--text-muted);">ตัวอย่าง: 70:30 = 70% (ทดสอบ+กลาง) : 30% (ปลาย)</small>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveTeacherSettings()">💾 บันทึกตั้งค่า</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ============================================
+// CONFIG & STATE
+// ============================================
+const WEB_APP_URL_GRADING = "https://script.google.com/macros/s/AKfycbzsvg_LJGOF4NHh8NSOauqFA4F2FoSjDZ24M9IdptvvM3X0tlPxdSprsQ-N1WZyL8kX/exec";
+const WEB_APP_URL_ATTENDANCE = "https://script.google.com/macros/s/AKfycbyeHnw4zm_EKWBNE-PHMPStqMMzEkcD6pnVDpSMndRvqY1a4u38DYPslbzOmDd3gorm/exec";
+
+let currentUser = null;
+let currentYear = "2569";
+let currentTerm = "1";
+let gradingData = null;
+let currentGrades = [];
+
+// ============================================
+// UTILITIES
+// ============================================
+function showToast(msg, type = 'info') {
+  const w = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  w.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+function showProgress(txt) {
+  document.getElementById('progressOverlay').style.display = 'flex';
+  document.getElementById('progressText').textContent = txt;
+}
+
+function hideProgress() {
+  document.getElementById('progressOverlay').style.display = 'none';
+}
+
+function showPage(page) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.getElementById(page).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+async function api(action, data = {}) {
+  const payload = { action: action, data: data };
+  const res = await fetch(WEB_APP_URL_GRADING, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  const json = await res.json();
+  if (json.status === 'error') throw new Error(json.message);
+  return json.data;
+}
+
+// ============================================
+// LOGIN
+// ============================================
+async function doLogin() {
+  const pw = document.getElementById('loginPassword').value.trim();
+  if (!pw) {
+    showToast('กรุณากรอกรหัสผ่าน', 'error');
+    return;
+  }
+
+  showProgress('กำลังตรวจสอบรหัสผ่าน...');
+  try {
+    currentUser = await api('loginGrading', { password: pw });
+    document.getElementById('loginPassword').value = '';
+    
+    showProgress('กำลังเตรียมข้อมูล...');
+    await afterLogin();
+    hideProgress();
+    openGradingPage();
+  } catch (e) {
+    hideProgress();
+    showToast(e.message, 'error');
+  }
+}
+
+async function afterLogin() {
+  document.getElementById('teacherBadge').textContent = `🎓 ${currentUser.name}`;
+  document.getElementById('teacherBadge').style.display = 'inline-flex';
+
+  ['btnNavGrading', 'btnNavSettings', 'btnLogout'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'inline-block';
+  });
+
+  // อัปเดต Settings
+  document.getElementById('settingsTeacherName').value = currentUser.name;
+  document.getElementById('settingsTeacherSubjects').value = currentUser.subjects.join(', ');
+
+  // สร้าง Dropdown ชั้นเรียนโดยใช้ API
+  try {
+    const classes = await api('getGradingClasses', {});
+    const select = document.getElementById('gradingClassroom');
+    select.innerHTML = '<option value="">-- เลือกชั้นเรียน --</option>';
+    
+    const unique = {};
+    classes.forEach(c => {
+      if (!unique[c.level]) {
+        unique[c.level] = true;
+        select.innerHTML += `<option value="${c.level}">${c.level}</option>`;
+      }
+    });
+  } catch (e) {
+    console.error('Load classes failed:', e);
+  }
+}
+
+function logout() {
+  currentUser = null;
+  gradingData = null;
+  currentGrades = [];
+
+  ['teacherBadge', 'btnNavGrading', 'btnNavSettings', 'btnLogout'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  document.getElementById('loginPassword').value = '';
+  showPage('loginPage');
+  showToast('ออกจากระบบแล้ว', 'info');
+}
+
+// ============================================
+// GRADING PAGE
+// ============================================
+function openGradingPage() {
+  showPage('gradingPage');
+}
+
+function openSettingsPage() {
+  showPage('settingsPage');
+  if (currentUser.weight) {
+    document.getElementById('settingsWeight').value = currentUser.weight;
+  }
+}
+
+async function onClassroomChanged() {
+  const cls = document.getElementById('gradingClassroom').value;
+  if (!cls) return;
+
+  showProgress('กำลังโหลดวิชา...');
+  try {
+    // โหลดรายวิชาสำหรับห้องนี้
+    const subjects = ['ภาษาไทย', 'ภาษาอังกฤษ', 'คณิตศาสตร์', 'วิทยาศาสตร์', 'สังคมศึกษา', 'กีฬา'];
+    const select = document.getElementById('gradingSubject');
+    select.innerHTML = '<option value="">-- เลือกวิชา --</option>';
+    subjects.forEach(s => {
+      select.innerHTML += `<option value="${s}">${s}</option>`;
+    });
+  } catch (e) {
+    showToast('โหลดวิชาไม่สำเร็จ', 'error');
+  }
+  hideProgress();
+}
+
+async function onSubjectChanged() {
+  // เมื่อเปลี่ยนวิชา ให้อัปเดตสัดส่วนคะแนน
+  if (currentUser && currentUser.weight) {
+    document.getElementById('weightDisplay').textContent = currentUser.weight + ' (คะแนนเก็บ : ปลาย)';
+  }
+}
+
+async function loadGradingData() {
+  const cls = document.getElementById('gradingClassroom').value;
+  const term = document.getElementById('gradingTerm').value;
+  const subject = document.getElementById('gradingSubject').value;
+
+  if (!cls || !subject) {
+    showToast('กรุณาเลือกชั้นเรียนและวิชา', 'error');
+    return;
+  }
+
+  showProgress('กำลังโหลดข้อมูล...');
+  try {
+    // โหลด Template
+    const template = await api('getGradeTemplate', {
+      year: currentYear,
+      classroom: cls,
+      term: term
+    });
+
+    // โหลดเกรดเดิม (ถ้ามี)
+    let existing = [];
+    try {
+      existing = await api('getGrades', {
+        year: currentYear,
+        classroom: cls,
+        term: term
+      });
+      existing = existing.filter(g => g.subject_name === subject);
+    } catch (e) {
+      console.warn('No existing grades found');
+    }
+
+    // Merge: ถ้าเกรดเดิมมี ให้ใช้ ถ้าไม่มี ให้ใช้ template
+    currentGrades = template.map(t => {
+      const found = existing.find(e => e.student_id === t.student_id);
+      return found ? { ...t, ...found } : { ...t, subject_name: subject };
+    });
+
+    renderGradingTable();
+  } catch (e) {
+    showToast('โหลดข้อมูลไม่สำเร็จ: ' + e.message, 'error');
+  }
+  hideProgress();
+}
+
+function renderGradingTable() {
+  const tbody = document.getElementById('gradingBody');
+  if (!currentGrades.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-5 text-muted">ไม่มีข้อมูล</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = currentGrades.map((g, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${g.student_id}</td>
+      <td>${g.student_name}</td>
+      <td><input type="number" value="${g.quiz_score || 0}" min="0" max="100" onchange="currentGrades[${i}].quiz_score = parseInt(this.value); updateGradeCalculation(${i});" style="width: 100%; padding: 4px; border: 1px solid #ddd;"></td>
+      <td><input type="number" value="${g.midterm_score || 0}" min="0" max="100" onchange="currentGrades[${i}].midterm_score = parseInt(this.value); updateGradeCalculation(${i});" style="width: 100%; padding: 4px; border: 1px solid #ddd;"></td>
+      <td><input type="number" value="${g.final_score || 0}" min="0" max="100" onchange="currentGrades[${i}].final_score = parseInt(this.value); updateGradeCalculation(${i});" style="width: 100%; padding: 4px; border: 1px solid #ddd;"></td>
+      <td><span id="att_${i}">0</span>%</td>
+      <td><span id="calc_${i}">0</span></td>
+      <td><span id="grade_${i}">-</span></td>
+    </tr>
+  `).join('');
+
+  // โหลดเวลาการมาจากระบบเช็คชื่อ
+  loadAttendanceData();
+}
+
+async function loadAttendanceData() {
+  const cls = document.getElementById('gradingClassroom').value;
+  if (!cls) return;
+
+  try {
+    // เรียก API ระบบเช็คชื่อ
+    const response = await fetch(WEB_APP_URL_ATTENDANCE, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'getReport',
+        data: { year: currentYear, classroom: cls, month: '' }
+      })
+    });
+
+    const json = await response.json();
+    if (json.status !== 'success') return;
+
+    const attendance = json.data.attendance || {};
+
+    // อัปเดต % มาเรียนให้แต่ละนักเรียน
+    currentGrades.forEach((g, i) => {
+      const att = attendance[g.student_id] || {};
+      let present = 0, total = 0;
+
+      for (let dateStr in att) {
+        const v = att[dateStr];
+        if (v === 'ม') present++;
+        if (v === 'ม' || v === 'ข' || v === 'ล' || v === 'ป' || v === 'ส') total++;
+      }
+
+      const percent = total > 0 ? Math.round((present / total) * 100) : 0;
+      currentGrades[i].attendance_percent = percent;
+      
+      const el = document.getElementById('att_' + i);
+      if (el) el.textContent = percent;
+    });
+  } catch (e) {
+    console.warn('Load attendance failed:', e);
+  }
+}
+
+function updateGradeCalculation(index) {
+  const grade = currentGrades[index];
+  const weight = currentUser.weight || '70:30';
+  const [w1, w2] = weight.split(':').map(w => parseInt(w) / 100);
+
+  const continuous = (grade.quiz_score + grade.midterm_score) / 2;
+  const calculated = Math.round((continuous * w1) + (grade.final_score * w2));
+
+  let letterGrade = '-';
+  if (calculated >= 80) letterGrade = 'A';
+  else if (calculated >= 70) letterGrade = 'B+';
+  else if (calculated >= 60) letterGrade = 'B';
+  else if (calculated >= 50) letterGrade = 'C+';
+  else if (calculated >= 40) letterGrade = 'C';
+  else if (calculated >= 30) letterGrade = 'D+';
+  else if (calculated >= 20) letterGrade = 'D';
+  else letterGrade = 'F';
+
+  grade.calculated_grade = calculated;
+  grade.letter_grade = letterGrade;
+
+  document.getElementById('calc_' + index).textContent = calculated;
+  document.getElementById('grade_' + index).textContent = letterGrade;
+}
+
+async function saveGradingData() {
+  const cls = document.getElementById('gradingClassroom').value;
+  const term = document.getElementById('gradingTerm').value;
+
+  if (!cls || !currentGrades.length) {
+    showToast('ไม่มีข้อมูลให้บันทึก', 'error');
+    return;
+  }
+
+  showProgress('กำลังบันทึก...');
+  try {
+    await api('saveGrade', {
+      year: currentYear,
+      classroom: cls,
+      term: term,
+      grades: currentGrades,
+      teacher_id: currentUser.teacher_id
+    });
+
+    showToast('✅ บันทึกข้อมูลเรียบร้อย', 'success');
+  } catch (e) {
+    showToast('บันทึกไม่สำเร็จ: ' + e.message, 'error');
+  }
+  hideProgress();
+}
+
+function exportGradingCSV() {
+  if (!currentGrades.length) {
+    showToast('ไม่มีข้อมูลให้ export', 'error');
+    return;
+  }
+
+  let csv = 'รหัส,ชื่อ,ทดสอบ,กลาง,ปลาย,การมา,คะแนน,เกรด\n';
+  currentGrades.forEach(g => {
+    csv += `${g.student_id},${g.student_name},${g.quiz_score},${g.midterm_score},${g.final_score},${g.attendance_percent},${g.calculated_grade},${g.letter_grade}\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `grades_${new Date().getTime()}.csv`;
+  link.click();
+}
+
+async function saveTeacherSettings() {
+  const weight = document.getElementById('settingsWeight').value.trim();
+
+  if (!weight.match(/^\d+:\d+$/)) {
+    showToast('รูปแบบไม่ถูกต้อง ใช้ XX:YY เช่น 70:30', 'error');
+    return;
+  }
+
+  showProgress('กำลังบันทึก...');
+  try {
+    await api('updateTeacherWeight', {
+      teacher_id: currentUser.teacher_id,
+      subjects: currentUser.subjects,
+      weight: weight
+    });
+
+    currentUser.weight = weight;
+    showToast('✅ อัปเดตตั้งค่าแล้ว', 'success');
+  } catch (e) {
+    showToast('บันทึกไม่สำเร็จ: ' + e.message, 'error');
+  }
+  hideProgress();
+}
+
+// Init on load
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('settingsWeight').value = '70:30';
+});
+</script>
+
+</body>
+</html>
