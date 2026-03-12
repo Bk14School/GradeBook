@@ -993,21 +993,35 @@ async function saveGrades(){
     pg_();
   }
 }
-// ฟังก์ชันย้าย Focus ไปช่องถัดไป
 document.addEventListener('keydown', function(event) {
-  // ตรวจสอบว่าปุ่มที่กดคือ Enter
   if (event.key === 'Enter') {
-    event.preventDefault(); // ป้องกันการ Submit form
+    event.preventDefault();
     
-    // หาช่อง input ทั้งหมดในตารางที่มีคลาส .sinput
-    const inputs = Array.from(document.querySelectorAll('.sinput'));
-    const currentIndex = inputs.indexOf(document.activeElement);
+    // 1. ระบุ element ปัจจุบันและตาราง
+    const currentInput = document.activeElement;
+    if (!currentInput.classList.contains('sinput')) return;
+
+    const td = currentInput.closest('td');
+    const tr = currentInput.closest('tr');
+    const table = currentInput.closest('table');
     
-    // ถ้าเจอช่องปัจจุบันและยังมีช่องถัดไป
-    if (currentIndex > -1 && currentIndex < inputs.length - 1) {
-      const nextInput = inputs[currentIndex + 1];
-      nextInput.focus();
-      nextInput.select(); // เลือกข้อความในช่องถัดไปให้พร้อมพิมพ์ทันที
+    // 2. หาตำแหน่งคอลัมน์ปัจจุบัน (cellIndex)
+    const colIndex = td.cellIndex;
+    
+    // 3. หาแถวถัดไปในตาราง
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    const currentRowIndex = rows.indexOf(tr);
+    
+    // 4. ถ้ามีแถวถัดไป ให้เลื่อนลงไปในคอลัมน์เดิม
+    if (currentRowIndex > -1 && currentRowIndex < rows.length - 1) {
+      const nextRow = rows[currentRowIndex + 1];
+      const nextCell = nextRow.cells[colIndex];
+      const nextInput = nextCell.querySelector('.sinput');
+      
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.select();
+      }
     }
   }
 });
