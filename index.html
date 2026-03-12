@@ -281,7 +281,7 @@ async function api(action, data={}) {
   if (json.status === 'error') throw new Error(json.message);
   return json.data;
 }
-
+ 
 function showPage(page) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.getElementById(page).classList.add('active');
