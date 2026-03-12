@@ -880,6 +880,15 @@ function calcSub(el,t){
   const mx=+el.getAttribute('max');
   if(+el.value>mx){el.value=mx;toast(`เต็ม ${mx} คะแนน`,'warning');}
   if(+el.value<0)el.value=0;
+ if (el.value.length >= String(mx).length) {
+    const inputs = Array.from(document.querySelectorAll('.sinput'));
+    const currentIndex = inputs.indexOf(el);
+    if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+      inputs[currentIndex + 1].focus();
+      inputs[currentIndex + 1].select();
+    }
+  }
+  
   const tr=el.closest('tr');
   let rs=0; tr.querySelectorAll(t===1?'.sub1':'.sub2').forEach(i=>rs+=+i.value||0);
   const rm=getRawMax(t), sm=+document.getElementById(`c_t${t}a`).value;
@@ -984,6 +993,7 @@ async function saveGrades(){
     pg_();
   }
 }
+
 </script>
 </body>
 </html>
