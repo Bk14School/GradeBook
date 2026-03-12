@@ -8,7 +8,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 :root {
-  /* เปลี่ยนโทนสีเป็นสีม่วง/คราม เพื่อแยกจากระบบเช็คชื่อ */
+  var(--primary): #6366f1;
   --primary: #6366f1;
   --primary-light: #e0e7ff;
   --primary-dark: #4338ca;
@@ -80,7 +80,6 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 /* Input คะแนน */
 .score-input { width: 70px; text-align: center; font-weight: 700; color: var(--primary-dark); padding: 6px; border: 1.5px solid #cbd5e1; border-radius: 8px; transition: all 0.2s; }
 .score-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); transform: scale(1.05); }
-/* ซ่อนปุ่มลูกศรขึ้นลงใน input number */
 .score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .score-input[type=number] { -moz-appearance: textfield; }
 
@@ -96,7 +95,7 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .btn-primary-custom { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; padding: 10px 24px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
 .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99,102,241,0.4); }
 
-/* Overlay & Toast (นำมาจากระบบเดิม) */
+/* Overlay & Toast */
 #progressOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 9998; justify-content: center; align-items: center; }
 .progress-card { background: #fff; border-radius: var(--radius); padding: 36px 48px; text-align: center; box-shadow: var(--shadow-lg); min-width: 280px; }
 .spinner { width: 48px; height: 48px; border: 4px solid var(--primary-light); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
@@ -118,7 +117,7 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
     </div>
     <div class="nav-info">
       <div class="teacher-badge" id="teacherBadge">🎓 ครู...</div>
-      <button class="nav-btn" id="btnNavAdmin" onclick="showPage('adminPage')" style="display:none;">⚙️ สร้างไฟล์ปีการศึกษา</button>
+      <button class="nav-btn" id="btnNavAdmin" onclick="showPage('adminPage')" style="display:none;">⚙️ แอดมิน</button>
       <button class="nav-btn" id="btnNavGrade" onclick="showPage('gradePage')" style="display:none;">📝 กรอกคะแนน</button>
       <button class="nav-btn danger" id="btnLogout" onclick="logout()" style="display:none;">ออกจากระบบ</button>
     </div>
@@ -152,10 +151,11 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 
 <!-- ======= Admin Page ======= -->
 <div id="adminPage" class="page-section">
-  <div id="adminPage" class="page-section">
   <div class="container-main">
+    
+    <!-- ส่วนมอบหมายวิชา -->
     <div class="app-card">
-      <h3 class="fw-bold">จัดการครูผู้สอน</h3>
+      <h3 class="fw-bold mb-4">จัดการวิชาที่ครูสอน</h3>
       <div class="table-wrap">
         <table class="grade-table" id="teacherTable">
           <thead><tr><th>ชื่อครู</th><th>ชั้น</th><th>วิชาที่สอน (เลือกได้มากกว่า 1)</th><th>บันทึก</th></tr></thead>
@@ -163,13 +163,12 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
         </table>
       </div>
     </div>
-  </div>
-</div>
-  <div class="container-main" style="max-width: 600px; margin-top: 40px;">
-    <div class="app-card text-center">
+
+    <!-- ส่วนสร้างฐานข้อมูล -->
+    <div class="app-card text-center mt-4" style="max-width: 600px; margin: 0 auto;">
       <div class="login-logo" style="margin: 0 auto 20px; width: 60px; height: 60px; font-size: 1.5rem;">⚙️</div>
-      <h3 class="fw-bold mb-3">สร้างฐานข้อมูลคะแนน (สำหรับ Admin)</h3>
-      <p class="text-muted mb-4" style="font-size: 0.9rem;">ระบบจะทำการสร้างไฟล์ Spreadsheet ตามรายวิชาของแต่ละชั้นเรียนโดยอัตโนมัติ เพื่อเตรียมพร้อมให้ครูเข้ามากรอกคะแนน</p>
+      <h3 class="fw-bold mb-3">สร้างฐานข้อมูลคะแนน (รายปี)</h3>
+      <p class="text-muted mb-4" style="font-size: 0.9rem;">ระบบจะทำการสร้างไฟล์ Spreadsheet ตามรายวิชาของแต่ละชั้นเรียนโดยอัตโนมัติ</p>
       
       <div class="mb-4 text-start">
         <label class="fw-bold mb-2 text-primary">ระบุปีการศึกษา (พ.ศ.)</label>
@@ -177,6 +176,7 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
       </div>
       <button class="btn-primary-custom w-100" style="padding: 14px; font-size: 1.1rem;" onclick="adminSetupYear()">🚀 เริ่มสร้างไฟล์ฐานข้อมูล</button>
     </div>
+    
   </div>
 </div>
 
@@ -196,7 +196,9 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
           <select id="gradeClassroom" class="form-select" style="min-width: 120px;" onchange="updateSubjectDropdown()">
             <option value="ป.1">ป.1</option><option value="ป.2">ป.2</option><option value="ป.3">ป.3</option>
             <option value="ป.4">ป.4</option><option value="ป.5">ป.5</option><option value="ป.6">ป.6</option>
-            <option value="ม.1">ม.1</option><option value="ม.2">ม.2</option><option value="ม.3">ม.3</option>
+            <option value="ม.1 เทอม 1">ม.1 เทอม 1</option><option value="ม.1 เทอม 2">ม.1 เทอม 2</option>
+            <option value="ม.2 เทอม 1">ม.2 เทอม 1</option><option value="ม.2 เทอม 2">ม.2 เทอม 2</option>
+            <option value="ม.3 เทอม 1">ม.3 เทอม 1</option><option value="ม.3 เทอม 2">ม.3 เทอม 2</option>
           </select>
         </div>
         <div>
@@ -205,7 +207,7 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
             <!-- เติมด้วย JS -->
           </select>
         </div>
-        <button class="btn-primary-custom" style="height: 42px; margin-left: auto;" onclick="loadGrades()">🔄 โหลดรายชื่อผู้เรียน</button>
+        <button class="btn-primary-custom" style="height: 42px; margin-left: auto;" onclick="loadGrades()">🔄 โหลดรายชื่อ</button>
       </div>
     </div>
 
@@ -245,12 +247,12 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 // ==========================================
 // CONFIG & STATE
 // ==========================================
-// 📌 ใส่ URL ของ Web App (ระบบบันทึกคะแนน) ที่นี่
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_-Q4T2dJUX6L7c3EEB-ODEtsxb0Plsu6RA_J8WBh_DTIPcV4-JCn-A0aLBXC6ARvN/exec";
+// 📌 นำ URL ของ Web App จากการ Deploy มาใส่ตรงนี้
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_-Q4T2dJUX6L7c3EEB-ODEtsxb0Plsu6RA_J8WBh_DTIPcV4-JCn-A0aLBXC6ARvN/exec"; 
 
 let currentUser = null;
 let currentPin = "";
-let loadedGradeData =[]; // เก็บ State ข้อมูลนักเรียน
+let loadedGradeData =[];
 
 // ==========================================
 // UTILITIES
@@ -289,7 +291,7 @@ function showPage(page) {
 }
 
 // ==========================================
-// PIN LOGIN (ใช้ระบบเดียวกับเช็คชื่อ)
+// PIN LOGIN
 // ==========================================
 function updatePinDisplay(isError = false) {
   const dots = document.querySelectorAll('.pin-dot');
@@ -315,19 +317,19 @@ async function doLogin() {
   try {
     currentUser = await api('login', { password: currentPin });
     
-    // ตั้งค่า Badge
     document.getElementById('teacherBadge').textContent = `🎓 ${currentUser.name} • ${currentUser.isAdmin ? 'แอดมิน' : currentUser.classroom}`;
     document.getElementById('teacherBadge').style.display = 'inline-flex';
     document.getElementById('btnNavGrade').style.display = 'inline-block';
     document.getElementById('btnLogout').style.display = 'inline-block';
     
-    // --- จุดที่แก้ไข: เรียกใช้ที่นี่แทน ---
     if(currentUser.isAdmin) {
       document.getElementById('btnNavAdmin').style.display = 'inline-block';
+      loadTeacherTable(); // โหลดหน้า Admin
       showPage('adminPage');
     } else {
+      // เตรียมวิชาที่ครูสอนไว้ใน State
+      currentUser.mySubjects = currentUser.subjects ? currentUser.subjects.split(',') :[];
       if(currentUser.classroom !== "*") document.getElementById('gradeClassroom').value = currentUser.classroom;
-      // ✅ เรียกใช้ที่นี่ เมื่อ currentUser มีค่าแล้ว
       updateSubjectDropdown(); 
       showPage('gradePage');
     }
@@ -335,18 +337,19 @@ async function doLogin() {
   } catch(e) {
     updatePinDisplay(true);
     setTimeout(clearPin, 400);
-    showToast('รหัสผ่านไม่ถูกต้อง หรือไม่มีสิทธิ์เข้าใช้งาน', 'error');
+    showToast(e.message, 'error');
   }
   hideProgress();
 }
 
 function logout() {
-  currentUser = null; clearPin();['teacherBadge','btnNavAdmin','btnNavGrade','btnLogout'].forEach(id => document.getElementById(id).style.display='none');
+  currentUser = null; clearPin();
+  ['teacherBadge','btnNavAdmin','btnNavGrade','btnLogout'].forEach(id => document.getElementById(id).style.display='none');
   showPage('loginPage');
 }
 
 // ==========================================
-// ADMIN: สร้างไฟล์ปีการศึกษา
+// ADMIN FUNCTIONS
 // ==========================================
 async function adminSetupYear() {
   const year = document.getElementById('setupYearInput').value;
@@ -364,38 +367,85 @@ async function adminSetupYear() {
   hideProgress();
 }
 
+async function loadTeacherTable() {
+  showProgress('กำลังโหลดข้อมูลครูและรายวิชา...');
+  try {
+    // โหลดรายชื่อครู และวิชาทั้งหมดพร้อมกัน
+    const [teachers, allSubjectsData] = await Promise.all([
+      api('getTeacherList'), 
+      api('getAllSubjects')
+    ]);
+    
+    const tbody = document.getElementById('teacherTbody');
+    
+    tbody.innerHTML = teachers.map(t => {
+      const id = t[0], name = t[1], cls = t[3], subsStr = t[5] || "";
+      if(cls === '*') return ''; // ไม่แสดงแอดมิน
+      
+      const subs = allSubjectsData[cls] ||[];
+      const assignedSubs = subsStr.split(',');
+      
+      const checkboxes = subs.map(s => 
+        `<label class="me-3 mb-2" style="display:inline-block;"><input type="checkbox" value="${s}" class="sub-check-${id}" ${assignedSubs.includes(s) ? 'checked' : ''}> ${s}</label>`
+      ).join('');
+      
+      return `<tr>
+        <td>${name}</td>
+        <td>${cls}</td>
+        <td class="text-start">${checkboxes || '<span class="text-muted">ไม่พบข้อมูลรายวิชา (ตรวจสอบ Template)</span>'}</td>
+        <td><button class="btn btn-sm btn-primary" onclick="saveTeacher('${id}','${name}','${cls}')">บันทึก</button></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    showToast('โหลดข้อมูลพลาด: ' + e.message, 'error');
+  }
+  hideProgress();
+}
+
+async function saveTeacher(id, name, cls) {
+  const selected =[];
+  document.querySelectorAll(`.sub-check-${id}:checked`).forEach(c => selected.push(c.value));
+  showProgress('กำลังบันทึก...');
+  try {
+    await api('saveTeacherAssignments', { teacherId: id, subjects: selected.join(',') });
+    showToast('✅ บันทึกวิชาสอนของครู ' + name + ' สำเร็จ', 'success');
+  } catch (e) {
+    showToast('ผิดพลาด: ' + e.message, 'error');
+  }
+  hideProgress();
+}
+
 // ==========================================
 // GRADING SYSTEM
 // ==========================================
-// Mock ข้อมูลวิชา (ของจริงควรดึงจาก API หรือปรับตามต้องการ)
-
-
-// แก้ไขฟังก์ชัน updateSubjectDropdown ในไฟล์ index.html
 async function updateSubjectDropdown() {
   const sel = document.getElementById('gradeSubject');
   sel.innerHTML = '';
   
-  // ถ้าเป็นแอดมิน ให้โหลดวิชาของห้องที่เลือก
   if (currentUser.isAdmin) {
-    const subjects = await api('getSubjects', { classroom: document.getElementById('gradeClassroom').value });
+    // แอดมินดูได้ทุกวิชาของห้องที่เลือก
+    const cls = document.getElementById('gradeClassroom').value;
+    const allSubs = await api('getAllSubjects');
+    const subjects = allSubs[cls] ||[];
     subjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
   } else {
-    // ถ้าเป็นครูทั่วไป ให้โชว์เฉพาะวิชาที่แอดมินตั้งค่าให้ (เก็บใน currentUser.mySubjects)
-    currentUser.mySubjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+    // ครูดูได้เฉพาะวิชาที่มอบหมาย
+    if (currentUser.mySubjects.length > 0) {
+      currentUser.mySubjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+    } else {
+      sel.innerHTML = `<option value="">-- ยังไม่มีวิชาที่สอน --</option>`;
+    }
   }
 }
-
-// และในตอนเริ่มต้น ให้เรียก updateSubjectDropdown() ทันทีหลังจากล็อกอินสำเร็จ
-// (ในฟังก์ชัน doLogin หรือหลังโหลดหน้าเว็บ)
-  
-
-// เมื่อเปิดหน้ามาครั้งแรก (ถ้าไม่ใช่แอดมิน)
-updateSubjectDropdown();
 
 async function loadGrades() {
   const year = document.getElementById('gradeYear').value;
   const cls = document.getElementById('gradeClassroom').value;
   const subj = document.getElementById('gradeSubject').value;
+
+  if (!subj) {
+    showToast('กรุณาเลือกวิชา', 'error'); return;
+  }
 
   document.getElementById('lblClass').textContent = cls;
   document.getElementById('lblSubject').textContent = subj;
@@ -421,11 +471,9 @@ function renderGradeTable() {
 
   let html = '';
   loadedGradeData.forEach((s, i) => {
-    // ป้องกันค่า null/undefined
     const g = s.grades || {};
     const stats = s.stats || { present: 0, absent: 0, leave: 0 };
     
-    // ย้ายสถานะขาด/ลามาทำเป็น Label สวยๆ
     const statHtml = `
       <span class="stat-pill stat-p" title="มาเรียน">ม:${stats.present}</span>
       <span class="stat-pill stat-a" title="ขาด">ข:${stats.absent}</span>
@@ -454,12 +502,10 @@ function renderGradeTable() {
   tbody.innerHTML = html;
 }
 
-// คำนวณคะแนนรวมแบบ Real-time เมื่อครูพิมพ์
 function calcRow(inputEl) {
-  // ดักตรวจสอบค่าเกิน
   const max = Number(inputEl.getAttribute('max'));
   if (Number(inputEl.value) > max) {
-    inputEl.value = max; // บังคับไม่ให้กรอกเกิน max
+    inputEl.value = max; 
     showToast(`คะแนนช่องนี้กรอกได้สูงสุด ${max} คะแนน`, 'error');
   }
   if (Number(inputEl.value) < 0) inputEl.value = 0;
@@ -482,7 +528,6 @@ async function saveGrades() {
   const cls = document.getElementById('gradeClassroom').value;
   const subj = document.getElementById('gradeSubject').value;
   
-  // รวบรวมข้อมูลจากตาราง
   const records = [];
   document.querySelectorAll('#gradeTbody tr[data-sid]').forEach(tr => {
     const sid = tr.getAttribute('data-sid');
@@ -490,7 +535,6 @@ async function saveGrades() {
     const s2 = tr.querySelector('.s2').value;
     const s3 = tr.querySelector('.s3').value;
     
-    // ส่งไปเฉพาะคนที่มีการกรอกคะแนนอย่างน้อย 1 ช่อง (เพื่อลดการบันทึกขยะลงชีท)
     if (s1 !== "" || s2 !== "" || s3 !== "") {
       records.push({ studentId: sid, score1: s1, score2: s2, score3: s3 });
     }
@@ -509,48 +553,6 @@ async function saveGrades() {
     showToast('บันทึกไม่สำเร็จ: ' + e.message, 'error');
   }
   hideProgress();
-}
-  // โหลดรายชื่อครูมาแสดงในหน้า Admin
-// แก้ไขฟังก์ชัน loadTeacherTable
-async function loadTeacherTable() {
-  showProgress('กำลังโหลดข้อมูลครู...');
-  try {
-    const teachers = await api('getTeacherList');
-    // 1. ดึงรายวิชาทั้งหมดจากชีทเพื่อนำมาทำ Checkbox
-    // เราสร้างฟังก์ชันใหม่ใน API ชื่อ 'getAllSubjects' 
-    const allSubjectsData = await api('getAllSubjects'); 
-    
-    const tbody = document.getElementById('teacherTbody');
-    
-    tbody.innerHTML = teachers.map(t => {
-      const id = t[0], name = t[1], cls = t[3];
-      if(cls === '*') return '';
-      
-      // หาช่องวิชาที่ตรงกับชั้นเรียนนี้จากข้อมูลที่ดึงมา
-      const subs = allSubjectsData[cls] || [];
-      const checkboxes = subs.map(s => 
-        `<label class="me-2"><input type="checkbox" value="${s}" class="sub-check-${id}"> ${s}</label>`
-      ).join('');
-      
-      return `<tr>
-        <td>${name}</td>
-        <td>${cls}</td>
-        <td class="text-start">${checkboxes}</td>
-        <td><button class="btn btn-sm btn-primary" onclick="saveTeacher('${id}','${name}','${cls}')">บันทึก</button></td>
-      </tr>`;
-    }).join('');
-  } catch(e) {
-    showToast('โหลดข้อมูลพลาด: ' + e.message, 'error');
-  }
-  hideProgress();
-}
-
-// บันทึกการเลือกวิชา
-async function saveTeacher(id, name, cls) {
-  const selected = [];
-  document.querySelectorAll(`.sub-check-${id}:checked`).forEach(c => selected.push(c.value));
-  await api('saveTeacherAssignments', { teacherId: id, teacherName: name, classroom: cls, subjects: selected.join(',') });
-  showToast('บันทึกวิชาสอนของครู ' + name + ' แล้ว', 'success');
 }
 </script>
 </body>
