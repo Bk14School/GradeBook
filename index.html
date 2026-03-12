@@ -221,9 +221,12 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
         <button class="btn-primary-custom" style="background: linear-gradient(135deg, var(--success), #059669);" onclick="saveGrades()">💾 บันทึกคะแนนทั้งหมด</button>
       </div>
       
-      <!-- แผงตั้งค่าสัดส่วนคะแนนโดยครู -->
-      <div class="bg-light p-3 rounded mb-3 border border-warning" style="border-left: 4px solid var(--warning) !important;">
-        <div class="fw-bold text-dark mb-2">⚙️ ตั้งค่าสัดส่วนคะแนน (เต็มเทอมละ 50)</div>
+     <!-- แผงตั้งค่าสัดส่วนคะแนนโดยครู -->
+      <div class="bg-light p-3 rounded mb-3 border border-warning">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+           <div class="fw-bold text-dark">⚙️ ตั้งค่าสัดส่วนคะแนน (เต็มเทอมละ 50)</div>
+           <button class="btn btn-sm btn-outline-primary fw-bold" onclick="manageSubScores()">📝 จัดการคอลัมน์คะแนนย่อย (ดิบ)</button>
+        </div>
         <div class="d-flex flex-wrap gap-4">
           <div class="d-flex align-items-center gap-2">
             <span class="badge bg-primary">เทอม 1</span>
@@ -533,37 +536,7 @@ function classSelAdminOverride(selectedClass) {
   }
 }
 
-// ✨ โหลดข้อมูล (แก้ให้รับ config สัดส่วน 2 เทอม)
-async function loadGrades() {
-  const year = document.getElementById('gradeYear').value;
-  const cls = document.getElementById('gradeClassroom').value;
-  const subj = document.getElementById('gradeSubject').value;
 
-  if (!subj) return showToast('กรุณาเลือกวิชา', 'error');
-
-  document.getElementById('lblClass').textContent = cls;
-  document.getElementById('lblSubject').textContent = subj;
-  showProgress('กำลังดึงข้อมูลคะแนน...');
-  try {
-    const res = await api('getGrades', { year, classroom: cls, subject: subj });
-    
-    // เซ็ตค่าลงกล่อง Config
-    document.getElementById('cfg_t1_acc').value = res.config.t1_acc;
-    document.getElementById('cfg_t1_exam').value = res.config.t1_exam;
-    document.getElementById('cfg_t2_acc').value = res.config.t2_acc;
-    document.getElementById('cfg_t2_exam').value = res.config.t2_exam;
-    updateMaxScores(); // เปลี่ยนตัวเลขในหัวตาราง
-
-    // เก็บรายชื่อนักเรียนไว้สร้างตาราง
-    loadedGradeData = res.students;
-    renderGradeTable();
-    document.getElementById('tableContainer').style.display = 'block';
-  } catch(e) {
-    showToast(e.message, 'error');
-    document.getElementById('tableContainer').style.display = 'none';
-  }
-  hideProgress();
-}
 
 function updateMaxScores() {
   const t1a = Number(document.getElementById('cfg_t1_acc').value);
@@ -585,14 +558,97 @@ function updateMaxScores() {
   document.querySelectorAll('.s_t2e').forEach(el => el.setAttribute('max', t2e));
 }
 
-// ✨ วาดตารางแบบ 2 เทอม
+
+let currentConfigExt = { t1_cols: [], t2_cols:[] }; // เก็บโครงสร้างหัวข้อคะแนนย่อย
+
+async function loadGrades() {
+  const year = document.getElementById('gradeYear').value;
+  const cls = document.getElementById('gradeClassroom').value;
+  const subj = document.getElementById('gradeSubject').value;
+
+  if (!subj) return showToast('กรุณาเลือกวิชา', 'error');
+
+  document.getElementById('lblClass').textContent = cls;
+  document.getElementById('lblSubject').textContent = subj;
+  showProgress('กำลังดึงข้อมูลคะแนน...');
+  try {
+    const res = await api('getGrades', { year, classroom: cls, subject: subj });
+    
+    document.getElementById('cfg_t1_acc').value = res.config.t1_acc;
+    document.getElementById('cfg_t1_exam').value = res.config.t1_exam;
+    document.getElementById('cfg_t2_acc').value = res.config.t2_acc;
+    document.getElementById('cfg_t2_exam').value = res.config.t2_exam;
+    
+    currentConfigExt = res.config.ext || { t1_cols: [], t2_cols:[] }; // โหลดโครงสร้างที่เคยตั้งไว้
+    loadedGradeData = res.students;
+
+    updateMaxScores(); 
+    renderGradeTable();
+    document.getElementById('tableContainer').style.display = 'block';
+  } catch(e) {
+    showToast(e.message, 'error');
+    document.getElementById('tableContainer').style.display = 'none';
+  }
+  hideProgress();
+}
+
 function renderGradeTable() {
   const tbody = document.getElementById('gradeTbody');
+  const thead = document.querySelector('.grade-table thead');
+  
   if (!loadedGradeData || loadedGradeData.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้เรียน</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="15" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้เรียน</td></tr>`;
     return;
   }
-  
+
+  // ---- การสร้างส่วนหัวตาราง (Dynamic Header) ----
+  let t1_subs_html = '';
+  let t1_raw_max_total = 0;
+  currentConfigExt.t1_cols.forEach(col => {
+    t1_raw_max_total += Number(col.max);
+    t1_subs_html += `<th style="background: #e0f2fe; color: #0369a1; font-size:0.8rem; border-left:1px dashed #bae6fd;">${col.name}<br>(${col.max})</th>`;
+  });
+  // ถ้ามีคะแนนย่อย จะเพิ่มคอลัมน์รวมคะแนนดิบให้เห็นชัดๆ
+  if (currentConfigExt.t1_cols.length > 0) {
+    t1_subs_html += `<th style="background: #bae6fd; color: #0c4a6e; font-size:0.8rem;">ดิบรวม<br>(${t1_raw_max_total})</th>`;
+  }
+
+  let t2_subs_html = '';
+  let t2_raw_max_total = 0;
+  currentConfigExt.t2_cols.forEach(col => {
+    t2_raw_max_total += Number(col.max);
+    t2_subs_html += `<th style="background: #cffafe; color: #0891b2; font-size:0.8rem; border-left:1px dashed #a5f3fc;">${col.name}<br>(${col.max})</th>`;
+  });
+  if (currentConfigExt.t2_cols.length > 0) {
+    t2_subs_html += `<th style="background: #a5f3fc; color: #164e63; font-size:0.8rem;">ดิบรวม<br>(${t2_raw_max_total})</th>`;
+  }
+
+  const t1_span = 3 + currentConfigExt.t1_cols.length + (currentConfigExt.t1_cols.length > 0 ? 1 : 0);
+  const t2_span = 3 + currentConfigExt.t2_cols.length + (currentConfigExt.t2_cols.length > 0 ? 1 : 0);
+
+  thead.innerHTML = `
+    <tr>
+      <th rowspan="2" style="width: 50px;">ที่</th>
+      <th rowspan="2" style="width: 90px;">รหัส</th>
+      <th rowspan="2" style="text-align: left; min-width:180px;">ชื่อ-นามสกุล</th>
+      <th rowspan="2" style="width: 140px; background: #334155;">สถิติมาเรียน</th>
+      <th colspan="${t1_span}" style="background: #2563eb;">ภาคเรียนที่ 1 (50)</th>
+      <th colspan="${t2_span}" style="background: #0891b2;">ภาคเรียนที่ 2 (50)</th>
+      <th rowspan="2" style="background: #1e293b;">รวม<br>(100)</th>
+    </tr>
+    <tr>
+      ${t1_subs_html}
+      <th style="background: #3b82f6; font-size:0.85rem;">เก็บปรับ (${document.getElementById('cfg_t1_acc').value})</th>
+      <th style="background: #60a5fa; font-size:0.85rem;">สอบ (${document.getElementById('cfg_t1_exam').value})</th>
+      <th style="background: #1d4ed8; font-size:0.85rem;">รวม ท.1</th>
+      ${t2_subs_html}
+      <th style="background: #06b6d4; font-size:0.85rem;">เก็บปรับ (${document.getElementById('cfg_t2_acc').value})</th>
+      <th style="background: #22d3ee; font-size:0.85rem;">สอบ (${document.getElementById('cfg_t2_exam').value})</th>
+      <th style="background: #164e63; font-size:0.85rem;">รวม ท.2</th>
+    </tr>
+  `;
+
+  // ---- การสร้างตารางข้อมูลนักเรียน (Dynamic Body) ----
   const max_t1a = document.getElementById('cfg_t1_acc').value;
   const max_t1e = document.getElementById('cfg_t1_exam').value;
   const max_t2a = document.getElementById('cfg_t2_acc').value;
@@ -603,6 +659,21 @@ function renderGradeTable() {
     const g = s.grades || {}; 
     const stats = s.stats || { present: 0, absent: 0, leave: 0 };
     
+    // ดึงคะแนนย่อย
+    let t1_sub_inputs = '';
+    currentConfigExt.t1_cols.forEach((col, idx) => {
+      let val = g.t1_subs && g.t1_subs[col.id] !== undefined ? g.t1_subs[col.id] : "";
+      t1_sub_inputs += `<td><input type="number" class="score-input s_t1_sub" data-colid="${col.id}" max="${col.max}" value="${val}" oninput="calcRow(this)" style="width:50px; background:#f0f9ff; border-color:#bae6fd;"></td>`;
+    });
+    if (currentConfigExt.t1_cols.length > 0) t1_sub_inputs += `<td class="fw-bold text-secondary t1_raw_total">-</td>`;
+
+    let t2_sub_inputs = '';
+    currentConfigExt.t2_cols.forEach((col, idx) => {
+      let val = g.t2_subs && g.t2_subs[col.id] !== undefined ? g.t2_subs[col.id] : "";
+      t2_sub_inputs += `<td><input type="number" class="score-input s_t2_sub" data-colid="${col.id}" max="${col.max}" value="${val}" oninput="calcRow(this)" style="width:50px; background:#ecfeff; border-color:#a5f3fc;"></td>`;
+    });
+    if (currentConfigExt.t2_cols.length > 0) t2_sub_inputs += `<td class="fw-bold text-secondary t2_raw_total">-</td>`;
+
     const t1a = g.t1_acc !== "" ? Number(g.t1_acc) : "";
     const t1e = g.t1_exam !== "" ? Number(g.t1_exam) : "";
     const t2a = g.t2_acc !== "" ? Number(g.t2_acc) : "";
@@ -612,29 +683,68 @@ function renderGradeTable() {
     const t2_tot = (Number(t2a)||0) + (Number(t2e)||0);
     const grand = t1_tot + t2_tot;
 
+    // ล็อกช่องคะแนนเก็บหลัก ถ้ามีการใช้โหมดคะแนนย่อย (ระบบจะคำนวณทับเอง)
+    const t1_acc_readonly = currentConfigExt.t1_cols.length > 0 ? "readonly style='background:#f1f5f9;'" : "";
+    const t2_acc_readonly = currentConfigExt.t2_cols.length > 0 ? "readonly style='background:#f1f5f9;'" : "";
+
     html += `
       <tr data-sid="${s.studentId}">
         <td class="text-muted">${i + 1}</td><td style="font-size: 0.85rem; color: #64748b;">${s.studentId}</td>
         <td style="text-align: left; font-weight: 500;">${s.name}</td>
         <td><span class="stat-pill stat-p">ม:${stats.present}</span> <span class="stat-pill stat-a">ข:${stats.absent}</span> <span class="stat-pill stat-l">ล:${stats.leave}</span></td>
-        <td><input type="number" class="score-input s_t1a" min="0" max="${max_t1a}" value="${t1a}" oninput="calcRow(this)"></td>
+        ${t1_sub_inputs}
+        <td><input type="number" class="score-input s_t1a" min="0" max="${max_t1a}" value="${t1a}" ${t1_acc_readonly} oninput="calcRow(this)"></td>
         <td><input type="number" class="score-input s_t1e" min="0" max="${max_t1e}" value="${t1e}" oninput="calcRow(this)"></td>
         <td class="fw-bold text-primary t1_tot">${t1_tot || '-'}</td>
-        <td><input type="number" class="score-input s_t2a" min="0" max="${max_t2a}" value="${t2a}" oninput="calcRow(this)"></td>
+        ${t2_sub_inputs}
+        <td><input type="number" class="score-input s_t2a" min="0" max="${max_t2a}" value="${t2a}" ${t2_acc_readonly} oninput="calcRow(this)"></td>
         <td><input type="number" class="score-input s_t2e" min="0" max="${max_t2e}" value="${t2e}" oninput="calcRow(this)"></td>
         <td class="fw-bold text-info t2_tot">${t2_tot || '-'}</td>
         <td><span class="total-score ${grand > 0 && grand < 50 ? 'fail' : ''} grand_tot">${grand || '-'}</span></td>
       </tr>`;
   });
   tbody.innerHTML = html;
+  
+  // ให้คำนวณทั้งหมดรอบแรกทันทีเพื่อให้ข้อมูลอัปเดตตรงกับคะแนนย่อย
+  document.querySelectorAll('#gradeTbody tr[data-sid]').forEach(tr => calcRow(tr.querySelector('.s_t1e'))); 
 }
 
 function calcRow(el) {
-  const max = Number(el.getAttribute('max'));
-  if (Number(el.value) > max) { el.value = max; showToast(`ช่องนี้ให้ได้สูงสุด ${max} คะแนน`, 'error'); }
-  if (Number(el.value) < 0) el.value = 0;
-  
   const tr = el.closest('tr');
+  const max_t1_target = Number(document.getElementById('cfg_t1_acc').value);
+  const max_t2_target = Number(document.getElementById('cfg_t2_acc').value);
+
+  // ควบคุมค่าที่กรอกไม่ให้เกิน MAX (ช่องธรรมดา)
+  if(!el.readOnly && el.hasAttribute('max')) {
+    const mx = Number(el.getAttribute('max'));
+    if (Number(el.value) > mx) { el.value = mx; showToast(`ช่องนี้สูงสุด ${mx}`, 'error'); }
+    if (Number(el.value) < 0) el.value = 0;
+  }
+
+  // เทอม 1: ถ้ามีคะแนนย่อย ให้เทียบบัญญัติไตรยางศ์
+  if (currentConfigExt.t1_cols.length > 0) {
+    let raw_sum = 0, raw_max = 0;
+    currentConfigExt.t1_cols.forEach(col => raw_max += Number(col.max));
+    tr.querySelectorAll('.s_t1_sub').forEach(inp => raw_sum += Number(inp.value||0));
+    tr.querySelector('.t1_raw_total').textContent = raw_sum;
+    
+    // (คะแนนดิบที่ได้ / คะแนนดิบเต็ม) * สัดส่วนเป้าหมาย (ปัดเศษทศนิยม)
+    let calculated_acc = Math.round((raw_sum / (raw_max || 1)) * max_t1_target);
+    tr.querySelector('.s_t1a').value = calculated_acc;
+  }
+
+  // เทอม 2: ทำแบบเดียวกัน
+  if (currentConfigExt.t2_cols.length > 0) {
+    let raw_sum = 0, raw_max = 0;
+    currentConfigExt.t2_cols.forEach(col => raw_max += Number(col.max));
+    tr.querySelectorAll('.s_t2_sub').forEach(inp => raw_sum += Number(inp.value||0));
+    tr.querySelector('.t2_raw_total').textContent = raw_sum;
+    
+    let calculated_acc = Math.round((raw_sum / (raw_max || 1)) * max_t2_target);
+    tr.querySelector('.s_t2a').value = calculated_acc;
+  }
+
+  // คำนวณผลรวม
   const t1_tot = (Number(tr.querySelector('.s_t1a').value)||0) + (Number(tr.querySelector('.s_t1e').value)||0);
   const t2_tot = (Number(tr.querySelector('.s_t2a').value)||0) + (Number(tr.querySelector('.s_t2e').value)||0);
   const grand = t1_tot + t2_tot;
@@ -646,43 +756,78 @@ function calcRow(el) {
   if (grand < 50 && grand > 0) grandEl.classList.add('fail'); else grandEl.classList.remove('fail');
 }
 
-// ✨ บันทึกคะแนน (ส่ง Config กลับไปด้วย)
 async function saveGrades() {
   const t1a = Number(document.getElementById('cfg_t1_acc').value);
   const t1e = Number(document.getElementById('cfg_t1_exam').value);
   const t2a = Number(document.getElementById('cfg_t2_acc').value);
   const t2e = Number(document.getElementById('cfg_t2_exam').value);
 
-  if (t1a + t1e !== 50 || t2a + t2e !== 50) {
-    return showToast('บันทึกไม่ได้: คะแนนรวมของแต่ละเทอมต้องเท่ากับ 50', 'error');
-  }
+  if (t1a + t1e !== 50 || t2a + t2e !== 50) return showToast('บันทึกไม่ได้: คะแนนรวมของแต่ละเทอมต้องเท่ากับ 50', 'error');
 
   const records =[];
   document.querySelectorAll('#gradeTbody tr[data-sid]').forEach(tr => {
-    const t1a_v = tr.querySelector('.s_t1a').value;
-    const t1e_v = tr.querySelector('.s_t1e').value;
-    const t2a_v = tr.querySelector('.s_t2a').value;
-    const t2e_v = tr.querySelector('.s_t2e').value;
-    if (t1a_v !== "" || t1e_v !== "" || t2a_v !== "" || t2e_v !== "") {
-      records.push({ studentId: tr.getAttribute('data-sid'), t1_acc: t1a_v, t1_exam: t1e_v, t2_acc: t2a_v, t2_exam: t2e_v });
-    }
-  });
+    let t1_subs = {}, t2_subs = {};
+    tr.querySelectorAll('.s_t1_sub').forEach(inp => t1_subs[inp.getAttribute('data-colid')] = inp.value);
+    tr.querySelectorAll('.s_t2_sub').forEach(inp => t2_subs[inp.getAttribute('data-colid')] = inp.value);
 
-  if (records.length === 0) return showToast('ยังไม่มีการกรอกคะแนน', 'warning');
+    records.push({ 
+      studentId: tr.getAttribute('data-sid'), 
+      t1_acc: tr.querySelector('.s_t1a').value, 
+      t1_exam: tr.querySelector('.s_t1e').value, 
+      t2_acc: tr.querySelector('.s_t2a').value, 
+      t2_exam: tr.querySelector('.s_t2e').value,
+      t1_subs: t1_subs,
+      t2_subs: t2_subs
+    });
+  });
 
   const payload = {
     year: document.getElementById('gradeYear').value,
     classroom: document.getElementById('gradeClassroom').value,
     subject: document.getElementById('gradeSubject').value,
-    config: { t1_acc: t1a, t1_exam: t1e, t2_acc: t2a, t2_exam: t2e },
+    config: { t1_acc: t1a, t1_exam: t1e, t2_acc: t2a, t2_exam: t2e, ext: currentConfigExt },
     gradeRecords: records
   };
 
-  showProgress('กำลังบันทึกคะแนนและสัดส่วน...');
+  showProgress('กำลังบันทึกคะแนนทั้งหมด...');
   try { showToast('✅ ' + await api('saveGrades', payload), 'success'); } 
   catch(e) { showToast(e.message, 'error'); }
   hideProgress();
 }
+
+// ==========================================
+// เครื่องมือจัดการคอลัมน์คะแนนย่อย
+// ==========================================
+function manageSubScores() {
+  const t1 = prompt('ใส่โครงสร้างคะแนนย่อย "เทอม 1"\nรูปแบบ: ชื่อ,คะแนนเต็ม เช่น "ใบงาน,20|สมุด,30|สอบย่อย,50"\n(หากไม่ต้องการใช้ ให้ลบข้อความออกให้หมด)');
+  if (t1 !== null) {
+    currentConfigExt.t1_cols =[];
+    if(t1.trim() !== "") {
+      t1.split('|').forEach((item, i) => {
+        const parts = item.split(',');
+        if(parts.length===2 && !isNaN(parts[1])) currentConfigExt.t1_cols.push({ id: `c_${i}`, name: parts[0], max: Number(parts[1]) });
+      });
+    }
+  }
+
+  const t2 = prompt('ใส่โครงสร้างคะแนนย่อย "เทอม 2"\nรูปแบบ: ชื่อ,คะแนนเต็ม เช่น "ชิ้นงาน,40|จิตพิสัย,10|ท่องจำ,30"\n(หากไม่ต้องการใช้ ให้ลบข้อความออกให้หมด)');
+  if (t2 !== null) {
+    currentConfigExt.t2_cols =[];
+    if(t2.trim() !== "") {
+      t2.split('|').forEach((item, i) => {
+        const parts = item.split(',');
+        if(parts.length===2 && !isNaN(parts[1])) currentConfigExt.t2_cols.push({ id: `c_${i}`, name: parts[0], max: Number(parts[1]) });
+      });
+    }
+  }
+
+  // วาดตารางใหม่ให้มีคอลัมน์ตามที่ระบุ
+  renderGradeTable();
+  showToast('อัปเดตตารางแล้ว กรุณาตรวจสอบและกด "บันทึก" เมื่อกรอกเสร็จ', 'info');
+}
+
+
+
 </script>
 </body>
 </html>
