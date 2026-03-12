@@ -313,22 +313,22 @@ function clearPin() { currentPin = ""; updatePinDisplay(); }
 async function doLogin() {
   showProgress('กำลังเข้าสู่ระบบ...');
   try {
-    // 💡 ทริค: เราจะส่ง action 'login' ไปยัง Backend ระบบคะแนน
-    // (อย่าลืมไปเพิ่ม case 'login': ให้โยงไปดึงข้อมูลจากไฟล์ Teachers ของระบบเช็คชื่อด้วยนะครับ)
     currentUser = await api('login', { password: currentPin });
     
+    // ตั้งค่า Badge
     document.getElementById('teacherBadge').textContent = `🎓 ${currentUser.name} • ${currentUser.isAdmin ? 'แอดมิน' : currentUser.classroom}`;
     document.getElementById('teacherBadge').style.display = 'inline-flex';
     document.getElementById('btnNavGrade').style.display = 'inline-block';
     document.getElementById('btnLogout').style.display = 'inline-block';
     
+    // --- จุดที่แก้ไข: เรียกใช้ที่นี่แทน ---
     if(currentUser.isAdmin) {
       document.getElementById('btnNavAdmin').style.display = 'inline-block';
       showPage('adminPage');
     } else {
-      // เซ็ตห้องตั้งต้นให้ตรงกับห้องประจำชั้นของครู
       if(currentUser.classroom !== "*") document.getElementById('gradeClassroom').value = currentUser.classroom;
-      updateSubjectDropdown();
+      // ✅ เรียกใช้ที่นี่ เมื่อ currentUser มีค่าแล้ว
+      updateSubjectDropdown(); 
       showPage('gradePage');
     }
     clearPin();
