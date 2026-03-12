@@ -90,7 +90,7 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 @keyframes spin { to { transform: rotate(360deg); } }
 .toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
 .toast { padding: 12px 20px; border-radius: 12px; font-size: 0.9rem; font-weight: 500; color: #fff; box-shadow: var(--shadow-lg); animation: slideIn 0.3s ease; }
-.toast.success { background: var(--success); } .toast.error { background: var(--danger); }
+.toast.success { background: var(--success); } .toast.error { background: var(--danger); } .toast.warning { background: var(--warning); color: #000; }
 @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
 </style>
 </head>
@@ -211,61 +211,62 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
       </div>
     </div>
 
-   <div class="app-card" id="tableContainer" style="display: none;">
-  <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
-    <div>
-      <div style="font-size: 1.1rem; color: var(--primary-dark);" class="fw-bold">
-        วิชา: <span id="lblSubject"></span> <small class="text-muted">(ชั้น <span id="lblClass"></span>)</small>
+    <div class="app-card" id="tableContainer" style="display: none;">
+      <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
+        <div>
+          <div style="font-size: 1.1rem; color: var(--primary-dark);" class="fw-bold">
+            วิชา: <span id="lblSubject"></span> <small class="text-muted">(ชั้น <span id="lblClass"></span>)</small>
+          </div>
+        </div>
+        <button class="btn-primary-custom" style="background: linear-gradient(135deg, var(--success), #059669);" onclick="saveGrades()">💾 บันทึกคะแนนทั้งหมด</button>
+      </div>
+      
+      <!-- แผงตั้งค่าสัดส่วนคะแนนโดยครู -->
+      <div class="bg-light p-3 rounded mb-3 border border-warning" style="border-left: 4px solid var(--warning) !important;">
+        <div class="fw-bold text-dark mb-2">⚙️ ตั้งค่าสัดส่วนคะแนน (เต็มเทอมละ 50)</div>
+        <div class="d-flex flex-wrap gap-4">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary">เทอม 1</span>
+            <label class="text-muted" style="font-size:0.85rem;">เก็บ:</label>
+            <input type="number" id="cfg_t1_acc" class="form-control form-control-sm text-center fw-bold" style="width: 60px;" value="35" onchange="updateMaxScores()">
+            <label class="text-muted" style="font-size:0.85rem;">สอบ:</label>
+            <input type="number" id="cfg_t1_exam" class="form-control form-control-sm text-center fw-bold" style="width: 60px;" value="15" onchange="updateMaxScores()">
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-info text-dark">เทอม 2</span>
+            <label class="text-muted" style="font-size:0.85rem;">เก็บ:</label>
+            <input type="number" id="cfg_t2_acc" class="form-control form-control-sm text-center fw-bold" style="width: 60px;" value="35" onchange="updateMaxScores()">
+            <label class="text-muted" style="font-size:0.85rem;">สอบ:</label>
+            <input type="number" id="cfg_t2_exam" class="form-control form-control-sm text-center fw-bold" style="width: 60px;" value="15" onchange="updateMaxScores()">
+          </div>
+        </div>
+      </div>
+      
+      <div style="overflow-x: auto;">
+        <table class="grade-table">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 50px;">ที่</th>
+              <th rowspan="2" style="width: 90px;">รหัส</th>
+              <th rowspan="2" style="text-align: left; min-width:180px;">ชื่อ-นามสกุล</th>
+              <th rowspan="2" style="width: 140px; background: #334155;">สถิติมาเรียน</th>
+              <th colspan="3" style="background: #2563eb;">ภาคเรียนที่ 1 (50)</th>
+              <th colspan="3" style="background: #0891b2;">ภาคเรียนที่ 2 (50)</th>
+              <th rowspan="2" style="background: #1e293b;">รวม<br>(100)</th>
+            </tr>
+            <tr>
+              <th style="background: #3b82f6; font-size:0.85rem;">เก็บ (<span id="lbl_t1_acc">35</span>)</th>
+              <th style="background: #60a5fa; font-size:0.85rem;">สอบ (<span id="lbl_t1_exam">15</span>)</th>
+              <th style="background: #1d4ed8; font-size:0.85rem;">รวม ท.1</th>
+              <th style="background: #06b6d4; font-size:0.85rem;">เก็บ (<span id="lbl_t2_acc">35</span>)</th>
+              <th style="background: #22d3ee; font-size:0.85rem;">สอบ (<span id="lbl_t2_exam">15</span>)</th>
+              <th style="background: #164e63; font-size:0.85rem;">รวม ท.2</th>
+            </tr>
+          </thead>
+          <tbody id="gradeTbody"></tbody>
+        </table>
       </div>
     </div>
-    <button class="btn-primary-custom" style="background: linear-gradient(135deg, var(--success), #059669);" onclick="saveGrades()">💾 บันทึกคะแนนทั้งหมด</button>
-  </div>
-  
-  <!-- แผงตั้งค่าสัดส่วนคะแนนโดยครู -->
-  <div class="bg-light p-3 rounded mb-3 border border-warning" style="border-left: 4px solid var(--warning) !important;">
-    <div class="fw-bold text-dark mb-2">⚙️ ตั้งค่าสัดส่วนคะแนน (เต็มเทอมละ 50)</div>
-    <div class="d-flex flex-wrap gap-4">
-      <div class="d-flex align-items-center gap-2">
-        <span class="badge bg-primary">เทอม 1</span>
-        <label class="text-muted" style="font-size:0.85rem;">เก็บ:</label>
-        <input type="number" id="cfg_t1_acc" class="form-control form-control-sm text-center fw-bold" style="width: 60px;" value="35" onchange="updateMaxScores()">
-        <label class="text-muted" style="font-size:0.85rem;">สอบ:</label>
-        <input type="number" id="cfg_t1_exam" class="form-control form-control-sm text-center fw-bold" style="width: 60px;" value="15" onchange="updateMaxScores()">
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <span class="badge bg-info">เทอม 2</span>
-        <label class="text-muted" style="font-size:0.85rem;">เก็บ:</label>
-        <input type="number" id="cfg_t2_acc" class="form-control form-control-sm text-center fw-bold" style="width: 60px;" value="35" onchange="updateMaxScores()">
-        <label class="text-muted" style="font-size:0.85rem;">สอบ:</label>
-        <input type="number" id="cfg_t2_exam" class="form-control form-control-sm text-center fw-bold" style="width: 60px;" value="15" onchange="updateMaxScores()">
-      </div>
-    </div>
-  </div>
-  
-  <div style="overflow-x: auto;">
-    <table class="grade-table">
-      <thead>
-        <tr>
-          <th rowspan="2" style="width: 50px;">ที่</th>
-          <th rowspan="2" style="width: 90px;">รหัส</th>
-          <th rowspan="2" style="text-align: left; min-width:180px;">ชื่อ-นามสกุล</th>
-          <th colspan="3" style="background: #2563eb;">ภาคเรียนที่ 1 (50)</th>
-          <th colspan="3" style="background: #0891b2;">ภาคเรียนที่ 2 (50)</th>
-          <th rowspan="2" style="background: #1e293b;">รวม<br>(100)</th>
-        </tr>
-        <tr>
-          <th style="background: #3b82f6; font-size:0.85rem;">เก็บ (<span id="lbl_t1_acc">35</span>)</th>
-          <th style="background: #60a5fa; font-size:0.85rem;">สอบ (<span id="lbl_t1_exam">15</span>)</th>
-          <th style="background: #1d4ed8; font-size:0.85rem;">รวม ท.1</th>
-          <th style="background: #06b6d4; font-size:0.85rem;">เก็บ (<span id="lbl_t2_acc">35</span>)</th>
-          <th style="background: #22d3ee; font-size:0.85rem;">สอบ (<span id="lbl_t2_exam">15</span>)</th>
-          <th style="background: #164e63; font-size:0.85rem;">รวม ท.2</th>
-        </tr>
-      </thead>
-      <tbody id="gradeTbody"></tbody>
-    </table>
-  </div>
-</div>
   </div>
 </div>
 
@@ -283,13 +284,13 @@ const allClassesList =[
 
 let currentUser = null;
 let currentPin = "";
-let allSubjectsCache = {}; // เก็บข้อมูลวิชาทั้งหมดจากเซิร์ฟเวอร์
+let allSubjectsCache = {}; 
 let loadedGradeData =[];
 
 // Modal State (สำหรับ Admin)
 let editingTeacherId = null;
 let editingPrimaryClass = "";
-let editingAssigned =[]; // Array แบบ ["ป.1_ศิลปะ", "ป.6_คณิต"]
+let editingAssigned =[]; 
 
 // ==========================================
 // UTILITIES
@@ -329,7 +330,6 @@ function clearPin() { currentPin = ""; updatePinDisplay(); }
 async function doLogin() {
   showProgress('กำลังโหลดข้อมูลระบบ...');
   try {
-    // 💡 โหลดข้อมูล Login และ รายวิชาทั้งหมด มาพร้อมกันเลย
     const [userData, allSubs] = await Promise.all([
       api('login', { password: currentPin }),
       api('getAllSubjects')
@@ -345,13 +345,11 @@ async function doLogin() {
     
     if(currentUser.isAdmin) {
       document.getElementById('btnNavAdmin').style.display = 'inline-block';
-      loadTeacherTable(); // โหลดหน้า Admin
+      loadTeacherTable(); 
       showPage('adminPage');
     } else {
-      // ✅ แปลงสิทธิ์การสอนของครูทั่วไป
       currentUser.mySubjects = currentUser.subjects ? currentUser.subjects.split(',') :[];
       
-      // ดึงเฉพาะ "ชั้นเรียน" ที่ครูคนนี้มีสิทธิ์สอน จากรูปแบบ "ชั้น_วิชา"
       const allowedClasses = new Set();
       currentUser.mySubjects.forEach(s => {
         const parts = s.split('_');
@@ -359,12 +357,11 @@ async function doLogin() {
       });
       currentUser.allowedClasses = Array.from(allowedClasses);
 
-      // ปรับ Dropdown ชั้นเรียนให้เห็นเฉพาะชั้นที่มีสิทธิ์
       const classSel = document.getElementById('gradeClassroom');
       classSel.innerHTML = '';
       if (currentUser.allowedClasses.length > 0) {
         currentUser.allowedClasses.forEach(c => classSel.innerHTML += `<option value="${c}">${c}</option>`);
-        if (currentUser.allowedClasses.includes(currentUser.classroom)) classSel.value = currentUser.classroom; // Default เป็นชั้นประจำถ้ามีสิทธิ์
+        if (currentUser.allowedClasses.includes(currentUser.classroom)) classSel.value = currentUser.classroom; 
       } else {
         classSel.innerHTML = `<option value="">-- ไม่มีสิทธิ์สอน --</option>`;
       }
@@ -396,14 +393,13 @@ async function loadTeacherTable() {
     
     tbody.innerHTML = teachers.map(t => {
       const id = t[0], name = t[1], cls = t[3], subsStr = t[5] || "";
-      if(cls === '*') return ''; // ซ่อนแอดมิน
+      if(cls === '*') return ''; 
       
       const assignedArray = subsStr ? subsStr.split(',') :[];
       const previewHtml = assignedArray.map(s => {
         const parts = s.split('_');
-        // แสดงเป็นป้ายสวยๆ เช่น [ป.1: ศิลปะ]
         if(parts.length === 2) return `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary me-1 mb-1 fw-medium" style="font-size:0.8rem;">${parts[0]}: ${parts[1]}</span>`;
-        return `<span class="badge bg-secondary me-1 mb-1">${s}</span>`; // กรณีข้อมูลเก่า
+        return `<span class="badge bg-secondary me-1 mb-1">${s}</span>`; 
       }).join('');
       
       return `<tr>
@@ -416,7 +412,6 @@ async function loadTeacherTable() {
   hideProgress();
 }
 
-// เปิด Modal
 function openSubjectModal(id, name, pClass, subsStr) {
   editingTeacherId = id;
   editingPrimaryClass = pClass;
@@ -426,7 +421,7 @@ function openSubjectModal(id, name, pClass, subsStr) {
   
   const classSel = document.getElementById('modalClassSelect');
   classSel.innerHTML = allClassesList.map(c => `<option value="${c}">${c}</option>`).join('');
-  if (allClassesList.includes(pClass)) classSel.value = pClass; // Default หน้าแรกไปที่ชั้นประจำของครู
+  if (allClassesList.includes(pClass)) classSel.value = pClass; 
   
   document.getElementById('subjectModal').style.display = 'flex';
   renderModalCheckboxes();
@@ -435,7 +430,6 @@ function openSubjectModal(id, name, pClass, subsStr) {
 
 function closeModal() { document.getElementById('subjectModal').style.display = 'none'; }
 
-// วาด Checkbox ตามชั้นที่เลือกใน Modal
 function renderModalCheckboxes() {
   const cls = document.getElementById('modalClassSelect').value;
   const subs = allSubjectsCache[cls] ||[];
@@ -447,7 +441,7 @@ function renderModalCheckboxes() {
   }
 
   container.innerHTML = subs.map(s => {
-    const valueStr = `${cls}_${s}`; // สร้างรหัส เช่น ป.1_ศิลปะ
+    const valueStr = `${cls}_${s}`; 
     const isChecked = editingAssigned.includes(valueStr);
     return `<label class="border p-2 rounded bg-white shadow-sm" style="cursor:pointer; font-size:0.9rem; user-select:none;">
               <input type="checkbox" class="form-check-input me-1" value="${valueStr}" ${isChecked ? 'checked' : ''} onchange="toggleSubject(this)"> ${s}
@@ -466,11 +460,10 @@ function toggleSubject(cb) {
 
 function removeSubject(val) {
   editingAssigned = editingAssigned.filter(item => item !== val);
-  renderModalCheckboxes(); // รีเฟรช Checkbox เผื่อติ๊กออกในหน้าชั้นเดียวกัน
+  renderModalCheckboxes(); 
   renderAssignedBadges();
 }
 
-// วาดสรุปป้ายวิชาที่เลือก
 function renderAssignedBadges() {
   const container = document.getElementById('modalAssignedSubjects');
   if(editingAssigned.length === 0) {
@@ -491,7 +484,7 @@ async function saveModalSubjects() {
     await api('saveTeacherAssignments', { teacherId: editingTeacherId, subjects: subsStr });
     showToast('✅ บันทึกสำเร็จ', 'success');
     closeModal();
-    loadTeacherTable(); // โหลดตารางหน้าแอดมินใหม่
+    loadTeacherTable(); 
   } catch(e) { showToast(e.message, 'error'); }
   hideProgress();
 }
@@ -507,7 +500,7 @@ async function adminSetupYear() {
 }
 
 // ==========================================
-// GRADING SYSTEM (ครูกรอกคะแนน)
+// GRADING SYSTEM (ครูกรอกคะแนน - 2 เทอม)
 // ==========================================
 function updateSubjectDropdown() {
   const sel = document.getElementById('gradeSubject');
@@ -515,16 +508,14 @@ function updateSubjectDropdown() {
   const selectedClass = document.getElementById('gradeClassroom').value;
   
   if (currentUser.isAdmin) {
-    // แอดมินดูได้ทุกวิชาในชั้นนั้น (ดึงจาก Cache ได้เลยไม่ต้องรอโหลด)
     classSelAdminOverride(selectedClass);
     const subjects = allSubjectsCache[selectedClass] ||[];
     subjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
   } else {
-    // 💡 ครูทั่วไป: กรองเฉพาะวิชาที่มีรหัสนำหน้าตรงกับชั้นเรียนที่เลือก
     const classPrefix = selectedClass + '_';
     const filteredSubs = currentUser.mySubjects
       .filter(s => s.startsWith(classPrefix))
-      .map(s => s.replace(classPrefix, '')); // ตัดคำนำหน้าออกตอนแสดงผลให้ครูดู เช่น "ศิลปะ"
+      .map(s => s.replace(classPrefix, '')); 
       
     if (filteredSubs.length > 0) {
       filteredSubs.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
@@ -534,7 +525,6 @@ function updateSubjectDropdown() {
   }
 }
 
-// ฟังก์ชันเสริมให้ Admin เปลี่ยนคลาสได้อิสระ
 function classSelAdminOverride(selectedClass) {
   const classSel = document.getElementById('gradeClassroom');
   if (classSel.options.length === 0) {
@@ -543,7 +533,7 @@ function classSelAdminOverride(selectedClass) {
   }
 }
 
-
+// ✨ โหลดข้อมูล (แก้ให้รับ config สัดส่วน 2 เทอม)
 async function loadGrades() {
   const year = document.getElementById('gradeYear').value;
   const cls = document.getElementById('gradeClassroom').value;
@@ -557,13 +547,14 @@ async function loadGrades() {
   try {
     const res = await api('getGrades', { year, classroom: cls, subject: subj });
     
-    // ตั้งค่ากล่องสัดส่วนคะแนนตามที่ดึงมาจากชีท
+    // เซ็ตค่าลงกล่อง Config
     document.getElementById('cfg_t1_acc').value = res.config.t1_acc;
     document.getElementById('cfg_t1_exam').value = res.config.t1_exam;
     document.getElementById('cfg_t2_acc').value = res.config.t2_acc;
     document.getElementById('cfg_t2_exam').value = res.config.t2_exam;
-    updateMaxScores(); // อัปเดตหัวตาราง
+    updateMaxScores(); // เปลี่ยนตัวเลขในหัวตาราง
 
+    // เก็บรายชื่อนักเรียนไว้สร้างตาราง
     loadedGradeData = res.students;
     renderGradeTable();
     document.getElementById('tableContainer').style.display = 'block';
@@ -574,7 +565,6 @@ async function loadGrades() {
   hideProgress();
 }
 
-// อัปเดตตัวเลขในหัวตาราง เมื่อครูแก้สัดส่วน
 function updateMaxScores() {
   const t1a = Number(document.getElementById('cfg_t1_acc').value);
   const t1e = Number(document.getElementById('cfg_t1_exam').value);
@@ -589,17 +579,17 @@ function updateMaxScores() {
   document.getElementById('lbl_t2_acc').textContent = t2a;
   document.getElementById('lbl_t2_exam').textContent = t2e;
 
-  // อัปเดต max attribute ของ input ในตาราง
   document.querySelectorAll('.s_t1a').forEach(el => el.setAttribute('max', t1a));
   document.querySelectorAll('.s_t1e').forEach(el => el.setAttribute('max', t1e));
   document.querySelectorAll('.s_t2a').forEach(el => el.setAttribute('max', t2a));
   document.querySelectorAll('.s_t2e').forEach(el => el.setAttribute('max', t2e));
 }
 
+// ✨ วาดตารางแบบ 2 เทอม
 function renderGradeTable() {
   const tbody = document.getElementById('gradeTbody');
   if (!loadedGradeData || loadedGradeData.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้เรียน</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้เรียน</td></tr>`;
     return;
   }
   
@@ -610,7 +600,9 @@ function renderGradeTable() {
 
   let html = '';
   loadedGradeData.forEach((s, i) => {
-    const g = s.grades || {};
+    const g = s.grades || {}; 
+    const stats = s.stats || { present: 0, absent: 0, leave: 0 };
+    
     const t1a = g.t1_acc !== "" ? Number(g.t1_acc) : "";
     const t1e = g.t1_exam !== "" ? Number(g.t1_exam) : "";
     const t2a = g.t2_acc !== "" ? Number(g.t2_acc) : "";
@@ -622,8 +614,9 @@ function renderGradeTable() {
 
     html += `
       <tr data-sid="${s.studentId}">
-        <td class="text-muted">${i + 1}</td><td style="font-size: 0.85rem;">${s.studentId}</td>
+        <td class="text-muted">${i + 1}</td><td style="font-size: 0.85rem; color: #64748b;">${s.studentId}</td>
         <td style="text-align: left; font-weight: 500;">${s.name}</td>
+        <td><span class="stat-pill stat-p">ม:${stats.present}</span> <span class="stat-pill stat-a">ข:${stats.absent}</span> <span class="stat-pill stat-l">ล:${stats.leave}</span></td>
         <td><input type="number" class="score-input s_t1a" min="0" max="${max_t1a}" value="${t1a}" oninput="calcRow(this)"></td>
         <td><input type="number" class="score-input s_t1e" min="0" max="${max_t1e}" value="${t1e}" oninput="calcRow(this)"></td>
         <td class="fw-bold text-primary t1_tot">${t1_tot || '-'}</td>
@@ -653,6 +646,7 @@ function calcRow(el) {
   if (grand < 50 && grand > 0) grandEl.classList.add('fail'); else grandEl.classList.remove('fail');
 }
 
+// ✨ บันทึกคะแนน (ส่ง Config กลับไปด้วย)
 async function saveGrades() {
   const t1a = Number(document.getElementById('cfg_t1_acc').value);
   const t1e = Number(document.getElementById('cfg_t1_exam').value);
@@ -674,6 +668,8 @@ async function saveGrades() {
     }
   });
 
+  if (records.length === 0) return showToast('ยังไม่มีการกรอกคะแนน', 'warning');
+
   const payload = {
     year: document.getElementById('gradeYear').value,
     classroom: document.getElementById('gradeClassroom').value,
@@ -687,11 +683,6 @@ async function saveGrades() {
   catch(e) { showToast(e.message, 'error'); }
   hideProgress();
 }
-
-
-
-
-
 </script>
 </body>
 </html>
