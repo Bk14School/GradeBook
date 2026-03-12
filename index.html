@@ -993,7 +993,24 @@ async function saveGrades(){
     pg_();
   }
 }
-
+// ฟังก์ชันย้าย Focus ไปช่องถัดไป
+document.addEventListener('keydown', function(event) {
+  // ตรวจสอบว่าปุ่มที่กดคือ Enter
+  if (event.key === 'Enter') {
+    event.preventDefault(); // ป้องกันการ Submit form
+    
+    // หาช่อง input ทั้งหมดในตารางที่มีคลาส .sinput
+    const inputs = Array.from(document.querySelectorAll('.sinput'));
+    const currentIndex = inputs.indexOf(document.activeElement);
+    
+    // ถ้าเจอช่องปัจจุบันและยังมีช่องถัดไป
+    if (currentIndex > -1 && currentIndex < inputs.length - 1) {
+      const nextInput = inputs[currentIndex + 1];
+      nextInput.focus();
+      nextInput.select(); // เลือกข้อความในช่องถัดไปให้พร้อมพิมพ์ทันที
+    }
+  }
+});
 </script>
 </body>
 </html>
