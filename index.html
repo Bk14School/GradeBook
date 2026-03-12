@@ -1,557 +1,138 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ระบบบันทึกคะแนน - โรงเรียนบ้านคลอง 14</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-:root {
-  /* เปลี่ยนโทนสีเป็นสีม่วง/คราม เพื่อแยกจากระบบเช็คชื่อ */
-  --primary: #6366f1;
-  --primary-light: #e0e7ff;
-  --primary-dark: #4338ca;
-  --secondary: #64748b;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --bg: #f8fafc;
-  --card-bg: #ffffff;
-  --text: #334155;
-  --text-muted: #94a3b8;
-  --border: #e2e8f0;
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
-  --shadow: 0 10px 30px rgba(0,0,0,0.05);
-  --shadow-lg: 0 20px 40px rgba(0,0,0,0.08);
-  --radius: 20px;
-  --radius-sm: 12px;
-}
-
-* { box-sizing: border-box; }
-body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; line-height: 1.6; }
-
-/* ===== Navbar ===== */
-.app-nav { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); border-bottom: 1px solid rgba(0,0,0,0.05); padding: 10px 0; }
-.app-nav .container { display: flex; align-items: center; justify-content: space-between; }
-.brand { display: flex; align-items: center; gap: 12px; color: var(--primary-dark); text-decoration: none; font-weight: 700; font-size: 1.05rem; }
-.brand-logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 0.9rem; }
-.nav-info { display: flex; align-items: center; gap: 12px; }
-.teacher-badge { background: var(--primary-light); color: var(--primary-dark); padding: 6px 14px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; display: none; }
-.nav-btn { background: #fff; color: var(--secondary); border: 1px solid var(--border); padding: 7px 14px; border-radius: 50px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-.nav-btn:hover { color: var(--primary); border-color: var(--primary-light); background: var(--primary-light); }
-.nav-btn.danger { color: var(--danger); border-color: #fecaca; }
-
-/* ===== Sections & Cards ===== */
-.page-section { display: none; }
-.page-section.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.container-main { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
-.app-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.02); }
-.card-title { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-
-/* ===== Login PIN Pad ===== */
-.login-wrap { min-height: calc(100vh - 62px); display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 60%, #ede9fe 100%); padding: 20px; }
-.login-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 48px 40px; width: 100%; max-width: 400px; text-align: center; }
-.login-logo { width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2rem; font-weight: 700; box-shadow: 0 8px 20px rgba(99,102,241,0.3); }
-.pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 240px; margin: 0 auto; }
-.pin-btn { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1.6rem; font-weight: 700; color: #334155; padding: 12px 0; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; user-select: none; }
-.pin-btn:active { transform: scale(0.92); background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
-.pin-btn.action { font-size: 1.2rem; background: #f1f5f9; border-color: #e2e8f0; color: #64748b; }
-.pin-display { display: flex; justify-content: center; gap: 16px; margin-bottom: 24px; min-height: 24px; }
-.pin-dot { width: 16px; height: 16px; border-radius: 50%; background: #e2e8f0; transition: all 0.2s; }
-.pin-dot.filled { background: var(--primary); transform: scale(1.2); box-shadow: 0 0 10px rgba(99,102,241,0.4); }
-
-/* ===== Grading Table ===== */
-.controls-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-end; background: #f8fafc; padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
-.controls-bar label { font-size: 0.85rem; font-weight: 600; color: var(--secondary); margin-bottom: 4px; display: block; }
-.form-select, .form-control { border-radius: 10px; border: 1px solid var(--border); padding: 8px 14px; font-family: inherit; font-size: 0.95rem; }
-.form-select:focus, .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
-
-.table-wrap { overflow-x: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); }
-.grade-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-.grade-table th { background: #1e293b; color: #fff; padding: 12px; white-space: nowrap; font-weight: 600; text-align: center; border: 1px solid #334155; position: sticky; top: 0; }
-.grade-table th.name-col { text-align: left; position: sticky; left: 0; z-index: 10; min-width: 200px; }
-.grade-table td { padding: 8px 12px; text-align: center; border: 1px solid var(--border); vertical-align: middle; }
-.grade-table td.name-col { text-align: left; font-weight: 500; position: sticky; left: 0; background: #fff; z-index: 5; box-shadow: 2px 0 5px rgba(0,0,0,0.02); }
-.grade-table tr:hover td { background: #f8fafc; }
-.grade-table tr:hover td.name-col { background: #f8fafc; }
-
-/* Input คะแนน */
-.score-input { width: 70px; text-align: center; font-weight: 700; color: var(--primary-dark); padding: 6px; border: 1.5px solid #cbd5e1; border-radius: 8px; transition: all 0.2s; }
-.score-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); transform: scale(1.05); }
-/* ซ่อนปุ่มลูกศรขึ้นลงใน input number */
-.score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.score-input[type=number] { -moz-appearance: textfield; }
-
-.total-score { font-size: 1.1rem; font-weight: 800; color: #0f172a; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; display: inline-block; min-width: 60px; }
-.total-score.fail { color: var(--danger); background: #fee2e2; }
-
-/* สถิติการมาเรียน */
-.stat-pill { display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 50px; margin: 0 2px; }
-.stat-p { background: #d1fae5; color: #065f46; }
-.stat-a { background: #fee2e2; color: #991b1b; }
-.stat-l { background: #fef3c7; color: #92400e; }
-
-.btn-primary-custom { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; padding: 10px 24px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
-.btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99,102,241,0.4); }
-
-/* Overlay & Toast (นำมาจากระบบเดิม) */
-#progressOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 9998; justify-content: center; align-items: center; }
-.progress-card { background: #fff; border-radius: var(--radius); padding: 36px 48px; text-align: center; box-shadow: var(--shadow-lg); min-width: 280px; }
-.spinner { width: 48px; height: 48px; border: 4px solid var(--primary-light); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-.toast { padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 500; color: #fff; box-shadow: var(--shadow-lg); animation: slideIn 0.3s ease; }
-.toast.success { background: var(--success); } .toast.error { background: var(--danger); } .toast.info { background: var(--primary); }
-@keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+  :root { --primary: #6366f1; --primary-dark: #4338ca; --primary-light: #e0e7ff; --secondary: #64748b; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; }
+  body { font-family: 'Prompt', sans-serif; background: var(--bg); }
+  .app-nav { background: #fff; padding: 10px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .page-section { display: none; } .page-section.active { display: block; }
+  .app-card { background: #fff; border-radius: 20px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+  .grade-table { width: 100%; border-collapse: collapse; }
+  .grade-table th, .grade-table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+  .score-input { width: 60px; text-align: center; }
 </style>
 </head>
 <body>
-
-<!-- Navbar -->
 <div class="app-nav">
-  <div class="container">
-    <div class="brand">
-      <div class="brand-logo">G+</div>
-      <span class="d-none d-sm-inline">ระบบบันทึกคะแนน</span>
-    </div>
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="brand fw-bold">G+ ระบบบันทึกคะแนน</div>
     <div class="nav-info">
-      <div class="teacher-badge" id="teacherBadge">🎓 ครู...</div>
-      <button class="nav-btn" id="btnNavAdmin" onclick="showPage('adminPage')" style="display:none;">⚙️ สร้างไฟล์ปีการศึกษา</button>
-      <button class="nav-btn" id="btnNavGrade" onclick="showPage('gradePage')" style="display:none;">📝 กรอกคะแนน</button>
-      <button class="nav-btn danger" id="btnLogout" onclick="logout()" style="display:none;">ออกจากระบบ</button>
+      <div id="teacherBadge" class="badge bg-primary-subtle text-primary p-2"></div>
+      <button class="btn btn-sm btn-outline-secondary" id="btnNavAdmin" onclick="showPage('adminPage')" style="display:none;">⚙️ จัดการครู</button>
+      <button class="btn btn-sm btn-outline-primary" id="btnNavGrade" onclick="showPage('gradePage')" style="display:none;">📝 คะแนน</button>
+      <button class="btn btn-sm btn-outline-danger" id="btnLogout" onclick="logout()" style="display:none;">ออก</button>
     </div>
   </div>
 </div>
 
-<div class="toast-wrap" id="toastWrap"></div>
-<div id="progressOverlay"><div class="progress-card"><div class="spinner"></div><p id="progressText" style="font-weight:600;color:var(--primary-dark);margin:0;">กำลังโหลด...</p></div></div>
-
-<!-- ======= Login Page ======= -->
-<div id="loginPage" class="page-section active">
-  <div class="login-wrap">
-    <div class="login-card">
-      <div class="login-logo">G+</div>
-      <h2 style="font-size:1.4rem; font-weight:700; margin-bottom:4px;">ระบบบันทึกคะแนน</h2>
-      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:28px;">โรงเรียนบ้านคลอง 14</p>
-      
-      <div class="pin-display" id="pinDisplay">
-        <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
-      </div>
-      
-      <div class="pin-pad">
-        <div class="pin-btn" onclick="addPin('1')">1</div><div class="pin-btn" onclick="addPin('2')">2</div><div class="pin-btn" onclick="addPin('3')">3</div>
-        <div class="pin-btn" onclick="addPin('4')">4</div><div class="pin-btn" onclick="addPin('5')">5</div><div class="pin-btn" onclick="addPin('6')">6</div>
-        <div class="pin-btn" onclick="addPin('7')">7</div><div class="pin-btn" onclick="addPin('8')">8</div><div class="pin-btn" onclick="addPin('9')">9</div>
-        <div class="pin-btn action" onclick="clearPin()">C</div><div class="pin-btn" onclick="addPin('0')">0</div><div class="pin-btn action" style="color:var(--danger);" onclick="delPin()">⌫</div>
+<div class="container mt-4">
+  <div id="loginPage" class="page-section active">
+    <div class="app-card text-center shadow-sm">
+      <h3>เข้าสู่ระบบ</h3>
+      <div id="pinDisplay" class="my-3">...</div>
+      <div class="d-grid gap-2" style="max-width: 200px; margin: 0 auto;">
+        <button class="btn btn-outline-dark" onclick="addPin('1')">1</button>
+        <button class="btn btn-outline-dark" onclick="doLogin()">Login</button>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ======= Admin Page ======= -->
-<div id="adminPage" class="page-section">
   <div id="adminPage" class="page-section">
-  <div class="container-main">
     <div class="app-card">
-      <h3 class="fw-bold">จัดการครูผู้สอน</h3>
-      <div class="table-wrap">
-        <table class="grade-table" id="teacherTable">
-          <thead><tr><th>ชื่อครู</th><th>ชั้น</th><th>วิชาที่สอน (เลือกได้มากกว่า 1)</th><th>บันทึก</th></tr></thead>
-          <tbody id="teacherTbody"></tbody>
-        </table>
-      </div>
+      <button class="btn btn-primary" onclick="adminSetupYear()">สร้างฐานข้อมูลคะแนน ปี 2568</button>
+      <table class="table mt-3" id="teacherTable">
+        <thead><tr><th>ชื่อครู</th><th>ชั้น</th><th>วิชา (ติ๊กเลือก)</th><th>บันทึก</th></tr></thead>
+        <tbody id="teacherTbody"></tbody>
+      </table>
     </div>
   </div>
-</div>
-  <div class="container-main" style="max-width: 600px; margin-top: 40px;">
-    <div class="app-card text-center">
-      <div class="login-logo" style="margin: 0 auto 20px; width: 60px; height: 60px; font-size: 1.5rem;">⚙️</div>
-      <h3 class="fw-bold mb-3">สร้างฐานข้อมูลคะแนน (สำหรับ Admin)</h3>
-      <p class="text-muted mb-4" style="font-size: 0.9rem;">ระบบจะทำการสร้างไฟล์ Spreadsheet ตามรายวิชาของแต่ละชั้นเรียนโดยอัตโนมัติ เพื่อเตรียมพร้อมให้ครูเข้ามากรอกคะแนน</p>
-      
-      <div class="mb-4 text-start">
-        <label class="fw-bold mb-2 text-primary">ระบุปีการศึกษา (พ.ศ.)</label>
-        <input type="number" id="setupYearInput" class="form-control form-control-lg text-center fw-bold" placeholder="เช่น 2568" value="2568">
-      </div>
-      <button class="btn-primary-custom w-100" style="padding: 14px; font-size: 1.1rem;" onclick="adminSetupYear()">🚀 เริ่มสร้างไฟล์ฐานข้อมูล</button>
+
+  <div id="gradePage" class="page-section">
+    <div class="app-card">
+      <select id="gradeClassroom" class="form-select mb-2" onchange="updateSubjectDropdown()"></select>
+      <select id="gradeSubject" class="form-select mb-2"></select>
+      <button class="btn btn-success" onclick="loadGrades()">โหลดรายชื่อ</button>
+      <table class="grade-table mt-3"><tbody id="gradeTbody"></tbody></table>
+      <button class="btn btn-primary mt-2" onclick="saveGrades()">บันทึกคะแนน</button>
     </div>
   </div>
 </div>
 
-<!-- ======= Grading Page ======= -->
-<div id="gradePage" class="page-section">
-  <div class="container-main">
-    <div class="app-card mb-3">
-      <div class="card-title mb-0">📝 บันทึกคะแนนรายวิชา</div>
-      
-      <div class="controls-bar mt-3">
-        <div>
-          <label>ปีการศึกษา</label>
-          <input type="number" id="gradeYear" class="form-control" style="width: 100px; font-weight: bold;" value="2568">
-        </div>
-        <div>
-          <label>ชั้นเรียน</label>
-          <select id="gradeClassroom" class="form-select" style="min-width: 120px;" onchange="updateSubjectDropdown()">
-            <option value="ป.1">ป.1</option><option value="ป.2">ป.2</option><option value="ป.3">ป.3</option>
-            <option value="ป.4">ป.4</option><option value="ป.5">ป.5</option><option value="ป.6">ป.6</option>
-            <option value="ม.1">ม.1</option><option value="ม.2">ม.2</option><option value="ม.3">ม.3</option>
-          </select>
-        </div>
-        <div>
-          <label>รายวิชา</label>
-          <select id="gradeSubject" class="form-select" style="min-width: 200px;">
-            <!-- เติมด้วย JS -->
-          </select>
-        </div>
-        <button class="btn-primary-custom" style="height: 42px; margin-left: auto;" onclick="loadGrades()">🔄 โหลดรายชื่อผู้เรียน</button>
-      </div>
-    </div>
-
-    <div class="app-card" id="tableContainer" style="display: none;">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div style="font-size: 0.95rem; font-weight: 600; color: var(--secondary);">
-          วิชา: <span id="lblSubject" class="text-primary fw-bold"></span> | ชั้น <span id="lblClass" class="text-primary fw-bold"></span>
-        </div>
-        <button class="btn-primary-custom" style="background: linear-gradient(135deg, var(--success), #059669);" onclick="saveGrades()">💾 บันทึกคะแนนทั้งหมด</button>
-      </div>
-      
-      <div class="table-wrap">
-        <table class="grade-table">
-          <thead>
-            <tr>
-              <th style="width: 60px;">ที่</th>
-              <th style="width: 100px;">รหัส</th>
-              <th class="name-col">ชื่อ-นามสกุล</th>
-              <th style="width: 150px; background: #334155;">สถิติมาเรียน</th>
-              <th style="width: 120px; background: #2563eb;">คะแนนเก็บ (70)</th>
-              <th style="width: 120px; background: #0284c7;">กลางภาค (10)</th>
-              <th style="width: 120px; background: #0891b2;">ปลายภาค (20)</th>
-              <th style="width: 100px; background: #1e293b;">รวม (100)</th>
-            </tr>
-          </thead>
-          <tbody id="gradeTbody">
-            <!-- ข้อมูลจาก JS -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script>
-// ==========================================
-// CONFIG & STATE
-// ==========================================
-// 📌 ใส่ URL ของ Web App (ระบบบันทึกคะแนน) ที่นี่
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_-Q4T2dJUX6L7c3EEB-ODEtsxb0Plsu6RA_J8WBh_DTIPcV4-JCn-A0aLBXC6ARvN/exec";
+let currentUser = null; let currentPin = ""; let loadedGradeData = [];
 
-let currentUser = null;
-let currentPin = "";
-let loadedGradeData =[]; // เก็บ State ข้อมูลนักเรียน
-
-// ==========================================
-// UTILITIES
-// ==========================================
-function showToast(msg, type='info') {
-  const w = document.getElementById('toastWrap');
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.textContent = msg;
-  w.appendChild(t);
-  setTimeout(() => t.remove(), 3500);
-}
-
-function showProgress(txt) { 
-  document.getElementById('progressOverlay').style.display='flex'; 
-  document.getElementById('progressText').textContent = txt; 
-}
-function hideProgress() { 
-  document.getElementById('progressOverlay').style.display='none'; 
-}
-
-async function api(action, data={}) {
-  const res = await fetch(WEB_APP_URL, { 
-    method: 'POST', 
-    body: JSON.stringify({ action, data }) 
-  });
-  const json = await res.json();
-  if (json.status === 'error') throw new Error(json.message);
-  return json.data;
-}
- 
 function showPage(page) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.getElementById(page).classList.add('active');
-  window.scrollTo(0,0);
-  
-  // ✅ เพิ่มจุดนี้: ถ้าเปิดหน้า adminPage ให้สั่งโหลดรายชื่อครูทันที
-  if (page === 'adminPage') {
-    loadTeacherTable();
-  }
+  if (page === 'adminPage') loadTeacherTable();
 }
 
-// ==========================================
-// PIN LOGIN (ใช้ระบบเดียวกับเช็คชื่อ)
-// ==========================================
-function updatePinDisplay(isError = false) {
-  const dots = document.querySelectorAll('.pin-dot');
-  dots.forEach((dot, index) => {
-    dot.style.background = isError ? 'var(--danger)' : '#e2e8f0';
-    if (!isError && index < currentPin.length) dot.classList.add('filled');
-    else dot.classList.remove('filled');
-  });
+async function api(action, data={}) {
+  const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action, data }) });
+  const json = await res.json();
+  return json.data;
 }
 
-function addPin(num) {
-  if (currentPin.length < 4) {
-    currentPin += num;
-    updatePinDisplay();
-    if (currentPin.length === 4) setTimeout(doLogin, 150);
-  }
-}
-function delPin() { if (currentPin.length > 0) { currentPin = currentPin.slice(0, -1); updatePinDisplay(); } }
-function clearPin() { currentPin = ""; updatePinDisplay(); }
-
+function addPin(num) { currentPin += num; if(currentPin.length === 4) doLogin(); }
 async function doLogin() {
-  showProgress('กำลังเข้าสู่ระบบ...');
-  try {
-    currentUser = await api('login', { password: currentPin });
-    
-    // ตั้งค่า Badge
-    document.getElementById('teacherBadge').textContent = `🎓 ${currentUser.name} • ${currentUser.isAdmin ? 'แอดมิน' : currentUser.classroom}`;
-    document.getElementById('teacherBadge').style.display = 'inline-flex';
-    document.getElementById('btnNavGrade').style.display = 'inline-block';
-    document.getElementById('btnLogout').style.display = 'inline-block';
-    
-    // --- จุดที่แก้ไข: เรียกใช้ที่นี่แทน ---
-    if(currentUser.isAdmin) {
-      document.getElementById('btnNavAdmin').style.display = 'inline-block';
-      showPage('adminPage');
-    } else {
-      if(currentUser.classroom !== "*") document.getElementById('gradeClassroom').value = currentUser.classroom;
-      // ✅ เรียกใช้ที่นี่ เมื่อ currentUser มีค่าแล้ว
-      updateSubjectDropdown(); 
-      showPage('gradePage');
-    }
-    clearPin();
-  } catch(e) {
-    updatePinDisplay(true);
-    setTimeout(clearPin, 400);
-    showToast('รหัสผ่านไม่ถูกต้อง หรือไม่มีสิทธิ์เข้าใช้งาน', 'error');
-  }
-  hideProgress();
+  currentUser = await api('login', { password: currentPin });
+  document.getElementById('teacherBadge').textContent = currentUser.name;
+  document.getElementById('teacherBadge').style.display = 'block';
+  document.getElementById('btnNavGrade').style.display = 'inline-block';
+  document.getElementById('btnLogout').style.display = 'inline-block';
+  if(currentUser.isAdmin) document.getElementById('btnNavAdmin').style.display = 'inline-block';
+  showPage(currentUser.isAdmin ? 'adminPage' : 'gradePage');
 }
 
-function logout() {
-  currentUser = null; clearPin();['teacherBadge','btnNavAdmin','btnNavGrade','btnLogout'].forEach(id => document.getElementById(id).style.display='none');
-  showPage('loginPage');
+async function loadTeacherTable() {
+  const teachers = await api('getTeacherList');
+  const allSubj = await api('getAllSubjects');
+  document.getElementById('teacherTbody').innerHTML = teachers.map(t => `
+    <tr><td>${t[1]}</td><td>${t[3]}</td>
+    <td>${(allSubj[t[3]]||[]).map(s=>`<input type="checkbox" value="${s}" class="sub-${t[0]}"> ${s}`).join('<br>')}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="saveTeacher('${t[0]}','${t[1]}','${t[3]}')">บันทึก</button></td></tr>
+  `).join('');
 }
 
-// ==========================================
-// ADMIN: สร้างไฟล์ปีการศึกษา
-// ==========================================
-async function adminSetupYear() {
-  const year = document.getElementById('setupYearInput').value;
-  if(!year || year < 2560) { showToast('กรุณาระบุปีการศึกษาให้ถูกต้อง', 'error'); return; }
-  
-  if(!confirm(`ยืนยันการสร้างฐานข้อมูลคะแนน สำหรับปีการศึกษา ${year} ?\nขั้นตอนนี้อาจใช้เวลาประมาณ 30-60 วินาที`)) return;
-
-  showProgress(`กำลังสร้างไฟล์ฐานข้อมูลปี ${year}... (ห้ามปิดหน้าต่าง)`);
-  try {
-    const msg = await api('setupGradeYear', { year: year });
-    showToast(msg, 'success');
-  } catch(e) {
-    showToast('เกิดข้อผิดพลาด: ' + e.message, 'error');
-  }
-  hideProgress();
+async function saveTeacher(id, name, cls) {
+  const selected = [];
+  document.querySelectorAll(`.sub-${id}:checked`).forEach(c => selected.push(c.value));
+  await api('saveTeacherAssignments', { teacherId: id, teacherName: name, classroom: cls, subjects: selected.join(',') });
+  alert('บันทึกสำเร็จ');
 }
 
-// ==========================================
-// GRADING SYSTEM
-// ==========================================
-// Mock ข้อมูลวิชา (ของจริงควรดึงจาก API หรือปรับตามต้องการ)
-
-
-// แก้ไขฟังก์ชัน updateSubjectDropdown ในไฟล์ index.html
 async function updateSubjectDropdown() {
   const sel = document.getElementById('gradeSubject');
-  sel.innerHTML = '';
-  
-  // ถ้าเป็นแอดมิน ให้โหลดวิชาของห้องที่เลือก
-  if (currentUser.isAdmin) {
-    const subjects = await api('getSubjects', { classroom: document.getElementById('gradeClassroom').value });
-    subjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
-  } else {
-    // ถ้าเป็นครูทั่วไป ให้โชว์เฉพาะวิชาที่แอดมินตั้งค่าให้ (เก็บใน currentUser.mySubjects)
-    currentUser.mySubjects.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
-  }
+  const subjects = currentUser.isAdmin ? await api('getSubjects', { classroom: document.getElementById('gradeClassroom').value }) : currentUser.mySubjects;
+  sel.innerHTML = subjects.map(s => `<option value="${s}">${s}</option>`).join('');
 }
-
-
 
 async function loadGrades() {
-  const year = document.getElementById('gradeYear').value;
-  const cls = document.getElementById('gradeClassroom').value;
-  const subj = document.getElementById('gradeSubject').value;
-
-  document.getElementById('lblClass').textContent = cls;
-  document.getElementById('lblSubject').textContent = subj;
-  
-  showProgress('กำลังดึงรายชื่อและข้อมูลคะแนน...');
-  try {
-    loadedGradeData = await api('getGrades', { year, classroom: cls, subject: subj });
-    renderGradeTable();
-    document.getElementById('tableContainer').style.display = 'block';
-  } catch(e) {
-    showToast('ดึงข้อมูลไม่สำเร็จ: ' + e.message, 'error');
-    document.getElementById('tableContainer').style.display = 'none';
-  }
-  hideProgress();
-}
-
-function renderGradeTable() {
-  const tbody = document.getElementById('gradeTbody');
-  if (!loadedGradeData || loadedGradeData.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">ไม่พบข้อมูลนักเรียน กรุณาตรวจสอบการตั้งค่าปีการศึกษา</td></tr>`;
-    return;
-  }
-
-  let html = '';
-  loadedGradeData.forEach((s, i) => {
-    // ป้องกันค่า null/undefined
-    const g = s.grades || {};
-    const stats = s.stats || { present: 0, absent: 0, leave: 0 };
-    
-    // ย้ายสถานะขาด/ลามาทำเป็น Label สวยๆ
-    const statHtml = `
-      <span class="stat-pill stat-p" title="มาเรียน">ม:${stats.present}</span>
-      <span class="stat-pill stat-a" title="ขาด">ข:${stats.absent}</span>
-      <span class="stat-pill stat-l" title="ลา/ป่วย">ล:${stats.leave}</span>
-    `;
-
-    const s1 = g.score1 !== "" ? Number(g.score1) : "";
-    const s2 = g.score2 !== "" ? Number(g.score2) : "";
-    const s3 = g.score3 !== "" ? Number(g.score3) : "";
-    const total = (Number(s1)||0) + (Number(s2)||0) + (Number(s3)||0);
-    const totalCls = (total > 0 && total < 50) ? 'fail' : '';
-
-    html += `
-      <tr data-sid="${s.studentId}">
-        <td class="text-muted">${i + 1}</td>
-        <td style="font-size: 0.85rem; color: var(--secondary);">${s.studentId}</td>
-        <td class="name-col">${s.name}</td>
-        <td>${statHtml}</td>
-        <td><input type="number" class="score-input s1" min="0" max="70" value="${s1}" oninput="calcRow(this)"></td>
-        <td><input type="number" class="score-input s2" min="0" max="10" value="${s2}" oninput="calcRow(this)"></td>
-        <td><input type="number" class="score-input s3" min="0" max="20" value="${s3}" oninput="calcRow(this)"></td>
-        <td><span class="total-score ${totalCls}">${total || '-'}</span></td>
-      </tr>
-    `;
-  });
-  tbody.innerHTML = html;
-}
-
-// คำนวณคะแนนรวมแบบ Real-time เมื่อครูพิมพ์
-function calcRow(inputEl) {
-  // ดักตรวจสอบค่าเกิน
-  const max = Number(inputEl.getAttribute('max'));
-  if (Number(inputEl.value) > max) {
-    inputEl.value = max; // บังคับไม่ให้กรอกเกิน max
-    showToast(`คะแนนช่องนี้กรอกได้สูงสุด ${max} คะแนน`, 'error');
-  }
-  if (Number(inputEl.value) < 0) inputEl.value = 0;
-
-  const tr = inputEl.closest('tr');
-  const s1 = Number(tr.querySelector('.s1').value) || 0;
-  const s2 = Number(tr.querySelector('.s2').value) || 0;
-  const s3 = Number(tr.querySelector('.s3').value) || 0;
-  const total = s1 + s2 + s3;
-
-  const totalEl = tr.querySelector('.total-score');
-  totalEl.textContent = total;
-  
-  if (total < 50 && (s1>0 || s2>0 || s3>0)) totalEl.classList.add('fail');
-  else totalEl.classList.remove('fail');
+  loadedGradeData = await api('getGrades', { year: '2568', classroom: document.getElementById('gradeClassroom').value, subject: document.getElementById('gradeSubject').value });
+  document.getElementById('gradeTbody').innerHTML = loadedGradeData.map((s,i) => `
+    <tr data-sid="${s.studentId}"><td>${i+1}</td><td>${s.studentId}</td><td>${s.name}</td><td></td>
+    <td><input type="number" class="score-input s1" value="${s.grades.score1||''}"></td>
+    <td><input type="number" class="score-input s2" value="${s.grades.score2||''}"></td>
+    <td><input type="number" class="score-input s3" value="${s.grades.score3||''}"></td>
+    <td>${s.grades.total||''}</td></tr>
+  `).join('');
 }
 
 async function saveGrades() {
-  const year = document.getElementById('gradeYear').value;
-  const cls = document.getElementById('gradeClassroom').value;
-  const subj = document.getElementById('gradeSubject').value;
-  
-  // รวบรวมข้อมูลจากตาราง
   const records = [];
   document.querySelectorAll('#gradeTbody tr[data-sid]').forEach(tr => {
-    const sid = tr.getAttribute('data-sid');
-    const s1 = tr.querySelector('.s1').value;
-    const s2 = tr.querySelector('.s2').value;
-    const s3 = tr.querySelector('.s3').value;
-    
-    // ส่งไปเฉพาะคนที่มีการกรอกคะแนนอย่างน้อย 1 ช่อง (เพื่อลดการบันทึกขยะลงชีท)
-    if (s1 !== "" || s2 !== "" || s3 !== "") {
-      records.push({ studentId: sid, score1: s1, score2: s2, score3: s3 });
-    }
+    records.push({ studentId: tr.dataset.sid, score1: tr.querySelector('.s1').value, score2: tr.querySelector('.s2').value, score3: tr.querySelector('.s3').value });
   });
-
-  if (records.length === 0) {
-    showToast('ยังไม่มีการกรอกคะแนนใดๆ', 'warning');
-    return;
-  }
-
-  showProgress('กำลังบันทึกคะแนนลงระบบ...');
-  try {
-    const msg = await api('saveGrades', { year, classroom: cls, subject: subj, gradeRecords: records });
-    showToast('✅ ' + msg, 'success');
-  } catch(e) {
-    showToast('บันทึกไม่สำเร็จ: ' + e.message, 'error');
-  }
-  hideProgress();
-}
-  // โหลดรายชื่อครูมาแสดงในหน้า Admin
-// แก้ไขฟังก์ชัน loadTeacherTable
-async function loadTeacherTable() {
-  showProgress('กำลังโหลดข้อมูลครู...');
-  try {
-    const teachers = await api('getTeacherList');
-    // 1. ดึงรายวิชาทั้งหมดจากชีทเพื่อนำมาทำ Checkbox
-    // เราสร้างฟังก์ชันใหม่ใน API ชื่อ 'getAllSubjects' 
-    const allSubjectsData = await api('getAllSubjects'); 
-    
-    const tbody = document.getElementById('teacherTbody');
-    
-    tbody.innerHTML = teachers.map(t => {
-      const id = t[0], name = t[1], cls = t[3];
-      if(cls === '*') return '';
-      
-      // หาช่องวิชาที่ตรงกับชั้นเรียนนี้จากข้อมูลที่ดึงมา
-      const subs = allSubjectsData[cls] || [];
-      const checkboxes = subs.map(s => 
-        `<label class="me-2"><input type="checkbox" value="${s}" class="sub-check-${id}"> ${s}</label>`
-      ).join('');
-      
-      return `<tr>
-        <td>${name}</td>
-        <td>${cls}</td>
-        <td class="text-start">${checkboxes}</td>
-        <td><button class="btn btn-sm btn-primary" onclick="saveTeacher('${id}','${name}','${cls}')">บันทึก</button></td>
-      </tr>`;
-    }).join('');
-  } catch(e) {
-    showToast('โหลดข้อมูลพลาด: ' + e.message, 'error');
-  }
-  hideProgress();
+  await api('saveGrades', { year: '2568', classroom: document.getElementById('gradeClassroom').value, subject: document.getElementById('gradeSubject').value, gradeRecords: records });
+  alert('บันทึกสำเร็จ');
 }
 
-// บันทึกการเลือกวิชา
-async function saveTeacher(id, name, cls) {
-  const selected = [];
-  document.querySelectorAll(`.sub-check-${id}:checked`).forEach(c => selected.push(c.value));
-  await api('saveTeacherAssignments', { teacherId: id, teacherName: name, classroom: cls, subjects: selected.join(',') });
-  showToast('บันทึกวิชาสอนของครู ' + name + ' แล้ว', 'success');
-}
+function logout() { location.reload(); }
 </script>
 </body>
 </html>
