@@ -286,6 +286,11 @@ function showPage(page) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.getElementById(page).classList.add('active');
   window.scrollTo(0,0);
+  
+  // ✅ เพิ่มจุดนี้: ถ้าเปิดหน้า adminPage ให้สั่งโหลดรายชื่อครูทันที
+  if (page === 'adminPage') {
+    loadTeacherTable();
+  }
 }
 
 // ==========================================
