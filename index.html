@@ -820,6 +820,9 @@ IGNORE_R = false;
 // ─── BUILD TABLE ─────────────────────────
 function buildTable(){ buildHead(); buildBody(); document.getElementById('gtbl').classList.remove('t1-collapsed','t2-collapsed'); EXP={1:true,2:true}; }
 
+// ==========================================
+// 🏗️ ฟังก์ชันสร้างหัวตาราง (นำปุ่มยุบเทอม 2 กลับมาแล้ว)
+// ==========================================
 function buildHead(){
   const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
   const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
@@ -844,9 +847,15 @@ function buildHead(){
     r1 += `<th rowspan="2" class="th-base" style="width:65px; background:#475569; color:#fff;">สถานะ</th>`;
   }
 
+  // --- ของประถม (มีเทอม 2) ---
   if (!IS_SEM_MODE) {
     if(n2>0) r1+=`<th colspan="${n2+1}" class="th-t2s sc2">📝 คะแนนย่อย เทอม 2</th>`;
-    r1+=`<th rowspan="2" class="th-t2sc" style="width:88px;">เก็บ ท.2<br><small>(${t2a})</small></th>
+    
+    // ✨ คืนชีพปุ่มยุบคะแนนย่อยเทอม 2 ตรงนี้ครับ
+    r1+=`<th rowspan="2" class="th-t2sc" style="width:88px;">
+      <div style="margin-bottom:3px;">เก็บ ท.2<br><small>(${t2a})</small></div>
+      ${n2>0?`<button class="tbtn" id="tbtn2" onclick="toggleCols(2)"><span class="arr">▼</span> ยุบ</button>`:''}
+    </th>
     <th rowspan="2" class="th-t2e" style="width:72px;">สอบ ท.2<br><small>(${t2e})</small></th>
     <th rowspan="2" class="th-t2t" style="width:72px;">รวม ท.2<br><small>(50)</small></th>
     <th rowspan="2" class="th-grand" style="width:74px;">รวม<br>ทั้งปี</th>`;
@@ -865,7 +874,6 @@ function buildHead(){
 
   document.getElementById('gtHead').innerHTML=`<tr>${r1}</tr><tr>${r2}</tr>`;
 }
-
 function buildBody(){
   const t1a=+document.getElementById('c_t1a').value, t1eM=+document.getElementById('c_t1e').value;
   const n1=SI[1].length, rm1=getRawMax(1);
