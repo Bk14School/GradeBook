@@ -1583,7 +1583,7 @@ function saveSchedule() {
   toast('✅ บันทึกตารางสอนสำหรับวิชานี้เรียบร้อย');
 }
 
-  // ==========================================
+ // ==========================================
 // 🖨️ ฟังก์ชันสั่งพิมพ์ PDF ปพ.5 (แบบรูปเล่มแนวตั้ง)
 // ==========================================
 async function printPP5PDF() {
@@ -1597,17 +1597,18 @@ async function printPP5PDF() {
 
   if (!confirm(`ต้องการพิมพ์แบบรายงาน ปพ.5 วิชา ${subj} ชั้น ${classroom} ใช่หรือไม่?`)) return;
 
-  pg('กำลังสร้าง ปพ.5 (รวมข้อมูล 4 ส่วน)...');
+  pg('กำลังสร้าง ปพ.5 (รูปเล่ม 4 ส่วน)...');
   try {
     const pdfData = await api('generatePP5PDF', { 
       year: year, 
       classroom: classroom, 
       subject: subj, 
-      ignoreR: IGNORE_R 
+      ignoreR: IGNORE_R,
+      teacherName: CU ? CU.name : "" // ดึงชื่อครูที่ล็อคอินอยู่ส่งไปด้วย
     });
     
     openBase64Pdf(pdfData, `ปพ5_${subj}_${classroom}.pdf`);
-    toast('✅ สร้าง ปพ.5 สำเร็จ');
+    toast('✅ สร้าง ปพ.5 รูปเล่มสำเร็จ');
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
