@@ -1016,6 +1016,8 @@ function recalcTots(tr){
   }
 }
 
+
+// ─── SAVE ─────────────────────────────────
 async function saveGrades(){
   const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
   const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
@@ -1037,14 +1039,15 @@ async function saveGrades(){
     // ดึงสถานะ ร จากหน้าเว็บ (ถ้าเป็นมัธยมจะเก็บใส่ t2_acc)
     let t2acc = 0;
     if (IS_SEM_MODE) {
-        t2acc = tr.querySelector('.r-status')?.value || 'ปกติ';
+        const rSel = tr.querySelector('.r-status');
+        t2acc = rSel ? rSel.value : 'ปกติ';
     } else {
         t2acc = rm2>0 ? scl(t2r,rm2,t2a) : (+tr.querySelector('.t2sc')?.textContent||0);
     }
 
     const t1ex=tr.querySelector('.s-t1e')?.value||'', t2ex=tr.querySelector('.s-t2e')?.value||'';
     
-    // บันทึกข้อมูลของนักเรียนทุกคนในตาราง
+    // บันทึกข้อมูลของนักเรียนทุกคนในตาราง ไม่ว่าจะกรอกคะแนนแล้วหรือไม่
     records.push({
       studentId:sid,
       t1_sub:t1sv, t1_acc:t1acc, t1_exam:t1ex,
@@ -1067,6 +1070,7 @@ async function saveGrades(){
   }catch(e){toast(e.message,'error');}
   pg_();
 }
+
 // ฟังก์ชันแปลงคะแนนเป็นเกรด
 function calcGradeFrontend(s) {
   s = Number(s) || 0;
@@ -1080,43 +1084,7 @@ function calcGradeFrontend(s) {
   return "0";
 }
   
-// ─── SAVE ─────────────────────────────────
-async function saveGrades(){
-  const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
-  const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
-  
-  const targetTotal = IS_SEM_MODE ? 100 : 50;
-
-  if(t1a + t1e !== targetTotal) return toast(`คะแนนรวมต้องเท่ากับ ${targetTotal}`,'error');
-  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) return toast(`คะแนนรวมเทอม 2 ต้องเท่ากับ ${targetTotal}`,'error');
-
-  const rm1=getRawMax(1), rm2=getRawMax(2), records=[];
-  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
-    const sid=tr.getAttribute('data-sid');
-    const t1sv=[...tr.querySelectorAll('.sub1')].map(i=>i.value);
-    const t2sv=[...tr.querySelectorAll('.sub2')].map(i=>i.value);
-    const t1r=t1sv.reduce((s,v)=>s+(+v||0),0), t2r=t2sv.reduce((s,v)=>s+(+v||0),0);
-    const t1acc=rm1>0?scl(t1r,rm1,t1a):(+tr.querySelector('.t1sc')?.textContent||0);
-    const t2acc=rm2>0?scl(t2r,rm2,t2a):(+tr.querySelector('.t2sc')?.textContent||0);
-    const t1ex=tr.querySelector('.s-t1e')?.value||'', t2ex=tr.querySelector('.s-t2e')?.value||'';
-    const has=t1sv.some(v=>v!=='')||t2sv.some(v=>v!=='')||t1ex!==''||t2ex!=='';
-    if(has)records.push({studentId:sid,t1_sub:t1sv,t1_acc:t1acc,t1_exam:t1ex,t2_sub:t2sv,t2_acc:t2acc,t2_exam:t2ex});
-  });
-  if(!records.length)return toast('ยังไม่มีข้อมูล','warning');
-  pg('บันทึก...');
-  try{
-    const msg=await api('saveGrades',{
-      year:document.getElementById('gYear').value,
-      classroom:document.getElementById('gClass').value,
-      subject:document.getElementById('gSubj').value,
-      config:{t1_acc:t1a,t1_exam:t1e,t2_acc:t2a,t2_exam:t2e,subItems:{t1:SI[1],t2:SI[2]},rawMax:{t1:rm1,t2:rm2}},
-      gradeRecords:records
-    });
-    toast('✅ '+msg);
-  }catch(e){toast(e.message,'error');}
-  pg_();
-}
-  async function saveConfigOnly() {
+async function saveConfigOnly() {
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
