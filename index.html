@@ -677,54 +677,97 @@ function toggleCols(t){
 }
 
 // ─── LOAD GRADES ─────────────────────────
-async function loadGrades(){
+async function loadGrades() {
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
-  
-  if(!subj || subj === "-- ไม่พบวิชา --") return toast('กรุณาเลือกวิชาที่ถูกต้อง','error');
-  
+
+  if (!subj || subj === "-- ไม่พบวิชา --") return toast('กรุณาเลือกวิชาที่ถูกต้อง', 'error');
+
   document.getElementById('lblClass').textContent = cls;
   document.getElementById('lblSubj').textContent = subj;
   pg('ดึงข้อมูล...');
-  
-  try{
-    const res = await api('getGrades', {year, classroom: cls, subject: subj});
-    
-    // ตั้งค่าตัวเลขสัดส่วน
-    document.getElementById('c_t1a').value = res.config.t1_acc;
-    document.getElementById('c_t1e').value = res.config.t1_exam;
-    document.getElementById('c_t2a').value = res.config.t2_acc;
-    document.getElementById('c_t2e').value = res.config.t2_exam;
 
-    // ตั้งค่าหัวข้อย่อย
-    SI[1] = res.config.subItems?.t1 || [];
-    SI[2] = res.config.subItems?.t2 || [];
-    
-   
-    updRaw(1);
-    updRaw(2);
+  try {
+    const res = await api('getGrades', { year, classroom: cls, subject: subj });
+    const config = res.data ? res.data.config : res.config; // รองรับโครงสร้างข้อมูลทั้งสองแบบ
 
-    STUDENTS = res.students;
-    EXP = {1: true, 2: true};
+    // --- ส่วนที่ปรับปรุง: ตรวจสอบโหมดชั้นเรียน (ประถม vs มัธยม) ---
+    // ใช้การเช็คว่ามีคำว่า "เทอม" ในชื่อชั้นเรียนหรือไม่ (เช่น ม.1 เทอม 1)
+    const isSemesterMode = cls.includes("เทอม"); 
+
+    // 1. ตั้งค่าตัวเลขสัดส่วนในช่อง Input
+    document.getElementById('c_t1a').value = config.t1_acc;
+    document.getElementById('c_t1e').value = config.t1_exam;
+    document.getElementById('c_t2a').value = config.t2_acc;
+    document.getElementById('c_t2e').value = config.t2_exam;
+
+    // 2. ปรับปรุง UI ส่วนการตั้งค่า (Accordion) ให้เหมาะกับโหมด
+    const t2Tab = document.querySelector('.ttab[onclick*="switchTerm(2"]');
+    const t2Block = document.querySelector('.cfg-block:nth-child(2)');
+    const t1Title = document.querySelector('.cfg-ttl[style*="color:#1d4ed8"]');
+    const btnAddT1 = document.querySelector('.btn-add-sub[onclick="addSub(1)"]');
+
+    if (isSemesterMode) {
+      // โหมดมัธยม: ซ่อนส่วนของเทอม 2 ทั้งหมด
+      if (t2Tab) t2Tab.style.display = 'none'; 
+      if (t2Block) t2Block.style.display = 'none';
+      if (t1Title) t1Title.textContent = "คะแนนภาคเรียนนี้ (เก็บ/สอบ)";
+      if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อคะแนนย่อย";
+      
+      // บังคับ Tab ให้ไปอยู่ที่เทอม 1 เสมอ
+      switchTerm(1, document.querySelector('.ttab[onclick*="switchTerm(1"]'));
+      
+      // ล้างข้อมูลเทอม 2 ทิ้งเพื่อความปลอดภัย
+      SI[2] = []; 
+    } else {
+      // โหมดประถม: แสดงทั้ง 2 เทอมตามปกติ
+      if (t2Tab) t2Tab.style.display = 'block';
+      if (t2Block) t2Block.style.display = 'flex';
+      if (t1Title) t1Title.textContent = "เทอม 1 (เก็บ/สอบ)";
+      if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อ เทอม 1";
+    }
+
+    // 3. ตั้งค่าหัวข้อย่อยจากข้อมูลที่โหลดมา
+    SI[1] = config.subItems?.t1 || [];
+    SI[2] = isSemesterMode ? [] : (config.subItems?.t2 || []);
+
+    // 4. อัปเดตการแสดงผลในหน้าตั้งค่า (List หัวข้อ)
+    renderSubList(1);
+    if (!isSemesterMode) renderSubList(2);
+    onCfg();
+
+    // 5. โหลดข้อมูลนักเรียนและสร้างตาราง
+    STUDENTS = res.students || (res.data ? res.data.students : []);
+    EXP = { 1: true, 2: true };
     
     document.getElementById('gradePanel').style.display = '';
+    
+    // สร้างตารางเกรด
     buildTable();
 
-        const acc = document.getElementById('accMain');
+    // ปิด Accordion ตั้งค่าอัตโนมัติเพื่อให้เห็นตารางทันที
+    const acc = document.getElementById('accMain');
     const body = document.getElementById('accMainBody');
     if (acc && body) {
-        acc.classList.remove('open');
-        body.classList.add('hidden');
+      acc.classList.remove('open');
+      body.classList.add('hidden');
     }
-    
-  } catch(e) {
+
+    // แจ้งเตือนสถานะโหมด
+    if (isSemesterMode) {
+      toast('📂 โหมดมัธยม: บันทึกคะแนนรายภาคเรียน (รวม 100 คะแนน)');
+    } else {
+      toast('📂 โหมดประถม: บันทึกคะแนนรายปี (เทอม 1+2 รวม 100 คะแนน)');
+    }
+
+  } catch (e) {
+    console.error(e);
     toast(e.message, 'error');
     document.getElementById('gradePanel').style.display = 'none';
   }
   pg_();
 }
-
 // ─── BUILD TABLE ─────────────────────────
 function buildTable(){ buildHead(); buildBody(); document.getElementById('gtbl').classList.remove('t1-collapsed','t2-collapsed'); EXP={1:true,2:true}; }
 
