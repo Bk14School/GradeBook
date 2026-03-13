@@ -1442,12 +1442,16 @@ function renderHolisticTable(students) {
 }
 
 // คำนวณค่าเฉลี่ยแบบเรียลไทม์เมื่อพิมพ์คะแนน 0-3
+// คำนวณค่าเฉลี่ยแบบเรียลไทม์เมื่อพิมพ์คะแนน 0-3
 function calcAssRow(inputEl, type) {
   if (!inputEl) return;
   const tr = inputEl.closest('tr');
+  if (!tr) return;
+  
   const inputs = tr.querySelectorAll(`.${type}-inp`);
   let sum = 0, count = 0;
 
+  // 1. คำนวณผลรวม
   inputs.forEach(inp => {
     let val = parseFloat(inp.value);
     if (!isNaN(val)) {
@@ -1455,31 +1459,43 @@ function calcAssRow(inputEl, type) {
       if (val < 0) { inp.value = 0; val = 0; }
       sum += val;
       count++;
-      
-      // ฟังก์ชันเลื่อนเคอร์เซอร์เมื่อพิมพ์ 1 ตัว
-      if (inp.value.length >= 1) {
-        const td = inp.closest('td');
-        const nextTd = td.nextElementSibling;
-        if(nextTd && nextTd.querySelector('.inp-ass')) {
-          nextTd.querySelector('.inp-ass').focus();
-          nextTd.querySelector('.inp-ass').select();
-        }
-      }
     }
   });
 
+  // 2. ✨ ย้ายระบบเคอร์เซอร์กระโดดมาไว้นอก Loop เพื่อให้ทำเฉพาะช่องที่กำลังพิมพ์
+  if (document.activeElement === inputEl && inputEl.value.length >= 1) {
+    let nextTd = inputEl.closest('td').nextElementSibling;
+    let nextInput = null;
+    
+    // วนหาช่องกรอกคะแนนถัดไป (ข้ามช่องผลรวม/เกรด)
+    while (nextTd) {
+      nextInput = nextTd.querySelector('.inp-ass');
+      if (nextInput) break;
+      nextTd = nextTd.nextElementSibling;
+    }
+    
+    if (nextInput) {
+      nextInput.focus();
+      nextInput.select();
+    }
+  }
+
+  // 3. ✨ เพิ่ม If ป้องกัน Error (Cannot set properties of null)
   const totalEl = tr.querySelector(`.${type}-total`);
   const resultBadge = tr.querySelector(`.${type}-result`);
   const hiddenFinal = tr.querySelector(`.${type}-final-val`);
 
   if (count === 0) {
-    totalEl.textContent = "-";
-    resultBadge.textContent = "-";
-    resultBadge.className = `res-badge`;
-    hiddenFinal.value = "";
+    if (totalEl) totalEl.textContent = "-";
+    if (resultBadge) {
+       resultBadge.textContent = "-";
+       resultBadge.className = `res-badge`;
+    }
+    if (hiddenFinal) hiddenFinal.value = "";
     return;
   }
 
+  // 4. สรุปผลการประเมิน
   const avg = sum / count;
   let resText = "", resClass = "", pdfValue = "";
 
@@ -1488,12 +1504,14 @@ function calcAssRow(inputEl, type) {
   else if (avg >= 1.0) { resText = "ผ่าน"; resClass = "res-1"; pdfValue = "ผ่าน (1)"; } 
   else { resText = "ไม่ผ่าน"; resClass = "res-0"; pdfValue = "ไม่ผ่าน (0)"; }
 
-  totalEl.textContent = sum;
-  resultBadge.textContent = resText;
-  resultBadge.className = `res-badge ${resClass}`;
-  hiddenFinal.value = pdfValue; // อัปเดตค่าซ่อนเพื่อรอส่งไปเซฟ
+  // 5. แสดงผลหน้าจอ (อัปเดตอย่างปลอดภัย)
+  if (totalEl) totalEl.textContent = sum;
+  if (resultBadge) {
+     resultBadge.textContent = resText;
+     resultBadge.className = `res-badge ${resClass}`;
+  }
+  if (hiddenFinal) hiddenFinal.value = pdfValue;
 }
-
 // ฟังก์ชันบันทึกข้อมูลประเมินลง Spreadsheet (ดึงจาก Hidden Input)
 async function saveHolisticData() {
   const records = [];
