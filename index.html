@@ -525,24 +525,10 @@ function toggleAcc(id) {
 // helper อ่าน id → summary el
 function getSumEl(id){ return document.getElementById(id==='acc1'?'acc1Summary':'acc2Summary'); }
 
-function updateSummary(id){
-  const el=getSumEl(id);
-  if(!el) return;
-  if(id==='acc1'){
-    const t1a=document.getElementById('c_t1a').value;
-    const t1e=document.getElementById('c_t1e').value;
-    const t2a=document.getElementById('c_t2a').value;
-    const t2e=document.getElementById('c_t2e').value;
-    el.innerHTML=`
-      <span class="chip t1">ท.1 เก็บ ${t1a} | สอบ ${t1e}</span>
-      <span class="chip t2">ท.2 เก็บ ${t2a} | สอบ ${t2e}</span>`;
-  } else {
-    const n1=SI[1].length, n2=SI[2].length;
-    const rm1=getRawMax(1), rm2=getRawMax(2);
-    el.innerHTML=`
-      <span class="chip sub">ท.1: ${n1} หัวข้อ (max raw ${rm1})</span>
-      <span class="chip sub">ท.2: ${n2} หัวข้อ (max raw ${rm2})</span>`;
-  }
+// แก้ไขให้เป็นแบบนี้ครับ
+function updateSummary(id) {
+  // ยุบรวม Accordion แล้ว ฟังก์ชันนี้ไม่ต้องทำงานแล้วครับ
+  return; 
 }
 
 // ─── PIN ─────────────────────────────────
