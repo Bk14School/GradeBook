@@ -419,7 +419,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
   </div>
 
   <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <button class="btn-pri" onclick="printStudentPDF()">🧾 พิมพ์รายคน</button>
     <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ทั้งห้อง</button>
     <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
   </div>
@@ -847,8 +846,13 @@ function buildBody(){
       <tr data-sid="${s.studentId}">
         <td class="s-c0">${idx+1}</td>
         <td class="s-c1">${s.studentId}</td>
-        <td class="s-c2">${s.name}</td>
-        <td><span class="sp p">ม ${st.present||0}</span> <span class="sp a">ข ${st.absent||0}</span> <span class="sp l">ล ${st.leave||0}</span></td>
+<td class="s-c2">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <span>${s.name}</span>
+    <button class="btn-sm" style="padding: 2px 8px; font-size: 0.75rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; margin-left: 5px;" onclick="printRowPDF('${s.studentId}')" title="พิมพ์ ปพ.6 ของ ${s.name}">🖨️</button>
+  </div>
+</td>
+<td><span class="sp p">ม ${st.present||0}</span> <span class="sp a">ข ${st.absent||0}</span> <span class="sp l">ล ${st.leave||0}</span></td>
         ${t1sc}${t1rC}
         <td class="td-sc1"><span class="t1sc">${t1sc_v!==''?t1sc_v:'-'}</span></td>
         <td><input type="number" class="sinput s-t1e" min="0" max="${t1eM}" value="${t1e_v}" oninput="calcExam(this)"></td>
@@ -1134,21 +1138,17 @@ function openBase64Pdf(dataUri, fileName='report.pdf') {
   }
 }
 
-function askStudentForPDF() {
-  const sid = prompt('กรอกรหัสนักเรียนที่ต้องการพิมพ์รายงาน');
-  if (!sid) return null;
-  return sid.trim();
-}
 
-async function printStudentPDF() {
+// ==========================================
+// 🖨️ ฟังก์ชันสั่งพิมพ์ PDF รายบุคคล (จากปุ่มหลังชื่อตาราง)
+// ==========================================
+async function printRowPDF(studentId) {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
-  const studentId = askStudentForPDF();
 
-  if (!studentId) return;
-
-  pg('กำลังสร้าง PDF รายบุคคล...');
+  pg('กำลังสร้าง PDF...');
   try {
+    // เรียก Google Apps Script ให้สร้าง PDF ของรหัสนักเรียนที่กด
     const pdfData = await api('generateStudentPDF', { year, classroom, studentId });
     openBase64Pdf(pdfData, `ปพ6_${studentId}_${classroom}.pdf`);
     toast('สร้าง PDF รายบุคคลสำเร็จ');
@@ -1157,6 +1157,7 @@ async function printStudentPDF() {
   }
   pg_();
 }
+  
 
 async function printClassPDF() {
   const year = document.getElementById('gYear').value;
