@@ -1397,32 +1397,32 @@ function renderHolisticTable(students) {
   skItems.forEach((s, i) => thSub += `<th class="v-text" style="background:#e5e7eb;">${i+1}.${s}</th>`);
   thSub += `<th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>`;
 
-  let trs = students.map((s, idx) => {
+ let trs = students.map((s, idx) => {
     const h = s.holistic || {};
     const cVals = (h.char_scores && h.char_scores.length === 8) ? h.char_scores : Array(8).fill("");
     const rVals = (h.read_scores && h.read_scores.length === 5) ? h.read_scores : Array(5).fill("");
     const sVals = (h.skill_scores && h.skill_scores.length === 5) ? h.skill_scores : Array(5).fill("");
 
-    let cHtml = cVals.map(v => `<td><input type="number" class="inp-ass c-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'c')"></td>`).join('');
-    let rHtml = rVals.map(v => `<td><input type="number" class="inp-ass r-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'r')"></td>`).join('');
-    let sHtml = sVals.map(v => `<td><input type="number" class="inp-ass s-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 's')"></td>`).join('');
+    // สร้าง Input ทุกตัวในแถวเดียว
+    let cHtml = cVals.map(v => `<td><input type="number" class="inp-ass c-inp" value="${v}" oninput="calcAssRow(this, 'c')"></td>`).join('');
+    let rHtml = rVals.map(v => `<td><input type="number" class="inp-ass r-inp" value="${v}" oninput="calcAssRow(this, 'r')"></td>`).join('');
+    let sHtml = sVals.map(v => `<td><input type="number" class="inp-ass s-inp" value="${v}" oninput="calcAssRow(this, 's')"></td>`).join('');
 
     return `<tr data-hsid="${s.studentId}">
-              <td>${idx+1}</td><td>${s.studentId}</td><td style="text-align:left; font-weight:600;">${s.name}</td>
-              ${cHtml}<td class="bg-sum c-total">-</td><td><span class="res-badge c-result">-</span><input type="hidden" class="c-final-val" value="${h.char || ''}"></td>
-              ${rHtml}<td class="bg-sum r-total">-</td><td><span class="res-badge r-result">-</span><input type="hidden" class="r-final-val" value="${h.read || ''}"></td>
-              ${sHtml}<td class="bg-sum s-total">-</td><td><span class="res-badge s-result">-</span><input type="hidden" class="s-final-val" value="${h.skill || ''}"></td>
+              <td>${idx+1}</td><td>${s.name}</td>
+              ${cHtml}<td class="bg-sum c-total">-</td><td><input type="hidden" class="c-final-val" value="${h.char || ''}"></td>
+              ${rHtml}<td class="bg-sum r-total">-</td><td><input type="hidden" class="r-final-val" value="${h.read || ''}"></td>
+              ${sHtml}<td class="bg-sum s-total">-</td><td><input type="hidden" class="s-final-val" value="${h.skill || ''}"></td>
             </tr>`;
   }).join('');
 
-  document.getElementById('assContainer').innerHTML = `<div class="ass-wrap"><table class="ass-tbl"><thead><tr>${thItems}</tr><tr>${thSub}</tr></thead><tbody>${trs}</tbody></table></div>`;
-
-  // คำนวณเริ่มต้น
-  document.querySelectorAll('#assBody tr').forEach(tr => {
-    calcAssRow(tr.querySelector('.c-inp'), 'c');
-    calcAssRow(tr.querySelector('.r-inp'), 'r');
-    calcAssRow(tr.querySelector('.s-inp'), 's');
-  });
+  document.getElementById('assContainer').innerHTML = `
+    <div class="ass-wrap">
+      <table class="ass-tbl" id="assBody">
+        <thead>...หัวตารางรวม...</thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>`;
 }
 
 // คำนวณค่าเฉลี่ยแบบเรียลไทม์เมื่อพิมพ์คะแนน 0-3
@@ -1499,34 +1499,18 @@ function calcAssRow(inputEl, type) {
   
 async function saveHolisticData() {
   const records = [];
-  
-  // วนลูปที่ตารางหลัก (gtBody) เพื่อดึง sid
-  document.querySelectorAll('#gtBody tr[data-sid]').forEach((tr, index) => {
-    const sid = tr.getAttribute('data-sid');
-    
-    // ดึงแถวตารางประเมินผล (ต้องระบุ index ให้ถูก)
-    const assTr = document.querySelector(`#assBody tr:nth-child(${index + 1})`);
-    const skillTr = document.querySelector(`#skillContainer tr:nth-child(${index + 1})`);
-
-    // ตรวจสอบว่าดึงค่าได้หรือไม่
-    const cVals = assTr ? [...assTr.querySelectorAll('.c-inp')].map(i => i.value) : Array(8).fill("");
-    const rVals = assTr ? [...assTr.querySelectorAll('.r-inp')].map(i => i.value) : Array(5).fill("");
-    const sVals = skillTr ? [...skillTr.querySelectorAll('.s-inp')].map(i => i.value) : Array(5).fill("");
-
+  document.querySelectorAll('#assBody tr[data-hsid]').forEach(tr => {
     records.push({
-      studentId: sid,
-      // ต้องส่งให้ตรงชื่อที่ Backend (saveHolistic) กำลังรอรับ!
-      char_scores: cVals, 
-      char_total: assTr ? assTr.querySelector('.c-total').textContent : "0",
-      char: assTr ? assTr.querySelector('.c-final-val').value : "ดีเยี่ยม (3)",
-      
-      read_scores: rVals,
-      read_total: assTr ? assTr.querySelector('.r-total').textContent : "0",
-      read: assTr ? assTr.querySelector('.r-final-val').value : "ดีเยี่ยม (3)",
-      
-      skill_scores: sVals,
-      skill_total: skillTr ? skillTr.querySelector('.s-total').textContent : "0",
-      skill: skillTr ? skillTr.querySelector('.s-final-val').value : "ดีเยี่ยม (3)"
+      studentId: tr.getAttribute('data-hsid'),
+      char_scores: [...tr.querySelectorAll('.c-inp')].map(i => i.value),
+      char_total: tr.querySelector('.c-total').textContent,
+      char: tr.querySelector('.c-final-val').value,
+      read_scores: [...tr.querySelectorAll('.r-inp')].map(i => i.value),
+      read_total: tr.querySelector('.r-total').textContent,
+      read: tr.querySelector('.r-final-val').value,
+      skill_scores: [...tr.querySelectorAll('.s-inp')].map(i => i.value),
+      skill_total: tr.querySelector('.s-total').textContent,
+      skill: tr.querySelector('.s-final-val').value
     });
   });
 
