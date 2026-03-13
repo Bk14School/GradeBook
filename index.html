@@ -1712,8 +1712,12 @@ function saveCourseInfo() {
   saveConfigOnly(); 
 }
 
-// ฟังก์ชันคำนวณเวลาเรียนรวม
+// ==========================================
+// 🕒 ฟังก์ชันคำนวณเวลาเรียน & บันทึกข้อมูลวิชา
+// ==========================================
+
 function calcTotalHours() {
+  // ฟังก์ชันนี้จะทำงานทันทีแค่ตอน "พิมพ์ตัวเลข" เพื่อคำนวณผลลัพธ์โชว์บนจอ (แต่ยังไม่บันทึกลงฐานข้อมูล)
   const m = Number(document.getElementById('sch_mon').value) || 0;
   const tu = Number(document.getElementById('sch_tue').value) || 0;
   const w = Number(document.getElementById('sch_wed').value) || 0;
@@ -1722,14 +1726,26 @@ function calcTotalHours() {
   
   const totalPerWeek = m + tu + w + th + f;
   
-  // สมมติว่า 1 ภาคเรียนมี 20 สัปดาห์การศึกษา (มาตรฐาน มัธยม)
-  // หากระบบคุณมีการดึง Start Date / End Date มาได้ สามารถเขียน Logic นับจำนวนวันเป๊ะๆ ได้
+  // กำหนดให้ 1 ภาคเรียนมีประมาณ 20 สัปดาห์ (สามารถปรับตามจริงได้)
   const totalWeeksInTerm = 20; 
   
   const totalHours = totalPerWeek * totalWeeksInTerm;
   document.getElementById('ci_total_hours').textContent = totalHours;
+}
+
+function saveCourseInfo() {
+  // เมื่อกดปุ่ม "บันทึกข้อมูลรายวิชา" จะมาเรียกใช้ฟังก์ชันนี้
+  // ซึ่งจะไปสั่งให้ saveConfigOnly() กวาดข้อมูลทั้งหมดบันทึกลง Google Sheet
+  saveConfigOnly();
   
-  saveCourseInfo();
+  // แจ้งเตือนย้ำให้ครูทราบ
+  toast('✅ บันทึกข้อมูลรายวิชาสำเร็จ');
+  
+  // (ทางเลือก) ปิด Accordion อัตโนมัติหลังบันทึกเสร็จ
+  setTimeout(() => {
+    document.getElementById('accCourseInfo').classList.remove('open');
+    document.getElementById('accCourseInfoBody').classList.add('hidden');
+  }, 1000);
 }
   
 </script>
