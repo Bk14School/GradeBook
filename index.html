@@ -710,6 +710,13 @@ async function loadGrades(){
     
     document.getElementById('gradePanel').style.display = '';
     buildTable();
+
+        const acc = document.getElementById('accMain');
+    const body = document.getElementById('accMainBody');
+    if (acc && body) {
+        acc.classList.remove('open');
+        body.classList.add('hidden');
+    }
     
   } catch(e) {
     toast(e.message, 'error');
