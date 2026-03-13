@@ -654,10 +654,13 @@ function renderSubList(t){
     </div>`).join('');
   updRaw(t);
 }
-  function updRaw(t){
+function updRaw(t){
   const rm=getRawMax(t), sm=Number(document.getElementById(`c_t${t}a`).value)||0;
-  document.getElementById(`rmx${t}`).textContent=rm;
-  document.getElementById(`smx${t}`).textContent=sm;
+  const elRmx = document.getElementById(`rmx${t}`);
+  const elSmx = document.getElementById(`smx${t}`);
+  
+  if (elRmx) elRmx.textContent = rm;
+  if (elSmx) elSmx.textContent = sm;
 }
 // แก้ไขฟังก์ชันนี้ใน JavaScript ของคุณ
 // แก้ไขเป็นแบบนี้ครับ
