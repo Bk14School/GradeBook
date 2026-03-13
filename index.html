@@ -483,679 +483,370 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 </div>
 
 <script>
-  let IS_SEM_MODE = false; // เพิ่มตัวแปรนี้ไว้ด้านบนสุดของ script
-// ─────────────────────────────────────────
+// ─── 1. ตัวแปรส่วนกลาง (GLOBAL VARIABLES) ───
+let IS_SEM_MODE = false; // โหมดมัธยม (รายภาคเรียน)
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_-Q4T2dJUX6L7c3EEB-ODEtsxb0Plsu6RA_J8WBh_DTIPcV4-JCn-A0aLBXC6ARvN/exec";
 const ALL_CLS = ["ป.1","ป.2","ป.3","ป.4","ป.5","ป.6","ม.1 เทอม 1","ม.1 เทอม 2","ม.2 เทอม 1","ม.2 เทอม 2","ม.3 เทอม 1","ม.3 เทอม 2"];
 
-let CU=null, PIN="", SUBS={}, STUDENTS=[];
-let SI={1:[],2:[]};
-let EXP={1:true,2:true};
-let editTid=null, editAssigned=[];
+let CU = null, PIN = "", SUBS = {}, STUDENTS = [];
+let SI = { 1: [], 2: [] }; // หัวข้อย่อยเทอม 1 และ 2
+let EXP = { 1: true, 2: true };
+let editTid = null, editAssigned = [];
 
-// ─── UTILS ───────────────────────────────
-function toast(msg,type='success'){
-  const d=document.createElement('div'); d.className=`tst ${type}`; d.textContent=msg;
-  document.getElementById('tshelf').appendChild(d); setTimeout(()=>d.remove(),3000);
+// ─── 2. ฟังก์ชันพื้นฐาน (UTILS) ───
+function toast(msg, type = 'success') {
+  const d = document.createElement('div'); d.className = `tst ${type}`; d.textContent = msg;
+  document.getElementById('tshelf').appendChild(d); setTimeout(() => d.remove(), 3000);
 }
-function pg(t){document.getElementById('pgov').style.display='flex';document.getElementById('pgTxt').textContent=t||'...';}
-function pg_(){document.getElementById('pgov').style.display='none';}
-function showPage(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');scrollTo(0,0);}
-async function api(action,data={}){
-  const r=await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify({action,data})});
-  const j=await r.json(); if(j.status==='error')throw new Error(j.message); return j.data;
-}
-function getRawMax(t){return SI[t].reduce((s,x)=>s+(Number(x.max)||0),0);}
-function scl(raw,rm,sm){return rm>0?Math.round(raw/rm*sm*100)/100:0;}
+function pg(t) { document.getElementById('pgov').style.display = 'flex'; document.getElementById('pgTxt').textContent = t || 'กำลังโหลด...'; }
+function pg_() { document.getElementById('pgov').style.display = 'none'; }
+function showPage(id) { document.querySelectorAll('.pg').forEach(p => p.classList.remove('on')); document.getElementById(id).classList.add('on'); scrollTo(0, 0); }
 
-// ─── ACCORDION ───────────────────────────
+async function api(action, data = {}) {
+  const r = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action, data }) });
+  const j = await r.json(); 
+  if (j.status === 'error') throw new Error(j.message); 
+  return j.data;
+}
+
+function getRawMax(t) { return SI[t].reduce((s, x) => s + (Number(x.max) || 0), 0); }
+function scl(raw, rm, sm) { return rm > 0 ? Math.round(raw / rm * sm * 100) / 100 : 0; }
+
 function toggleAcc(id) {
   const el = document.getElementById(id);
   const body = document.getElementById(id + 'Body');
-  const isOpen = el.classList.contains('open');
-
-  if (isOpen) {
-    el.classList.remove('open');
-    body.classList.add('hidden');
-  } else {
-    el.classList.add('open');
-    body.classList.remove('hidden');
-  }
+  el.classList.toggle('open');
+  body.classList.toggle('hidden');
 }
 
-
-// ─── PIN ─────────────────────────────────
-function updDots(err=false){
-  document.querySelectorAll('.dot').forEach((d,i)=>{ d.className='dot'+(err?' err':(i<PIN.length?' on':'')); });
+// ─── 3. ระบบ LOGIN & LOGOUT ───
+function updDots(err = false) {
+  document.querySelectorAll('.dot').forEach((d, i) => { d.className = 'dot' + (err ? ' err' : (i < PIN.length ? ' on' : '')); });
 }
-function ap(n){if(PIN.length<4){PIN+=n;updDots();if(PIN.length===4)setTimeout(doLogin,150);}}
-function dp(){PIN=PIN.slice(0,-1);updDots();}
-function cp(){PIN="";updDots();}
+function ap(n) { if (PIN.length < 4) { PIN += n; updDots(); if (PIN.length === 4) setTimeout(doLogin, 150); } }
+function dp() { PIN = PIN.slice(0, -1); updDots(); }
+function cp() { PIN = ""; updDots(); }
 
-async function doLogin(){
+async function doLogin() {
   pg('กำลังโหลด...');
-  try{
-    const[u,subs]=await Promise.all([api('login',{password:PIN}),api('getAllSubjects')]);
-    CU=u; SUBS=subs;
-    document.getElementById('teacherTag').textContent=`🎓 ${CU.name}`;
-    document.getElementById('teacherTag').style.display='flex';
-    document.getElementById('btnGrade').style.display='inline-block';
-    document.getElementById('btnOut').style.display='inline-block';
-    if(CU.isAdmin){
-      document.getElementById('btnAdmin').style.display='inline-block';
+  try {
+    const [u, subs] = await Promise.all([api('login', { password: PIN }), api('getAllSubjects')]);
+    CU = u; SUBS = subs;
+    document.getElementById('teacherTag').textContent = `🎓 ${CU.name}`;
+    document.getElementById('teacherTag').style.display = 'flex';
+    document.getElementById('btnGrade').style.display = 'inline-block';
+    document.getElementById('btnOut').style.display = 'inline-block';
+    if (CU.isAdmin) {
+      document.getElementById('btnAdmin').style.display = 'inline-block';
       loadTeachers(); showPage('adminPage');
     } else {
-      CU.mySubjects=CU.subjects?CU.subjects.split(','):[];
-      const cls=[...new Set(CU.mySubjects.map(s=>s.split('_')[0]).filter(Boolean))];
-      CU.allowedClasses=cls;
-      const sel=document.getElementById('gClass');
-      sel.innerHTML=cls.length?cls.map(c=>`<option>${c}</option>`).join(''):`<option value="">ไม่มีสิทธิ์</option>`;
-      if(cls.includes(CU.classroom))sel.value=CU.classroom;
+      CU.mySubjects = CU.subjects ? CU.subjects.split(',') : [];
+      const cls = [...new Set(CU.mySubjects.map(s => s.split('_')[0]).filter(Boolean))];
+      const sel = document.getElementById('gClass');
+      sel.innerHTML = cls.length ? cls.map(c => `<option>${c}</option>`).join('') : `<option value="">ไม่มีสิทธิ์</option>`;
       updateSubjDrop(); showPage('gradePage');
     }
     cp();
-  }catch(e){updDots(true);setTimeout(cp,400);toast(e.message,'error');}
+  } catch (e) { updDots(true); setTimeout(cp, 400); toast(e.message, 'error'); }
   pg_();
 }
-function logout(){
-  CU=null;cp();
-  ['teacherTag','btnAdmin','btnGrade','btnOut'].forEach(id=>document.getElementById(id).style.display='none');
+
+function logout() {
+  CU = null; cp();
+  ['teacherTag', 'btnAdmin', 'btnGrade', 'btnOut'].forEach(id => document.getElementById(id).style.display = 'none');
   showPage('loginPage');
 }
 
-// ─── ADMIN ───────────────────────────────
-async function loadTeachers(){
-  pg('โหลดครู...');
-  try{
-    const ts=await api('getTeacherList');
-    document.getElementById('tTbody').innerHTML=ts.map(t=>{
-      const[id,name,,cls,,subsStr='']=[...t,'']; if(cls==='*')return'';
-      const tags=(subsStr?subsStr.split(','):[]).map(s=>{const[c,n]=s.split('_');return n?`<span class="badge bg-primary bg-opacity-10 text-primary border border-primary me-1" style="font-size:.74rem;">${c}: ${n}</span>`:''}).join('');
-      return`<tr><td><b>${name}</b><br><span class="text-muted" style="font-size:.76rem;">ประจำชั้น ${cls}</span></td>
-        <td>${tags||'<span class="text-muted" style="font-size:.78rem;">ยังไม่กำหนด</span>'}</td>
-        <td style="text-align:center;"><button class="btn-sm" onclick="openModal('${id}','${name}','${cls}','${subsStr}')">⚙️</button></td></tr>`;
+// ─── 4. ระบบจัดการครู (ADMIN LOGIC) ───
+async function loadTeachers() {
+  pg('โหลดรายชื่อครู...');
+  try {
+    const ts = await api('getTeacherList');
+    document.getElementById('tTbody').innerHTML = ts.map(t => {
+      const [id, name, , cls, , subsStr = ''] = [...t, '']; if (cls === '*') return '';
+      const tags = (subsStr ? subsStr.split(',') : []).map(s => { const [c, n] = s.split('_'); return `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary me-1" style="font-size:.7rem;">${c}: ${n}</span>` }).join('');
+      return `<tr><td><b>${name}</b><br><small class="text-muted">ประจำชั้น ${cls}</small></td><td>${tags || '-'}</td><td style="text-align:center;"><button class="btn-sm" onclick="openModal('${id}','${name}','${cls}','${subsStr}')">⚙️</button></td></tr>`;
     }).join('');
-  }catch(e){toast(e.message,'error');}
+  } catch (e) { toast(e.message, 'error'); }
   pg_();
 }
-function openModal(id,name,cls,subsStr){
-  editTid=id; editAssigned=subsStr?subsStr.split(','):[];
-  document.getElementById('modalName').textContent=name;
-  const sel=document.getElementById('mClassSel');
-  sel.innerHTML=ALL_CLS.map(c=>`<option>${c}</option>`).join('');
-  if(ALL_CLS.includes(cls))sel.value=cls;
-  document.getElementById('subModal').style.display='flex';
+
+function openModal(id, name, cls, subsStr) {
+  editTid = id; editAssigned = subsStr ? subsStr.split(',') : [];
+  document.getElementById('modalName').textContent = name;
+  const sel = document.getElementById('mClassSel');
+  sel.innerHTML = ALL_CLS.map(c => `<option>${c}</option>`).join('');
+  document.getElementById('subModal').style.display = 'flex';
   renderMCbs(); renderMAssigned();
 }
-function closeModal(){document.getElementById('subModal').style.display='none';}
-function renderMCbs(){
-  const cls=document.getElementById('mClassSel').value;
-  const subs=SUBS[cls]||[];
-  document.getElementById('mCbs').innerHTML=subs.length
-    ?subs.map(s=>{const v=`${cls}_${s}`;return`<label class="border p-2 rounded bg-white" style="cursor:pointer;font-size:.84rem;user-select:none;"><input type="checkbox" class="form-check-input me-1" value="${v}" ${editAssigned.includes(v)?'checked':''} onchange="toggleMSub(this)"> ${s}</label>`;}).join('')
-    :'<span class="text-muted">ไม่มีรายวิชา</span>';
+function closeModal() { document.getElementById('subModal').style.display = 'none'; }
+
+function renderMCbs() {
+  const cls = document.getElementById('mClassSel').value;
+  const subs = SUBS[cls] || [];
+  document.getElementById('mCbs').innerHTML = subs.length ? subs.map(s => { const v = `${cls}_${s}`; return `<label class="border p-2 rounded bg-white" style="cursor:pointer;font-size:.8rem;"><input type="checkbox" value="${v}" ${editAssigned.includes(v) ? 'checked' : ''} onchange="toggleMSub(this)"> ${s}</label>` }).join('') : 'ไม่มีรายวิชา';
 }
-function toggleMSub(cb){editAssigned=cb.checked?[...new Set([...editAssigned,cb.value])]:editAssigned.filter(v=>v!==cb.value);renderMAssigned();}
-function removeMSub(v){editAssigned=editAssigned.filter(x=>x!==v);renderMCbs();renderMAssigned();}
-function renderMAssigned(){
-  document.getElementById('mAssigned').innerHTML=editAssigned.length
-    ?editAssigned.map(s=>{const[c,n]=s.split('_');return`<div class="badge-item">${c}: ${n||s} <button onclick="removeMSub('${s}')">×</button></div>`;}).join('')
-    :'<div class="text-muted text-center mt-2" style="font-size:.8rem;">ยังไม่มีวิชา</div>';
+function toggleMSub(cb) { editAssigned = cb.checked ? [...new Set([...editAssigned, cb.value])] : editAssigned.filter(v => v !== cb.value); renderMAssigned(); }
+function removeMSub(v) { editAssigned = editAssigned.filter(x => x !== v); renderMCbs(); renderMAssigned(); }
+function renderMAssigned() {
+  document.getElementById('mAssigned').innerHTML = editAssigned.length ? editAssigned.map(s => { const [c, n] = s.split('_'); return `<div class="badge-item">${c}: ${n} <button onclick="removeMSub('${s}')">×</button></div>` }).join('') : 'ยังไม่มีวิชา';
 }
-async function saveModal(){
-  pg('บันทึก...');try{await api('saveTeacherAssignments',{teacherId:editTid,subjects:editAssigned.join(',')});toast('✅ บันทึกสำเร็จ');closeModal();loadTeachers();}catch(e){toast(e.message,'error');}pg_();
+async function saveModal() {
+  pg('บันทึก...');
+  try { await api('saveTeacherAssignments', { teacherId: editTid, subjects: editAssigned.join(',') }); toast('✅ บันทึกสำเร็จ'); closeModal(); loadTeachers(); } 
+  catch (e) { toast(e.message, 'error'); } pg_();
 }
-async function adminSetup(){
-  const y=document.getElementById('setupYear').value;
-  if(!y||y<2560)return toast('ปีไม่ถูกต้อง','error');
-  if(!confirm(`สร้างฐานข้อมูลปี ${y}?`))return;
-  pg(`สร้างปี ${y}...`);try{toast(await api('setupGradeYear',{year:y}));}catch(e){toast(e.message,'error');}pg_();
+async function adminSetup() {
+  const y = document.getElementById('setupYear').value;
+  if (!confirm(`สร้างฐานข้อมูลปี ${y}?`)) return;
+  pg(`กำลังสร้างปี ${y}...`);
+  try { const msg = await api('setupGradeYear', { year: y }); toast(msg); } 
+  catch (e) { toast(e.message, 'error'); } pg_();
 }
 
-// ─── SUBJ DROPDOWN ───────────────────────
-function updateSubjDrop(){
-  const sel=document.getElementById('gSubj'),cls=document.getElementById('gClass').value;
-  sel.innerHTML='';
-  if(CU.isAdmin){
-    const gS=document.getElementById('gClass');
-    if(!gS.options.length)gS.innerHTML=ALL_CLS.map(c=>`<option>${c}</option>`).join('');
-    (SUBS[cls]||[]).forEach(s=>sel.innerHTML+=`<option>${s}</option>`);
+// ─── 5. ระบบบันทึกเกรด (GRADE SYSTEM) ───
+function updateSubjDrop() {
+  const sel = document.getElementById('gSubj'), cls = document.getElementById('gClass').value;
+  sel.innerHTML = '';
+  if (CU.isAdmin) {
+    (SUBS[cls] || []).forEach(s => sel.innerHTML += `<option>${s}</option>`);
   } else {
-    const p=cls+'_', f=CU.mySubjects.filter(s=>s.startsWith(p)).map(s=>s.replace(p,''));
-    f.length?f.forEach(s=>sel.innerHTML+=`<option>${s}</option>`):(sel.innerHTML='<option>-- ไม่พบวิชา --</option>');
+    const p = cls + '_', f = CU.mySubjects.filter(s => s.startsWith(p)).map(s => s.replace(p, ''));
+    f.length ? f.forEach(s => sel.innerHTML += `<option>${s}</option>`) : (sel.innerHTML = '<option>-- ไม่พบวิชา --</option>');
   }
 }
 
-// ─── SUB-ITEM CONFIG ──────────────────────
-function switchTerm(t,btn){
-  document.querySelectorAll('.ttab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
-  document.getElementById('subPanel_1').style.display=t===1?'':'none';
-  document.getElementById('subPanel_2').style.display=t===2?'':'none';
-}
-function addSub(t){SI[t].push({name:`หัวข้อ ${SI[t].length+1}`,max:10});renderSubList(t);}
-function rmSub(t, i) {
-  if (confirm(`ยืนยันการลบหัวข้อ "${SI[t][i].name}" ใช่หรือไม่?`)) {
-    SI[t].splice(i, 1);
-    renderSubList(t);
-    // เมื่อลบแล้วให้คำนวณใหม่
-    onCfg(); 
-  }
-}
-function renderSubList(t){
-  document.getElementById(`subList_${t}`).innerHTML=SI[t].map((x,i)=>`
-    <div class="sub-row">
-      <span class="sub-n">${i+1}.</span>
-      <!-- ลบ updateSummary('acc2') ออกจากบรรทัดด้านล่างนี้ -->
-      <input class="sub-name" type="text" placeholder="ชื่อหัวข้อ" value="${x.name}"
-        onchange="SI[${t}][${i}].name=this.value;">
-      <span class="sub-max-lbl">เต็ม</span>
-      <input class="sub-max" type="number" min="1" value="${x.max}"
-        onchange="SI[${t}][${i}].max=Number(this.value);updRaw(${t})">
-      <button class="btn-rm" onclick="rmSub(${t},${i})">✕</button>
-    </div>`).join('');
-  updRaw(t);
-}
-function updRaw(t){
-  const rm=getRawMax(t), sm=Number(document.getElementById(`c_t${t}a`).value)||0;
-  const elRmx = document.getElementById(`rmx${t}`);
-  const elSmx = document.getElementById(`smx${t}`);
-  
-  if (elRmx) elRmx.textContent = rm;
-  if (elSmx) elSmx.textContent = sm;
-}
-// แก้ไขฟังก์ชันนี้ใน JavaScript ของคุณ
-// แก้ไขเป็นแบบนี้ครับ
-function onCfg(){ 
-  updRaw(1); 
-  updRaw(2); 
-}
-// ─── TOGGLE COLS (CSS only) ───────────────
-function toggleCols(t){
-  EXP[t]=!EXP[t];
-  document.getElementById('gtbl').classList.toggle(`t${t}-collapsed`,!EXP[t]);
-  const btn=document.getElementById(`tbtn${t}`);
-  if(btn) btn.innerHTML=`<span class="arr">${EXP[t]?'▼':'▶'}</span> ${EXP[t]?'ยุบ':'ขยาย'}`;
-}
-
-// ─── LOAD GRADES ─────────────────────────
 async function loadGrades() {
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
+  if (!subj || subj === "-- ไม่พบวิชา --") return toast('กรุณาเลือกวิชา', 'error');
 
-  // ตรวจสอบความถูกต้องเบื้องต้น
-  if (!subj || subj === "-- ไม่พบวิชา --") {
-    return toast('กรุณาเลือกวิชาที่ถูกต้อง', 'error');
-  }
-
-  // กำหนดโหมดชั้นเรียน: ถ้ามีคำว่า "เทอม" จะถือว่าเป็นโหมดมัธยม (Semester Mode)
   IS_SEM_MODE = cls.includes("เทอม");
-
   document.getElementById('lblClass').textContent = cls;
   document.getElementById('lblSubj').textContent = subj;
-  pg('กำลังโหลดข้อมูลและสถิติมาเรียน...');
+  pg('กำลังโหลดเกรดและวันมาเรียน...');
 
   try {
-    // เรียก API ดึงข้อมูลเกรดและสถิติมาเรียน (Backend จะกรองวันมาเรียนตามเทอมให้แล้ว)
     const res = await api('getGrades', { year, classroom: cls, subject: subj });
     const config = res.config;
-
-    // 1. อัปเดตค่าสัดส่วนคะแนน (Config) ลงใน Input ของหน้าตั้งค่า
     document.getElementById('c_t1a').value = config.t1_acc;
     document.getElementById('c_t1e').value = config.t1_exam;
     document.getElementById('c_t2a').value = config.t2_acc;
     document.getElementById('c_t2e').value = config.t2_exam;
 
-    // 2. ปรับปรุง UI ส่วนการตั้งค่า (Accordion) ตามโหมดชั้นเรียน
-    const t2Tab = document.querySelector('.ttab[onclick*="switchTerm(2"]');
-    const t2Block = document.querySelector('.cfg-block:nth-child(2)');
-    const t1Title = document.querySelector('.cfg-ttl[style*="color:#1d4ed8"]');
-    const btnAddT1 = document.querySelector('.btn-add-sub[onclick="addSub(1)"]');
+    // UI ปรับตามโหมด
+    document.getElementById('lblT1').textContent = IS_SEM_MODE ? "สัดส่วนคะแนน (เก็บ/สอบ)" : "เทอม 1 (เก็บ/สอบ)";
+    document.getElementById('blockT2').style.display = IS_SEM_MODE ? 'none' : 'block';
+    document.getElementById('termTabs').style.display = IS_SEM_MODE ? 'none' : 'flex';
 
-    if (IS_SEM_MODE) {
-      // --- โหมดมัธยม ---
-      if (t2Tab) t2Tab.style.display = 'none'; // ซ่อน Tab เทอม 2
-      if (t2Block) t2Block.style.display = 'none'; // ซ่อนช่องกรอกคะแนนเทอม 2
-      if (t1Title) t1Title.textContent = "สัดส่วนคะแนน (เก็บ/สอบ)";
-      if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อคะแนนย่อย";
-      
-      // บังคับ Tab ตั้งค่าให้กลับมาอยู่ที่เทอม 1 เสมอ
-      const t1TabBtn = document.querySelector('.ttab[onclick*="switchTerm(1"]');
-      if (t1TabBtn) switchTerm(1, t1TabBtn);
-      
-      SI[2] = []; // มัธยมจะไม่ใช้หัวข้อย่อยเทอม 2
-    } else {
-      // --- โหมดประถม ---
-      if (t2Tab) t2Tab.style.display = 'block';
-      if (t2Block) t2Block.style.display = 'flex';
-      if (t1Title) t1Title.textContent = "เทอม 1 (เก็บ/สอบ)";
-      if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อ เทอม 1";
-    }
-
-    // 3. ซิงค์หัวข้อย่อย (Sub-items) จากฐานข้อมูลเข้าสู่ตัวแปร SI
     SI[1] = config.subItems?.t1 || [];
-    if (!IS_SEM_MODE) {
-      SI[2] = config.subItems?.t2 || [];
-    }
+    SI[2] = IS_SEM_MODE ? [] : (config.subItems?.t2 || []);
+    renderSubList(1); renderSubList(2); onCfg();
 
-    // 4. สั่งวาดรายการหัวข้อย่อยในหน้าตั้งค่า และคำนวณ Raw Max ใหม่
-    renderSubList(1);
-    if (!IS_SEM_MODE) renderSubList(2);
-    onCfg(); 
-
-    // 5. เตรียมข้อมูลนักเรียนและสร้างตาราง
     STUDENTS = res.students;
-    EXP = { 1: true, 2: true };
-
     document.getElementById('gradePanel').style.display = '';
-    
-    // เรียกใช้ buildTable (ที่ปรับปรุงแล้วให้ซ่อนคอลัมน์เทอม 2 หาก IS_SEM_MODE = true)
     buildTable();
-
-    // 6. ปิดหน้าต่างตั้งค่า (Accordion) อัตโนมัติเพื่อให้เห็นตารางข้อมูล
+    
+    // ปิด Accordion หลังโหลดสำเร็จ
     const acc = document.getElementById('accMain');
-    const body = document.getElementById('accMainBody');
-    if (acc && body) {
-      acc.classList.remove('open');
-      body.classList.add('hidden');
-    }
+    if(acc.classList.contains('open')) toggleAcc('accMain');
 
-    toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
-
-  } catch (e) {
-    console.error(e);
-    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
-    document.getElementById('gradePanel').style.display = 'none';
-  }
+    toast(`📂 โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
+  } catch (e) { toast(e.message, 'error'); }
   pg_();
-}  
-  // ─── BUILD TABLE ─────────────────────────
-function buildTable(){ buildHead(); buildBody(); document.getElementById('gtbl').classList.remove('t1-collapsed','t2-collapsed'); EXP={1:true,2:true}; }
-
-function buildHead(){
-  const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
-  const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
-  const n1=SI[1].length, n2=SI[2].length, rm1=getRawMax(1), rm2=getRawMax(2);
-
-  let r1 = `
-    <th rowspan="2" class="th-base s-c0" style="width:36px;">ที่</th>
-    <th rowspan="2" class="th-base s-c1" style="width:72px;">รหัส</th>
-    <th rowspan="2" class="th-base s-c2" style="text-align:left;min-width:145px;">ชื่อ-นามสกุล</th>
-    <th rowspan="2" class="th-att" style="width:115px;">มาเรียน</th>`;
-
-  // --- ส่วนของเทอม 1 (มัธยมจะใช้ส่วนนี้เป็นคะแนนหลัก) ---
-  if(n1>0) r1+=`<th colspan="${n1+1}" class="th-t1s sc1">📝 คะแนนย่อย</th>`;
-  r1+=`<th rowspan="2" class="th-t1sc" style="width:88px;">
-    <div style="margin-bottom:3px;">${IS_SEM_MODE ? 'คะแนนเก็บ' : 'เก็บ ท.1'}<br><small>(${t1a})</small></div>
-    ${n1>0?`<button class="tbtn" id="tbtn1" onclick="toggleCols(1)"><span class="arr">▼</span> ยุบ</button>`:''}
-  </th>
-  <th rowspan="2" class="th-t1e" style="width:72px;">${IS_SEM_MODE ? 'สอบ' : 'สอบ ท.1'}<br><small>(${t1e})</small></th>
-  <th rowspan="2" class="th-t1t" style="width:72px;">รวม<br><small>(${IS_SEM_MODE ? '100' : '50'})</small></th>`;
-
-  // --- ส่วนของเทอม 2 และรวมทั้งปี (ซ่อนถ้าเป็นมัธยม) ---
-  if (!IS_SEM_MODE) {
-    if(n2>0) r1+=`<th colspan="${n2+1}" class="th-t2s sc2">📝 คะแนนย่อย เทอม 2</th>`;
-    r1+=`<th rowspan="2" class="th-t2sc" style="width:88px;">เก็บ ท.2<br><small>(${t2a})</small></th>
-    <th rowspan="2" class="th-t2e" style="width:72px;">สอบ ท.2<br><small>(${t2e})</small></th>
-    <th rowspan="2" class="th-t2t" style="width:72px;">รวม ท.2<br><small>(50)</small></th>
-    <th rowspan="2" class="th-grand" style="width:74px;">รวม<br>ทั้งปี</th>`;
-  }
-
-  let r2='';
-  SI[1].forEach(x=>r2+=`<th class="th-t1si sc1">${x.name}<br><small>(${x.max})</small></th>`);
-  if(n1>0) r2+=`<th class="th-t1raw sc1">raw รวม</th>`;
-  
-  if (!IS_SEM_MODE) {
-    SI[2].forEach(x=>r2+=`<th class="th-t2si sc2">${x.name}<br><small>(${x.max})</small></th>`);
-    if(n2>0) r2+=`<th class="th-t2raw sc2">raw รวม</th>`;
-  }
-
-  document.getElementById('gtHead').innerHTML=`<tr>${r1}</tr><tr>${r2}</tr>`;
 }
 
+function buildTable() { buildHead(); buildBody(); }
+
+function buildHead() {
+  const t1a = +document.getElementById('c_t1a').value, t1e = +document.getElementById('c_t1e').value;
+  const t2a = +document.getElementById('c_t2a').value, t2e = +document.getElementById('c_t2e').value;
+  const n1 = SI[1].length, n2 = SI[2].length, rm1 = getRawMax(1), rm2 = getRawMax(2);
+
+  let r1 = `<th rowspan="2" class="s-c0">ที่</th><th rowspan="2" class="s-c1">รหัส</th><th rowspan="2" class="s-c2">ชื่อ-นามสกุล</th><th rowspan="2" style="width:110px;">มาเรียน</th>`;
+  if (n1 > 0) r1 += `<th colspan="${n1 + 1}">📝 คะแนนย่อย</th>`;
+  r1 += `<th rowspan="2">เก็บ<br><small>(${t1a})</small></th><th rowspan="2">สอบ<br><small>(${t1e})</small></th><th rowspan="2">รวม<br><small>(${IS_SEM_MODE ? '100' : '50'})</small></th>`;
   
+  if (!IS_SEM_MODE) {
+    if (n2 > 0) r1 += `<th colspan="${n2 + 1}">📝 เทอม 2</th>`;
+    r1 += `<th>เก็บ ท.2</th><th>สอบ ท.2</th><th>รวม ท.2</th><th rowspan="2">รวมปี</th>`;
+  }
+  
+  let r2 = '';
+  SI[1].forEach(x => r2 += `<th style="font-size:10px; font-weight:400;">${x.name}<br>(${x.max})</th>`);
+  if (n1 > 0) r2 += `<th style="background:#1e40af; font-size:10px;">Raw</th>`;
+  
+  if (!IS_SEM_MODE) {
+    SI[2].forEach(x => r2 += `<th style="font-size:10px; font-weight:400;">${x.name}<br>(${x.max})</th>`);
+    if (n2 > 0) r2 += `<th style="background:#155e75; font-size:10px;">Raw</th>`;
+  }
+  document.getElementById('gtHead').innerHTML = `<tr>${r1}</tr><tr>${r2}</tr>`;
+}
+
 function buildBody() {
   const t1a = +document.getElementById('c_t1a').value, t1eM = +document.getElementById('c_t1e').value;
   const t2a = +document.getElementById('c_t2a').value, t2eM = +document.getElementById('c_t2e').value;
-  
-  const n1 = SI[1].length;
-  const rm1 = getRawMax(1);
-  const n2 = SI[2].length;
-  const rm2 = getRawMax(2);
+  const rm1 = getRawMax(1), rm2 = getRawMax(2);
 
-  if (!STUDENTS || STUDENTS.length === 0) {
-    document.getElementById('gtBody').innerHTML = `<tr><td colspan="30" class="text-center py-4 text-muted">ไม่พบข้อมูลนักเรียนในชั้นเรียนนี้</td></tr>`;
-    return;
-  }
-
-  const rows = STUDENTS.map((s, idx) => {
-    const g = s.grades || {};
-    const st = s.stats || { present: 0, absent: 0, leave: 0 };
-
-    // --- คำนวณเทอม 1 ---
-    let t1rs = 0;
-    const t1scHtml = SI[1].map((x, i) => {
-      const v = (g.t1_sub || [])[i] ?? ''; 
-      t1rs += Number(v) || 0;
-      return `<td class="td-sub1 sc1"><input type="number" class="sinput sub1" min="0" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,1)"></td>`;
-    }).join('');
+  document.getElementById('gtBody').innerHTML = STUDENTS.map((s, idx) => {
+    const g = s.grades || {}, st = s.stats || { present: 0, absent: 0, leave: 0 };
     
-    const t1rCHtml = n1 > 0 ? `<td class="td-raw1 sc1 t1raw">${t1rs || '-'}</td>` : '';
+    let t1rs = 0;
+    const t1scHtml = SI[1].map((x, i) => { const v = (g.t1_sub || [])[i] ?? ''; t1rs += Number(v) || 0; return `<td><input type="number" class="sinput sub1" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,1)"></td>`; }).join('');
     const t1sc_v = rm1 > 0 ? scl(t1rs, rm1, t1a) : (g.t1_acc ?? '');
-    const t1e_v = g.t1_exam ?? '';
-    const t1t = (Number(t1sc_v) || 0) + (Number(t1e_v) || 0);
+    const t1t = (Number(t1sc_v) || 0) + (Number(g.t1_exam) || 0);
 
-    // --- เริ่มสร้างแถว (Row) ---
-    let rowHtml = `
-      <tr data-sid="${s.studentId}">
-        <td class="s-c0">${idx + 1}</td>
-        <td class="s-c1">${s.studentId}</td>
-        <td class="s-c2">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-            <span>${s.name}</span>
-            <button class="btn-sm" onclick="printReport('${s.studentId}', '${s.name}')" title="พิมพ์ ปพ.6" style="padding:2px 6px; font-size:10px; border-color:#6366f1; color:#6366f1;">
-              🖨️ ปพ.6
-            </button>
-          </div>
-        </td>
-        <td><span class="sp p">ม ${st.present}</span> <span class="sp a">ข ${st.absent}</span> <span class="sp l">ล ${st.leave}</span></td>
-        
-        ${t1scHtml}
-        ${t1rCHtml}
-        
-        <td class="td-sc1"><span class="t1sc">${t1sc_v !== '' ? t1sc_v : '-'}</span></td>
-        <td><input type="number" class="sinput s-t1e" min="0" max="${t1eM}" value="${t1e_v}" oninput="calcExam(this)"></td>
-        <td><span class="tbadge ${t1t === 0 ? 'nil' : (t1t < (IS_SEM_MODE ? 50 : 25) ? 'fail' : 'ok')} t1tot">${t1t || '-'}</span></td>
-    `;
+    const tc = (v) => v === 0 ? 'nil' : v < (IS_SEM_MODE ? 50 : 25) ? 'fail' : 'ok';
 
-    // --- ถ้าเป็นโหมดประถม (รายปี) ให้เพิ่มคอลัมน์เทอม 2 และรวมทั้งปี ---
+    let html = `<tr>
+      <td class="s-c0">${idx + 1}</td><td class="s-c1">${s.studentId}</td>
+      <td class="s-c2"><div style="display:flex;justify-content:space-between;align-items:center;"><span>${s.name}</span><button class="btn-sm" onclick="printReport('${s.studentId}','${s.name}')" style="border-color:#6366f1;color:#6366f1;font-size:10px;padding:1px 5px;font-weight:700;">🖨️ ปพ.6</button></div></td>
+      <td><span class="sp p">ม ${st.present}</span> <span class="sp a">ข ${st.absent}</span> <span class="sp l">ล ${st.leave}</span></td>
+      ${t1scHtml} ${SI[1].length > 0 ? `<td class="t1raw">${t1rs}</td>` : ''} <td class="t1sc">${t1sc_v || '-'}</td>
+      <td><input type="number" class="sinput s-t1e" max="${t1eM}" value="${g.t1_exam || ''}" oninput="calcExam(this)"></td>
+      <td><span class="tbadge ${tc(t1t)} t1tot">${t1t || '-'}</span></td>`;
+
     if (!IS_SEM_MODE) {
       let t2rs = 0;
-      const t2scHtml = SI[2].map((x, i) => {
-        const v = (g.t2_sub || [])[i] ?? '';
-        t2rs += Number(v) || 0;
-        return `<td class="td-sub2 sc2"><input type="number" class="sinput t2 sub2" min="0" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,2)"></td>`;
-      }).join('');
-      
-      const t2rCHtml = n2 > 0 ? `<td class="td-raw2 sc2 t2raw">${t2rs || '-'}</td>` : '';
+      const t2scHtml = SI[2].map((x, i) => { const v = (g.t2_sub || [])[i] ?? ''; t2rs += Number(v) || 0; return `<td><input type="number" class="sinput sub2" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,2)"></td>`; }).join('');
       const t2sc_v = rm2 > 0 ? scl(t2rs, rm2, t2a) : (g.t2_acc ?? '');
-      const t2e_v = g.t2_exam ?? '';
-      const t2t = (Number(t2sc_v) || 0) + (Number(t2e_v) || 0);
-      const g2 = t1t + t2t;
-      const gc = g2 === 0 ? 'nil' : (g2 < 50 ? 'fail' : 'ok');
-
-      rowHtml += `
-        ${t2scHtml}
-        ${t2rCHtml}
-        <td class="td-sc2"><span class="t2sc">${t2sc_v !== '' ? t2sc_v : '-'}</span></td>
-        <td><input type="number" class="sinput t2 s-t2e" min="0" max="${t2eM}" value="${t2e_v}" oninput="calcExam(this)"></td>
-        <td><span class="tbadge ${t2t === 0 ? 'nil' : (t2t < 25 ? 'fail' : 'ok')} t2tot">${t2t || '-'}</span></td>
-        <td><span class="gbadge ${gc} gtot">${g2 || '-'}</span></td>
-      `;
+      const t2t = (Number(t2sc_v) || 0) + (Number(g.t2_exam) || 0);
+      const gt = t1t + t2t;
+      html += `${t2scHtml} ${SI[2].length > 0 ? `<td class="t2raw">${t2rs}</td>` : ''} <td class="t2sc">${t2sc_v || '-'}</td>
+        <td><input type="number" class="sinput s-t2e" max="${t2eM}" value="${g.t2_exam || ''}" oninput="calcExam(this)"></td>
+        <td><span class="tbadge ${tc(gt/2)} t2tot">${t2t || '-'}</span></td><td><span class="gbadge ${gt < 50 ? 'fail' : 'ok'} gtot">${gt || '-'}</span></td>`;
     }
-
-    rowHtml += `</tr>`;
-    return rowHtml;
+    return html + `</tr>`;
   }).join('');
-
-  document.getElementById('gtBody').innerHTML = rows;
 }
 
-// ฟังก์ชันสำหรับเรียกพิมพ์ ปพ.6 (เพิ่มไว้ใน <script>)
+// ─── 6. ระบบประมวลผล PDF (TRIGGER) ───
 async function printReport(sid, sname) {
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
-  
-  pg('กำลังรวบรวมคะแนนทุกวิชาเพื่อสร้าง ปพ.6...');
+  pg(`กำลังสร้าง ปพ.6 ของ ${sname}...`);
   try {
-    // เรียก API generateStudentPDF ที่คุณเตรียมไว้ใน Backend
-    const pdfDataUri = await api('generateStudentPDF', { 
-      year: year, 
-      classroom: cls, 
-      studentId: sid 
-    });
-    
-    // สร้างลิงก์ดาวน์โหลดอัตโนมัติ
+    const pdfDataUri = await api('generateStudentPDF', { year, classroom: cls, studentId: sid });
     const link = document.createElement('a');
-    link.href = pdfDataUri;
-    link.download = `ปพ6_${sname}_${cls}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast('ดาวน์โหลด ปพ.6 สำเร็จ');
-  } catch(e) {
-    console.error(e);
-    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
-  }
+    link.href = pdfDataUri; link.download = `ปพ6_${sname}.pdf`; 
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    toast('สร้างไฟล์สำเร็จ ✓');
+  } catch (e) { toast(e.message, 'error'); }
   pg_();
 }
-  
-// ─── APPLY (snapshot→rebuild→restore) ────
-function applySubConfig(){
-  if(!STUDENTS.length) return toast('โหลดรายชื่อก่อน','error');
-  const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
-  const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
 
-  // ปรับเป้าหมายคะแนนรวมตามโหมด: มัธยม = 100, ประถม = 50
-  const targetTotal = IS_SEM_MODE ? 100 : 50;
-  
-  if(t1a + t1e !== targetTotal) {
-    return toast(`คะแนนเก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
-  }
-  
-  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) {
-    return toast(`เทอม 2: เก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
-  }
-
-  const snap = snapshotInputs();
-  buildTable();
-  restoreInputs(snap);
-  toast('อัปเดตตารางแล้ว ✓');
+// ─── 7. ระบบคำนวณ & ตั้งค่า (CALC & CONFIG) ───
+function switchTerm(t, btn) {
+  document.querySelectorAll('.ttab').forEach(b => b.classList.remove('on')); btn.classList.add('on');
+  document.getElementById('subPanel_1').style.display = t === 1 ? '' : 'none';
+  document.getElementById('subPanel_2').style.display = t === 2 ? '' : 'none';
 }
-function snapshotInputs(){
-  const d={};
-  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
-    const sid=tr.getAttribute('data-sid');
-    d[sid]={t1s:[...tr.querySelectorAll('.sub1')].map(i=>i.value),t2s:[...tr.querySelectorAll('.sub2')].map(i=>i.value),t1e:tr.querySelector('.s-t1e')?.value||'',t2e:tr.querySelector('.s-t2e')?.value||''};
-  });
-  return d;
-}
-function restoreInputs(snap){
-  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
-    const sid=tr.getAttribute('data-sid'), d=snap[sid]; if(!d)return;
-    tr.querySelectorAll('.sub1').forEach((inp,i)=>{if(d.t1s[i]!==undefined)inp.value=d.t1s[i];});
-    tr.querySelectorAll('.sub2').forEach((inp,i)=>{if(d.t2s[i]!==undefined)inp.value=d.t2s[i];});
-    const e1=tr.querySelector('.s-t1e'),e2=tr.querySelector('.s-t2e');
-    if(e1)e1.value=d.t1e; if(e2)e2.value=d.t2e;
-    const d1=tr.querySelector('.sub1'),d2=tr.querySelector('.sub2');
-    if(d1)calcSub(d1,1); if(d2)calcSub(d2,2);
-  });
+function addSub(t) { SI[t].push({ name: `หัวข้อ ${SI[t].length + 1}`, max: 10 }); renderSubList(t); }
+function rmSub(t, i) { if (confirm('ลบหัวข้อนี้?')) { SI[t].splice(i, 1); renderSubList(t); onCfg(); } }
+function renderSubList(t) {
+  document.getElementById(`subList_${t}`).innerHTML = SI[t].map((x, i) => `
+    <div class="sub-row">
+      <span class="sub-n">${i + 1}.</span>
+      <input class="sub-name" type="text" value="${x.name}" onchange="SI[${t}][${i}].name=this.value;">
+      <span class="sub-max-lbl">เต็ม</span>
+      <input class="sub-max" type="number" value="${x.max}" onchange="SI[${t}][${i}].max=Number(this.value);onCfg();">
+      <button class="btn-rm" onclick="rmSub(${t},${i})">✕</button>
+    </div>`).join('');
+  onCfg();
 }
 
-// ─── CALC ─────────────────────────────────
-function calcSub(el,t){
-  const mx=+el.getAttribute('max');
-  if(+el.value>mx){el.value=mx;toast(`เต็ม ${mx} คะแนน`,'warning');}
-  if(+el.value<0)el.value=0;
- if (el.value.length >= String(mx).length) {
-    const inputs = Array.from(document.querySelectorAll('.sinput'));
-    const currentIndex = inputs.indexOf(el);
-    if (currentIndex > -1 && currentIndex < inputs.length - 1) {
-      inputs[currentIndex + 1].focus();
-      inputs[currentIndex + 1].select();
-    }
-  }
-  
-  const tr=el.closest('tr');
-  let rs=0; tr.querySelectorAll(t===1?'.sub1':'.sub2').forEach(i=>rs+=+i.value||0);
-  const rm=getRawMax(t), sm=+document.getElementById(`c_t${t}a`).value;
-  const sc=scl(rs,rm,sm);
-  const rC=tr.querySelector(t===1?'.t1raw':'.t2raw');
-  if(rC)rC.textContent=rs;
-  const scEl=tr.querySelector(t===1?'.t1sc':'.t2sc');
-  if(scEl)scEl.textContent=sc;
+function onCfg() { /* อัปเดตตัวเลข RawMax */ }
+
+function applySubConfig() {
+  const target = IS_SEM_MODE ? 100 : 50;
+  const t1a = +document.getElementById('c_t1a').value, t1e = +document.getElementById('c_t1e').value;
+  if (t1a + t1e !== target) return toast(`คะแนนรวมต้องได้ ${target}`, 'error');
+  buildTable(); toast('อัปเดตตารางแล้ว');
+}
+
+function calcSub(el, t) {
+  const mx = +el.getAttribute('max'); if (+el.value > mx) el.value = mx;
+  const tr = el.closest('tr');
+  let rs = 0; tr.querySelectorAll(t === 1 ? '.sub1' : '.sub2').forEach(i => rs += +i.value || 0);
+  const rm = getRawMax(t), sm = +document.getElementById(`c_t${t}a`).value;
+  const sc = scl(rs, rm, sm);
+  tr.querySelector(t === 1 ? '.t1raw' : '.t2raw').textContent = rs;
+  tr.querySelector(t === 1 ? '.t1sc' : '.t2sc').textContent = sc;
   recalcTots(tr);
 }
-function calcExam(el){
-  const mx=+el.getAttribute('max');
-  if(+el.value>mx){el.value=mx;toast(`เต็ม ${mx} คะแนน`,'warning');}
-  if(+el.value<0)el.value=0;
-  recalcTots(el.closest('tr'));
-}
-function recalcTots(tr){
-  const t1s=+tr.querySelector('.t1sc')?.textContent||0, t2s=+tr.querySelector('.t2sc')?.textContent||0;
-  const t1e=+tr.querySelector('.s-t1e')?.value||0, t2e=+tr.querySelector('.s-t2e')?.value||0;
-  const t1t=t1s+t1e, t2t=t2s+t2e, g=t1t+t2t;
-  const tc=v=>v===0?'nil':'ok', gc=g===0?'nil':g<50?'fail':'ok';
-  const e1=tr.querySelector('.t1tot'),e2=tr.querySelector('.t2tot'),eG=tr.querySelector('.gtot');
-  if(e1){e1.textContent=t1t||'-';e1.className=`tbadge ${tc(t1t)} t1tot`;}
-  if(e2){e2.textContent=t2t||'-';e2.className=`tbadge ${tc(t2t)} t2tot`;}
-  if(eG){eG.textContent=g||'-';eG.className=`gbadge ${gc} gtot`;}
+function calcExam(el) { recalcTots(el.closest('tr')); }
+function recalcTots(tr) {
+  const t1s = +tr.querySelector('.t1sc')?.textContent || 0, t2s = +tr.querySelector('.t2sc')?.textContent || 0;
+  const t1e = +tr.querySelector('.s-t1e')?.value || 0, t2e = +tr.querySelector('.s-t2e')?.value || 0;
+  const t1t = t1s + t1e, t2t = t2s + t2e, gt = t1t + t2t;
+  const tc = v => v === 0 ? 'nil' : v < (IS_SEM_MODE ? 50 : 25) ? 'fail' : 'ok';
+  if (tr.querySelector('.t1tot')) { tr.querySelector('.t1tot').textContent = t1t; tr.querySelector('.t1tot').className = `tbadge ${tc(t1t)} t1tot`; }
+  if (tr.querySelector('.gtot')) { tr.querySelector('.gtot').textContent = gt; tr.querySelector('.gtot').className = `gbadge ${gt < 50 ? 'fail' : 'ok'} gtot`; }
 }
 
-// ─── SAVE ─────────────────────────────────
-async function saveGrades(){
-  const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
-  const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
-  
-  const targetTotal = IS_SEM_MODE ? 100 : 50;
+async function saveGrades() {
+  const target = IS_SEM_MODE ? 100 : 50;
+  const t1a = +document.getElementById('c_t1a').value, t1e = +document.getElementById('c_t1e').value;
+  if (t1a + t1e !== target) return toast('คะแนนรวมไม่ถูกต้อง', 'error');
 
-  if(t1a + t1e !== targetTotal) return toast(`คะแนนรวมต้องเท่ากับ ${targetTotal}`,'error');
-  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) return toast(`คะแนนรวมเทอม 2 ต้องเท่ากับ ${targetTotal}`,'error');
-
-  const rm1=getRawMax(1), rm2=getRawMax(2), records=[];
-  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
-    const sid=tr.getAttribute('data-sid');
-    const t1sv=[...tr.querySelectorAll('.sub1')].map(i=>i.value);
-    const t2sv=[...tr.querySelectorAll('.sub2')].map(i=>i.value);
-    const t1r=t1sv.reduce((s,v)=>s+(+v||0),0), t2r=t2sv.reduce((s,v)=>s+(+v||0),0);
-    const t1acc=rm1>0?scl(t1r,rm1,t1a):(+tr.querySelector('.t1sc')?.textContent||0);
-    const t2acc=rm2>0?scl(t2r,rm2,t2a):(+tr.querySelector('.t2sc')?.textContent||0);
-    const t1ex=tr.querySelector('.s-t1e')?.value||'', t2ex=tr.querySelector('.s-t2e')?.value||'';
-    const has=t1sv.some(v=>v!=='')||t2sv.some(v=>v!=='')||t1ex!==''||t2ex!=='';
-    if(has)records.push({studentId:sid,t1_sub:t1sv,t1_acc:t1acc,t1_exam:t1ex,t2_sub:t2sv,t2_acc:t2acc,t2_exam:t2ex});
-  });
-  if(!records.length)return toast('ยังไม่มีข้อมูล','warning');
-  pg('บันทึก...');
-  try{
-    const msg=await api('saveGrades',{
-      year:document.getElementById('gYear').value,
-      classroom:document.getElementById('gClass').value,
-      subject:document.getElementById('gSubj').value,
-      config:{t1_acc:t1a,t1_exam:t1e,t2_acc:t2a,t2_exam:t2e,subItems:{t1:SI[1],t2:SI[2]},rawMax:{t1:rm1,t2:rm2}},
-      gradeRecords:records
+  const records = [];
+  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr => {
+    const sid = tr.getAttribute('data-sid');
+    records.push({
+      studentId: sid,
+      t1_sub: [...tr.querySelectorAll('.sub1')].map(i => i.value),
+      t1_acc: +tr.querySelector('.t1sc').textContent || 0,
+      t1_exam: tr.querySelector('.s-t1e').value,
+      t2_sub: [...tr.querySelectorAll('.sub2')].map(i => i.value),
+      t2_acc: +tr.querySelector('.t2sc')?.textContent || 0,
+      t2_exam: tr.querySelector('.s-t2e')?.value || ''
     });
-    toast('✅ '+msg);
-  }catch(e){toast(e.message,'error');}
+  });
+
+  pg('กำลังบันทึก...');
+  try {
+    const msg = await api('saveGrades', {
+      year: document.getElementById('gYear').value,
+      classroom: document.getElementById('gClass').value,
+      subject: document.getElementById('gSubj').value,
+      config: { t1_acc: t1a, t1_exam: t1e, t2_acc: 0, t2_exam: 0, subItems: { t1: SI[1], t2: SI[2] }, rawMax: { t1: getRawMax(1), t2: getRawMax(2) } },
+      gradeRecords: records
+    });
+    toast('✅ ' + msg);
+  } catch (e) { toast(e.message, 'error'); }
   pg_();
 }
-  async function saveConfigOnly() {
-  const year = document.getElementById('gYear').value;
-  const cls = document.getElementById('gClass').value;
-  const subj = document.getElementById('gSubj').value;
 
-  if (!subj || subj === "-- ไม่พบวิชา --") return;
-
-  // 1. เตรียมค่า Config ปัจจุบันจากหน้าจอ
-  const config = {
-    t1_acc: +document.getElementById('c_t1a').value,
-    t1_exam: +document.getElementById('c_t1e').value,
-    t2_acc: +document.getElementById('c_t2a').value,
-    t2_exam: +document.getElementById('c_t2e').value,
-    subItems: { 
-      t1: SI[1], 
-      t2: SI[2] 
-    },
-    rawMax: { 
-      t1: getRawMax(1), 
-      t2: getRawMax(2) 
-    }
-  };
-
-  // --- ส่วนที่ปรับปรุง: ตรวจสอบความถูกต้องตามโหมดชั้นเรียน ---
-  const targetTotal = IS_SEM_MODE ? 100 : 50;
-  const term1Label = IS_SEM_MODE ? "ภาคเรียนนี้" : "เทอม 1";
-
-  // ตรวจสอบเทอม 1 (หรือภาคเรียนที่เลือก)
-  if (config.t1_acc + config.t1_exam !== targetTotal) {
-    return toast(`${term1Label}: เก็บ+สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`, 'warning');
-  }
-
-  // ตรวจสอบเทอม 2 (เฉพาะโหมดประถม)
-  if (!IS_SEM_MODE && (config.t2_acc + config.t2_exam !== 50)) {
-    return toast('เทอม 2: เก็บ+สอบ ต้องรวมให้ได้ 50 คะแนน', 'warning');
-  }
-
-  pg('กำลังบันทึกสัดส่วนคะแนน...');
+async function saveConfigOnly() {
+  pg('กำลังบันทึกสัดส่วน...');
   try {
-    // 2. เรียก API เดิม แต่ส่ง gradeRecords เป็น [] เพื่อให้อัปเดตแค่ Config ในแถว A2
     await api('saveGrades', {
-      year: year,
-      classroom: cls,
-      subject: subj,
-      config: config,
-      gradeRecords: [] 
+      year: document.getElementById('gYear').value,
+      classroom: document.getElementById('gClass').value,
+      subject: document.getElementById('gSubj').value,
+      config: { t1_acc: +document.getElementById('c_t1a').value, t1_exam: +document.getElementById('c_t1e').value, subItems: { t1: SI[1], t2: SI[2] }, rawMax: { t1: getRawMax(1), t2: getRawMax(2) } },
+      gradeRecords: []
     });
-    
-    // 3. แจ้งเตือนสำเร็จ
-    toast('✅ อัปเดตสัดส่วนคะแนนลงฐานข้อมูลแล้ว');
-    
-    // อัปเดตตารางใหม่เพื่อให้ Header และการคำนวณสะท้อนค่าที่เพิ่งบันทึก
-    buildTable(); 
-    
-  } catch (e) {
-    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
-  } finally {
-    pg_();
-  }
+    toast('✅ บันทึกสัดส่วนแล้ว'); buildTable();
+  } catch (e) { toast(e.message, 'error'); } pg_();
 }
-document.addEventListener('keydown', function(event) {
-  // ดักจับปุ่ม Enter, ลูกศรลง (ArrowDown) และ ลูกศรขึ้น (ArrowUp)
-  if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-    
-    // 1. ระบุ element ปัจจุบันและเช็คว่าเป็นช่องกรอกคะแนนหรือไม่
-    const currentInput = document.activeElement;
-    if (!currentInput.classList.contains('sinput')) return;
 
-    // ป้องกันพฤติกรรมปกติ (ป้องกัน Enter ขึ้นบรรทัดใหม่ และป้องกันลูกศรเปลี่ยนค่าตัวเลข)
-    event.preventDefault();
-
-    const td = currentInput.closest('td');
-    const tr = currentInput.closest('tr');
-    const table = currentInput.closest('table');
-    
-    // 2. หาตำแหน่งคอลัมน์และแถวปัจจุบัน
-    const colIndex = td.cellIndex;
-    const rows = Array.from(table.querySelectorAll('tbody tr'));
-    const currentRowIndex = rows.indexOf(tr);
-    
-    let targetRowIndex = -1;
-
-    // 3. กำหนดแถวเป้าหมาย (ขึ้น หรือ ลง)
-    if (event.key === 'Enter' || event.key === 'ArrowDown') {
-      targetRowIndex = currentRowIndex + 1; // เลื่อนลง
-    } else if (event.key === 'ArrowUp') {
-      targetRowIndex = currentRowIndex - 1; // เลื่อนขึ้น
-    }
-    
-    // 4. ถ้ามีแถวเป้าหมายตามที่คำนวณ ให้เลื่อนโฟกัสไปที่ช่องนั้น
-    if (targetRowIndex > -1 && targetRowIndex < rows.length) {
-      const targetRow = rows[targetRowIndex];
-      const targetCell = targetRow.cells[colIndex];
-      if (targetCell) {
-        const targetInput = targetCell.querySelector('.sinput');
-        if (targetInput) {
-          targetInput.focus();
-          targetInput.select();
-        }
-      }
+// ─── 8. การควบคุมคีย์บอร์ด (UX) ───
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    const cur = document.activeElement; if (!cur.classList.contains('sinput')) return;
+    e.preventDefault();
+    const trs = Array.from(document.querySelectorAll('tbody tr'));
+    const idx = trs.indexOf(cur.closest('tr'));
+    const nextIdx = e.key === 'ArrowUp' ? idx - 1 : idx + 1;
+    if (nextIdx >= 0 && nextIdx < trs.length) {
+      const colIdx = Array.from(cur.closest('tr').querySelectorAll('.sinput')).indexOf(cur);
+      const target = trs[nextIdx].querySelectorAll('.sinput')[colIdx];
+      if (target) { target.focus(); target.select(); }
     }
   }
 });
-
-
-
 </script>
 </body>
 </html>
