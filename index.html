@@ -418,8 +418,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     <span style="font-weight:400;color:var(--muted);font-size:.85rem;"> — ชั้น <span id="lblClass"></span></span>
   </div>
 
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ทั้งห้อง</button>
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <!-- เพิ่มปุ่มนี้เข้าไป -->
+    <button class="btn-pri" style="background: linear-gradient(135deg, #0284c7, #0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
+    
+    <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ ปพ.6 ทั้งห้อง</button>
     <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
   </div>
 </div>
@@ -1337,6 +1340,26 @@ async function saveHolisticData() {
     toast('✅ ' + msg);
   } catch(e) {
     toast(e.message, 'error');
+  }
+  pg_();
+}
+
+  // ==========================================
+// 🖨️ ฟังก์ชันสั่งพิมพ์ PDF สรุปผลการเรียนรวมทุกวิชา
+// ==========================================
+async function printSummaryPDF() {
+  const year = document.getElementById('gYear').value;
+  const classroom = document.getElementById('gClass').value;
+
+  if (!confirm(`ต้องการสร้างตารางสรุปเกรดรวมของห้อง ${classroom} ใช่หรือไม่?`)) return;
+
+  pg('กำลังรวบรวมข้อมูลทุกวิชาและสร้าง PDF (อาจใช้เวลาสักครู่)...');
+  try {
+    const pdfData = await api('generateSummaryPDF', { year, classroom });
+    openBase64Pdf(pdfData, `สรุปผลการเรียน_${classroom}_ปี${year}.pdf`);
+    toast('สร้าง PDF สรุปสำเร็จ');
+  } catch (e) {
+    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
   pg_();
 }
