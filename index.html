@@ -1713,11 +1713,7 @@ async function exportSummaryCSV() {
   pg_();
 }
   // ฟังก์ชันอ่านและบันทึกข้อมูลรายวิชาเข้า Config
-function saveCourseInfo() {
-  // ฟังก์ชันนี้จะถูกเรียกเมื่อครูพิมพ์ รหัสวิชา, หน่วยกิต, หรือเปลี่ยนจำนวนคาบ
-  // และจะไปเกาะติดกับฟังก์ชัน saveConfigOnly() เดิมของคุณ
-  saveConfigOnly(); 
-}
+
 
 // ==========================================
 // 🕒 ฟังก์ชันคำนวณเวลาเรียน & บันทึกข้อมูลวิชา
@@ -1820,14 +1816,7 @@ function calcTotalHours() {
   document.getElementById('ci_total_hours').textContent = totalHours;
 }
 
-function saveCourseInfo() {
-  saveConfigOnly();
-  toast('✅ บันทึกข้อมูลรายวิชาสำเร็จ');
-  setTimeout(() => {
-    document.getElementById('accCourseInfo').classList.remove('open');
-    document.getElementById('accCourseInfoBody').classList.add('hidden');
-  }, 1000);
-}
+
 
 function saveCourseInfo() {
   // เมื่อกดปุ่ม "บันทึกข้อมูลรายวิชา" จะมาเรียกใช้ฟังก์ชันนี้
