@@ -766,6 +766,7 @@ async function loadGrades() {
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
+  const res = await api('getGrades', { year: year, classroom: cls, subject: subj }); 
 
   // ตรวจสอบความถูกต้องเบื้องต้น
   if (!subj || subj === "-- ไม่พบวิชา --") {
