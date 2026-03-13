@@ -875,12 +875,22 @@ function buildBody(){
 }
 // ─── APPLY (snapshot→rebuild→restore) ────
 function applySubConfig(){
-  if(!STUDENTS.length)return toast('โหลดรายชื่อก่อน','error');
+  if(!STUDENTS.length) return toast('โหลดรายชื่อก่อน','error');
   const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
   const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
-  if(t1a+t1e!==50)return toast('เทอม 1: เก็บ+สอบ ต้องเท่ากับ 50','error');
-  if(t2a+t2e!==50)return toast('เทอม 2: เก็บ+สอบ ต้องเท่ากับ 50','error');
-  const snap=snapshotInputs();
+
+  // ปรับเป้าหมายคะแนนรวมตามโหมด: มัธยม = 100, ประถม = 50
+  const targetTotal = IS_SEM_MODE ? 100 : 50;
+  
+  if(t1a + t1e !== targetTotal) {
+    return toast(`คะแนนเก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
+  }
+  
+  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) {
+    return toast(`เทอม 2: เก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
+  }
+
+  const snap = snapshotInputs();
   buildTable();
   restoreInputs(snap);
   toast('อัปเดตตารางแล้ว ✓');
@@ -950,8 +960,13 @@ function recalcTots(tr){
 async function saveGrades(){
   const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
   const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
-  if(t1a+t1e!==50||t2a+t2e!==50)return toast('คะแนนรวมแต่ละเทอมต้องเท่ากับ 50','error');
-  const rm1=getRawMax(1),rm2=getRawMax(2), records=[];
+  
+  const targetTotal = IS_SEM_MODE ? 100 : 50;
+
+  if(t1a + t1e !== targetTotal) return toast(`คะแนนรวมต้องเท่ากับ ${targetTotal}`,'error');
+  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) return toast(`คะแนนรวมเทอม 2 ต้องเท่ากับ ${targetTotal}`,'error');
+
+  const rm1=getRawMax(1), rm2=getRawMax(2), records=[];
   document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
     const sid=tr.getAttribute('data-sid');
     const t1sv=[...tr.querySelectorAll('.sub1')].map(i=>i.value);
@@ -1000,13 +1015,23 @@ async function saveGrades(){
     }
   };
 
-  // ตรวจสอบความถูกต้องพื้นฐาน
-  if (config.t1_acc + config.t1_exam !== 50) return toast('เทอม 1: เก็บ+สอบ ต้องรวมได้ 50', 'warning');
-  if (config.t2_acc + config.t2_exam !== 50) return toast('เทอม 2: เก็บ+สอบ ต้องรวมได้ 50', 'warning');
+  // --- ส่วนที่ปรับปรุง: ตรวจสอบความถูกต้องตามโหมดชั้นเรียน ---
+  const targetTotal = IS_SEM_MODE ? 100 : 50;
+  const term1Label = IS_SEM_MODE ? "ภาคเรียนนี้" : "เทอม 1";
+
+  // ตรวจสอบเทอม 1 (หรือภาคเรียนที่เลือก)
+  if (config.t1_acc + config.t1_exam !== targetTotal) {
+    return toast(`${term1Label}: เก็บ+สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`, 'warning');
+  }
+
+  // ตรวจสอบเทอม 2 (เฉพาะโหมดประถม)
+  if (!IS_SEM_MODE && (config.t2_acc + config.t2_exam !== 50)) {
+    return toast('เทอม 2: เก็บ+สอบ ต้องรวมให้ได้ 50 คะแนน', 'warning');
+  }
 
   pg('กำลังบันทึกสัดส่วนคะแนน...');
   try {
-    // 2. เรียก API เดิม แต่ส่ง gradeRecords เป็น [] เพื่อให้อัปเดตแค่ A2
+    // 2. เรียก API เดิม แต่ส่ง gradeRecords เป็น [] เพื่อให้อัปเดตแค่ Config ในแถว A2
     await api('saveGrades', {
       year: year,
       classroom: cls,
@@ -1017,6 +1042,10 @@ async function saveGrades(){
     
     // 3. แจ้งเตือนสำเร็จ
     toast('✅ อัปเดตสัดส่วนคะแนนลงฐานข้อมูลแล้ว');
+    
+    // อัปเดตตารางใหม่เพื่อให้ Header และการคำนวณสะท้อนค่าที่เพิ่งบันทึก
+    buildTable(); 
+    
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   } finally {
