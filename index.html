@@ -978,6 +978,7 @@ async function saveGrades(){
   const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
   if(t1a+t1e!==50||t2a+t2e!==50)return toast('คะแนนรวมแต่ละเทอมต้องเท่ากับ 50','error');
   const rm1=getRawMax(1),rm2=getRawMax(2), records=[];
+  
   document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
     const sid=tr.getAttribute('data-sid');
     const t1sv=[...tr.querySelectorAll('.sub1')].map(i=>i.value);
@@ -986,12 +987,26 @@ async function saveGrades(){
     const t1acc=rm1>0?scl(t1r,rm1,t1a):(+tr.querySelector('.t1sc')?.textContent||0);
     const t2acc=rm2>0?scl(t2r,rm2,t2a):(+tr.querySelector('.t2sc')?.textContent||0);
     const t1ex=tr.querySelector('.s-t1e')?.value||'', t2ex=tr.querySelector('.s-t2e')?.value||'';
-    const has=t1sv.some(v=>v!=='')||t2sv.some(v=>v!=='')||t1ex!==''||t2ex!=='';
-      const assTr = document.querySelector(`#assBody tr[data-sid="${sid}"]`);
+    
+    // --- ดึงค่าจากตารางประเมินคุณลักษณะและอ่านคิด ---
+    const assTr = document.querySelector(`#assBody tr[data-sid="${sid}"]`);
     const cVals = assTr ? [...assTr.querySelectorAll('.c-inp')].map(i=>i.value) : [];
-    const rVals = assTr ?[...assTr.querySelectorAll('.r-inp')].map(i=>i.value) :
-    if(has)records.push({studentId:sid,t1_sub:t1sv,t1_acc:t1acc,t1_exam:t1ex,t2_sub:t2sv,t2_acc:t2acc,t2_exam:t2ex});
+    const rVals = assTr ?[...assTr.querySelectorAll('.r-inp')].map(i=>i.value) :[]; // <--- บรรทัดนี้แหละครับที่ขาด[]; ไป
+    
+    // เช็คว่ามีข้อมูลช่องไหนถูกกรอกบ้าง
+    const has = t1sv.some(v=>v!=='') || t2sv.some(v=>v!=='') || t1ex!=='' || t2ex!=='' || cVals.some(v=>v!=='') || rVals.some(v=>v!=='');
+    
+    if(has) {
+      records.push({
+        studentId: sid,
+        t1_sub: t1sv, t1_acc: t1acc, t1_exam: t1ex,
+        t2_sub: t2sv, t2_acc: t2acc, t2_exam: t2ex,
+        char_scores: cVals, // <--- เพิ่มส่งค่านี้ไป Google Sheets
+        rw_scores: rVals    // <--- เพิ่มส่งค่านี้ไป Google Sheets
+      });
+    }
   });
+
   if(!records.length)return toast('ยังไม่มีข้อมูล','warning');
   pg('บันทึก...');
   try{
@@ -1006,6 +1021,7 @@ async function saveGrades(){
   }catch(e){toast(e.message,'error');}
   pg_();
 }
+  
   function renderAssTable(students) {
   const charItems =["รักชาติฯ", "ซื่อสัตย์ฯ", "มีวินัย", "ใฝ่เรียนรู้", "อยู่อย่างพอเพียง", "มุ่งมั่นทำงาน", "รักความเป็นไทย", "มีจิตสาธารณะ"];
   const rwItems =["สามารถอ่านฯ", "สามารถจับประเด็นฯ", "สามารถวิเคราะห์ฯ", "สามารถประเมินฯ", "สามารถเขียนฯ"];
