@@ -766,8 +766,9 @@ async function loadGrades() {
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
+  const res = await api('getGrades', { year: year, classroom: cls, subject: subj }); 
 
-  // 1. ตรวจสอบความถูกต้องเบื้องต้นก่อนเรียก API
+  // ตรวจสอบความถูกต้องเบื้องต้น
   if (!subj || subj === "-- ไม่พบวิชา --") {
     return toast('กรุณาเลือกวิชาที่ถูกต้อง', 'error');
   }
@@ -778,61 +779,73 @@ async function loadGrades() {
   document.getElementById('lblClass').textContent = cls;
   document.getElementById('lblSubj').textContent = subj;
   pg('กำลังโหลดข้อมูลและสถิติมาเรียน...');
-
-  // 2. เซ็ตค่าสถานะ
-  document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
-  document.getElementById('toggleR').checked = false;
-  IGNORE_R = false;
+  // ค้นหาใน loadGrades() แถวๆ IS_SEM_MODE = cls.includes("เทอม"); แล้วเพิ่ม:
+document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
+document.getElementById('toggleR').checked = false;
+IGNORE_R = false;
 
   try {
-    // 3. เรียก API เพียงครั้งเดียวที่นี่
-    const res = await api('getGrades', { year: year, classroom: cls, subject: subj });
+    // เรียก API ดึงข้อมูลเกรดและสถิติมาเรียน (Backend จะกรองวันมาเรียนตามเทอมให้แล้ว)
+    const res = await api('getGrades', { year, classroom: cls, subject: subj });
     const config = res.config;
 
-    // 4. อัปเดตค่า Config
+    // 1. อัปเดตค่าสัดส่วนคะแนน (Config) ลงใน Input ของหน้าตั้งค่า
     document.getElementById('c_t1a').value = config.t1_acc;
     document.getElementById('c_t1e').value = config.t1_exam;
     document.getElementById('c_t2a').value = config.t2_acc;
     document.getElementById('c_t2e').value = config.t2_exam;
-    
-    // อัปเดตตารางสอน (ถ้ามี)
-    SUBJECT_SCHEDULE = config.schedule || {1:0, 2:0, 3:0, 4:0, 5:0}; 
+    SUBJECT_SCHEDULE = config.schedule || {1:0, 2:0, 3:0, 4:0, 5:0}; // <-- เพิ่มบรรทัดนี้
 
-    // ... (ส่วนที่เหลือของโค้ดให้ใช้ของเดิมได้เลยครับ)
+
+    // 2. ปรับปรุง UI ส่วนการตั้งค่า (Accordion) ตามโหมดชั้นเรียน
     const t2Tab = document.querySelector('.ttab[onclick*="switchTerm(2"]');
     const t2Block = document.querySelector('.cfg-block:nth-child(2)');
     const t1Title = document.querySelector('.cfg-ttl[style*="color:#1d4ed8"]');
     const btnAddT1 = document.querySelector('.btn-add-sub[onclick="addSub(1)"]');
 
     if (IS_SEM_MODE) {
-      if (t2Tab) t2Tab.style.display = 'none';
-      if (t2Block) t2Block.style.display = 'none';
+      // --- โหมดมัธยม ---
+      if (t2Tab) t2Tab.style.display = 'none'; // ซ่อน Tab เทอม 2
+      if (t2Block) t2Block.style.display = 'none'; // ซ่อนช่องกรอกคะแนนเทอม 2
       if (t1Title) t1Title.textContent = "สัดส่วนคะแนน (เก็บ/สอบ)";
       if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อคะแนนย่อย";
+      
+      // บังคับ Tab ตั้งค่าให้กลับมาอยู่ที่เทอม 1 เสมอ
       const t1TabBtn = document.querySelector('.ttab[onclick*="switchTerm(1"]');
       if (t1TabBtn) switchTerm(1, t1TabBtn);
-      SI[2] = []; 
+      
+      SI[2] = []; // มัธยมจะไม่ใช้หัวข้อย่อยเทอม 2
     } else {
+      // --- โหมดประถม ---
       if (t2Tab) t2Tab.style.display = 'block';
       if (t2Block) t2Block.style.display = 'flex';
       if (t1Title) t1Title.textContent = "เทอม 1 (เก็บ/สอบ)";
       if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อ เทอม 1";
     }
 
+    // 3. ซิงค์หัวข้อย่อย (Sub-items) จากฐานข้อมูลเข้าสู่ตัวแปร SI
     SI[1] = config.subItems?.t1 || [];
-    if (!IS_SEM_MODE) { SI[2] = config.subItems?.t2 || []; }
+    if (!IS_SEM_MODE) {
+      SI[2] = config.subItems?.t2 || [];
+    }
 
+    // 4. สั่งวาดรายการหัวข้อย่อยในหน้าตั้งค่า และคำนวณ Raw Max ใหม่
     renderSubList(1);
     if (!IS_SEM_MODE) renderSubList(2);
     onCfg(); 
 
+    // 5. เตรียมข้อมูลนักเรียนและสร้างตาราง
     STUDENTS = res.students;
     EXP = { 1: true, 2: true };
 
     document.getElementById('gradePanel').style.display = '';
+    
+    // เรียกใช้ buildTable (ที่ปรับปรุงแล้วให้ซ่อนคอลัมน์เทอม 2 หาก IS_SEM_MODE = true)
     buildTable();
-    renderHolisticTable(STUDENTS);
+        renderHolisticTable(STUDENTS); // <--- เพิ่มบรรทัดนี้เข้าไป
 
+
+    // 6. ปิดหน้าต่างตั้งค่า (Accordion) อัตโนมัติเพื่อให้เห็นตารางข้อมูล
     const acc = document.getElementById('accMain');
     const body = document.getElementById('accMainBody');
     if (acc && body) {
@@ -840,7 +853,7 @@ async function loadGrades() {
       body.classList.add('hidden');
     }
 
-    toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม' : 'ประถม'}`);
+    toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
 
   } catch (e) {
     console.error(e);
@@ -848,9 +861,8 @@ async function loadGrades() {
     document.getElementById('gradePanel').style.display = 'none';
   }
   pg_();
-}
-  
-  // ─── BUILD TABLE ─────────────────────────
+}  
+// ─── BUILD TABLE ─────────────────────────
 function buildTable(){ buildHead(); buildBody(); document.getElementById('gtbl').classList.remove('t1-collapsed','t2-collapsed'); EXP={1:true,2:true}; }
 
 // ==========================================
