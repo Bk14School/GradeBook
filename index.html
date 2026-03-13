@@ -1101,13 +1101,37 @@ document.addEventListener('keydown', function(event) {
   }
 });
 
-  function openBase64Pdf(dataUri, fileName='report.pdf'){
-  const a = document.createElement('a');
-  a.href = dataUri;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+ // ==========================================
+// 🖨️ ฟังก์ชันเปิด PDF ในแท็บใหม่ (ไม่ต้องดาวน์โหลด)
+// ==========================================
+function openBase64Pdf(dataUri, fileName='report.pdf') {
+  try {
+    // 1. ตัดส่วนหัว "data:application/pdf;base64," ออก
+    const base64Str = dataUri.split(',')[1];
+    
+    // 2. แปลงข้อความ Base64 กลับเป็นข้อมูลไบนารี (Binary)
+    const binaryStr = atob(base64Str);
+    const len = binaryStr.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+    }
+    
+    // 3. สร้างเป็นไฟล์ Blob ชนิด PDF
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+    
+    // 4. สั่งเปิดในแท็บใหม่
+    const newTab = window.open(blobUrl, '_blank');
+    
+    // ป้องกันกรณีที่เบราว์เซอร์บล็อก Pop-up
+    if (!newTab) {
+       alert('เบราว์เซอร์ของคุณบล็อกหน้าต่างป๊อปอัป (Pop-up)\nกรุณาอนุญาตให้เว็บไซต์นี้เปิด Pop-up ได้ที่แถบ URL ด้านบน');
+    }
+  } catch (err) {
+    console.error(err);
+    toast('เกิดข้อผิดพลาดในการเปิด PDF', 'error');
+  }
 }
 
 function askStudentForPDF() {
