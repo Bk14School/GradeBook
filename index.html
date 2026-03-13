@@ -994,37 +994,49 @@ async function saveGrades(){
   }
 }
 document.addEventListener('keydown', function(event) {
-  if (event.key === 'Enter') {
-    event.preventDefault();
+  // ดักจับปุ่ม Enter, ลูกศรลง (ArrowDown) และ ลูกศรขึ้น (ArrowUp)
+  if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     
-    // 1. ระบุ element ปัจจุบันและตาราง
+    // 1. ระบุ element ปัจจุบันและเช็คว่าเป็นช่องกรอกคะแนนหรือไม่
     const currentInput = document.activeElement;
     if (!currentInput.classList.contains('sinput')) return;
+
+    // ป้องกันพฤติกรรมปกติ (ป้องกัน Enter ขึ้นบรรทัดใหม่ และป้องกันลูกศรเปลี่ยนค่าตัวเลข)
+    event.preventDefault();
 
     const td = currentInput.closest('td');
     const tr = currentInput.closest('tr');
     const table = currentInput.closest('table');
     
-    // 2. หาตำแหน่งคอลัมน์ปัจจุบัน (cellIndex)
+    // 2. หาตำแหน่งคอลัมน์และแถวปัจจุบัน
     const colIndex = td.cellIndex;
-    
-    // 3. หาแถวถัดไปในตาราง
     const rows = Array.from(table.querySelectorAll('tbody tr'));
     const currentRowIndex = rows.indexOf(tr);
     
-    // 4. ถ้ามีแถวถัดไป ให้เลื่อนลงไปในคอลัมน์เดิม
-    if (currentRowIndex > -1 && currentRowIndex < rows.length - 1) {
-      const nextRow = rows[currentRowIndex + 1];
-      const nextCell = nextRow.cells[colIndex];
-      const nextInput = nextCell.querySelector('.sinput');
-      
-      if (nextInput) {
-        nextInput.focus();
-        nextInput.select();
+    let targetRowIndex = -1;
+
+    // 3. กำหนดแถวเป้าหมาย (ขึ้น หรือ ลง)
+    if (event.key === 'Enter' || event.key === 'ArrowDown') {
+      targetRowIndex = currentRowIndex + 1; // เลื่อนลง
+    } else if (event.key === 'ArrowUp') {
+      targetRowIndex = currentRowIndex - 1; // เลื่อนขึ้น
+    }
+    
+    // 4. ถ้ามีแถวเป้าหมายตามที่คำนวณ ให้เลื่อนโฟกัสไปที่ช่องนั้น
+    if (targetRowIndex > -1 && targetRowIndex < rows.length) {
+      const targetRow = rows[targetRowIndex];
+      const targetCell = targetRow.cells[colIndex];
+      if (targetCell) {
+        const targetInput = targetCell.querySelector('.sinput');
+        if (targetInput) {
+          targetInput.focus();
+          targetInput.select();
+        }
       }
     }
   }
 });
+
 </script>
 </body>
 </html>
