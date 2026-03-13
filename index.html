@@ -513,6 +513,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     <div id="assContainer">
       <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
     </div>
+    <!-- ใน div id="accHolisticBody" ให้เพิ่มโค้ดนี้ต่อท้ายส่วนเดิม -->
+<div id="skillContainer" class="mt-4">
+  <!-- JavaScript จะมาวาดตารางสมรรถนะ 5 ข้อตรงนี้ -->
+</div>
 
     <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">💾 บันทึกผลการประเมิน (ทั้งห้อง)</button>
   </div>
@@ -1368,68 +1372,56 @@ async function printClassPDF() {
   pg_();
 }
 // ฟังก์ชันวาดตารางประเมินคุณลักษณะฯ แบบละเอียด (8 ข้อ และ 5 ข้อ)
-// ฟังก์ชันวาดตารางประเมินคุณลักษณะฯ แบบละเอียด (8 ข้อ และ 5 ข้อ)
 function renderHolisticTable(students) {
   if (!students.length) {
     document.getElementById('assContainer').innerHTML = `<div class="text-center text-muted py-3">ไม่พบข้อมูลผู้เรียน</div>`;
     return;
   }
 
-  const charItems =["รักชาติฯ", "ซื่อสัตย์ฯ", "มีวินัย", "ใฝ่เรียนรู้", "อยู่อย่างพอเพียง", "มุ่งมั่นทำงาน", "รักความเป็นไทย", "มีจิตสาธารณะ"];
-  const rwItems =["สามารถอ่านฯ", "สามารถจับประเด็นฯ", "สามารถวิเคราะห์ฯ", "สามารถประเมินฯ", "สามารถเขียนฯ"];
+  const charItems = ["รักชาติฯ", "ซื่อสัตย์ฯ", "มีวินัย", "ใฝ่เรียนรู้", "อยู่อย่างพอเพียง", "มุ่งมั่นทำงาน", "รักความเป็นไทย", "มีจิตสาธารณะ"];
+  const rwItems = ["สามารถอ่านฯ", "สามารถจับประเด็นฯ", "สามารถวิเคราะห์ฯ", "สามารถประเมินฯ", "สามารถเขียนฯ"];
+  const skItems = ["สื่อสาร", "คิด", "แก้ปัญหา", "ทักษะชีวิต", "เทคโนโลยี"]; // สมรรถนะ 5 ข้อ
 
+  // หัวตาราง
   let thItems = `
-    <th rowspan="2" style="width:40px;">ที่</th>
-    <th rowspan="2" style="width:70px;">รหัส</th>
-    <th rowspan="2" style="text-align:left; min-width:140px;">ชื่อ-นามสกุล</th>
-    <th colspan="10" class="bg-char">การประเมินคุณลักษณะอันพึงประสงค์</th>
-    <th colspan="7" class="bg-rw">การประเมินอ่าน คิด วิเคราะห์ และเขียน</th>`;
+    <th rowspan="2">ที่</th><th rowspan="2">รหัส</th><th rowspan="2" style="text-align:left;">ชื่อ-นามสกุล</th>
+    <th colspan="10" class="bg-char">คุณลักษณะอันพึงประสงค์</th>
+    <th colspan="7" class="bg-rw">อ่าน คิด วิเคราะห์ เขียน</th>
+    <th colspan="7" class="bg-sum" style="background:#d1d5db !important;">สมรรถนะสำคัญ</th>`;
   
   let thSub = "";
-  charItems.forEach((c, i) => thSub += `<th class="bg-char v-text">${i+1}. ${c}</th>`);
-  thSub += `<th class="bg-sum v-text">รวม</th><th class="bg-sum" style="width:80px;">ผลการ<br>ประเมิน</th>`;
-  
-  rwItems.forEach((r, i) => thSub += `<th class="bg-rw v-text">${i+1}. ${r}</th>`);
-  thSub += `<th class="bg-sum v-text">รวม</th><th class="bg-sum" style="width:80px;">ผลการ<br>ประเมิน</th>`;
+  charItems.forEach((c, i) => thSub += `<th class="bg-char v-text">${i+1}.${c}</th>`);
+  thSub += `<th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>`;
+  rwItems.forEach((r, i) => thSub += `<th class="bg-rw v-text">${i+1}.${r}</th>`);
+  thSub += `<th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>`;
+  skItems.forEach((s, i) => thSub += `<th class="v-text" style="background:#e5e7eb;">${i+1}.${s}</th>`);
+  thSub += `<th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>`;
 
   let trs = students.map((s, idx) => {
-    // โหลดข้อมูลคะแนนย่อยที่ Backend ส่งมา
-    const h = s.holistic || { char_scores: Array(8).fill(""), read_scores: Array(5).fill(""), char: '', read: '' };
+    const h = s.holistic || {};
     const cVals = (h.char_scores && h.char_scores.length === 8) ? h.char_scores : Array(8).fill("");
     const rVals = (h.read_scores && h.read_scores.length === 5) ? h.read_scores : Array(5).fill("");
+    const sVals = (h.skill_scores && h.skill_scores.length === 5) ? h.skill_scores : Array(5).fill("");
 
-    // สร้างช่อง 8 ช่องของคุณลักษณะ
-    let cHtml = cVals.map((v) => `<td><input type="number" class="inp-ass c-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'c')"></td>`).join('');
-    cHtml += `<td class="bg-sum c-total">-</td>
-              <td class="bg-sum"><span class="res-badge c-result">-</span><input type="hidden" class="c-final-val" value="${h.char}"></td>`;
-
-    // สร้างช่อง 5 ช่องของการอ่านคิดวิเคราะห์
-    let rHtml = rVals.map((v) => `<td><input type="number" class="inp-ass r-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'r')"></td>`).join('');
-    rHtml += `<td class="bg-sum r-total">-</td>
-              <td class="bg-sum"><span class="res-badge r-result">-</span><input type="hidden" class="r-final-val" value="${h.read}"></td>`;
+    let cHtml = cVals.map(v => `<td><input type="number" class="inp-ass c-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'c')"></td>`).join('');
+    let rHtml = rVals.map(v => `<td><input type="number" class="inp-ass r-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'r')"></td>`).join('');
+    let sHtml = sVals.map(v => `<td><input type="number" class="inp-ass s-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 's')"></td>`).join('');
 
     return `<tr data-hsid="${s.studentId}">
-              <td>${idx+1}</td>
-              <td>${s.studentId}</td>
-              <td style="text-align:left; font-weight:600; background:#fff;">${s.name}</td>
-              ${cHtml}
-              ${rHtml}
+              <td>${idx+1}</td><td>${s.studentId}</td><td style="text-align:left; font-weight:600;">${s.name}</td>
+              ${cHtml}<td class="bg-sum c-total">-</td><td><span class="res-badge c-result">-</span><input type="hidden" class="c-final-val" value="${h.char || ''}"></td>
+              ${rHtml}<td class="bg-sum r-total">-</td><td><span class="res-badge r-result">-</span><input type="hidden" class="r-final-val" value="${h.read || ''}"></td>
+              ${sHtml}<td class="bg-sum s-total">-</td><td><span class="res-badge s-result">-</span><input type="hidden" class="s-final-val" value="${h.skill || ''}"></td>
             </tr>`;
   }).join('');
 
-  document.getElementById('assContainer').innerHTML = `
-    <div class="ass-wrap">
-      <table class="ass-tbl">
-        <thead><tr>${thItems}</tr><tr>${thSub}</tr></thead>
-        <tbody id="assBody">${trs}</tbody>
-      </table>
-    </div>
-  `;
+  document.getElementById('assContainer').innerHTML = `<div class="ass-wrap"><table class="ass-tbl"><thead><tr>${thItems}</tr><tr>${thSub}</tr></thead><tbody>${trs}</tbody></table></div>`;
 
-  // สั่งคำนวณค่าเริ่มต้นเพื่อให้แสดงผลรวมและ Badge สี
+  // คำนวณเริ่มต้น
   document.querySelectorAll('#assBody tr').forEach(tr => {
     calcAssRow(tr.querySelector('.c-inp'), 'c');
     calcAssRow(tr.querySelector('.r-inp'), 'r');
+    calcAssRow(tr.querySelector('.s-inp'), 's');
   });
 }
 
@@ -1522,6 +1514,9 @@ async function saveHolisticData() {
       read_scores: rVals, // ส่ง Array 5 ช่องไป
       read_total: tr.querySelector('.r-total').textContent,
       read: tr.querySelector('.r-final-val').value
+         skill_scores: [...tr.querySelectorAll('.s-inp')].map(i => i.value),
+      skill_total: tr.querySelector('.s-total').textContent,
+      skill: tr.querySelector('.s-final-val').value
     });
   });
 
