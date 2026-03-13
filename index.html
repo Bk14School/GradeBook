@@ -578,7 +578,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       ⏱️ เวลาเรียนรวมทั้งภาคเรียน: <span id="ci_total_hours" style="font-size:1.1rem; color:#166534;">0</span> คาบ/ชั่วโมง
       <small class="d-block fw-normal text-muted mt-1">* คำนวณอัตโนมัติจากวันเปิด-ปิดเทอม (ลบวันหยุดเสาร์-อาทิตย์)</small>
     </div>
-
+<!-- เอาโค้ดนี้ไปแทรก เหนือปุ่ม "บันทึกข้อมูลรายวิชา" -->
+    <div class="d-flex align-items-center gap-2 mb-3 px-2">
+      <label class="cfg-ttl mb-0">ปรับแก้เวลาเรียนด้วยตนเอง (กรณีมีชดเชยวันหยุด/กิจกรรม):</label>
+      <input type="number" id="ci_manual_adjust" class="cfg-n" style="width:60px;" value="0" oninput="calcTotalHours()">
+      <span style="font-size:0.8rem; color:var(--muted);">คาบ (+ หรือ - ได้)</span>
+    </div>
     <!-- ✨ เพิ่มปุ่มบันทึกข้อมูลรายวิชา -->
     <button class="btn-save w-100" onclick="saveCourseInfo()" style="background: linear-gradient(135deg, #16a34a, #15803d);">💾 บันทึกข้อมูลรายวิชา</button>
 
@@ -811,9 +816,13 @@ async function loadGrades() {
   IGNORE_R = false;
 
   try {
-    // เรียก API ดึงข้อมูลเกรดและสถิติมาเรียน 
+    // ⬇️ เรียก API ดึงข้อมูลเกรดและสถิติมาเรียน อยู่ตรงนี้ครับถึงจะถูกต้อง
     const res = await api('getGrades', { year, classroom: cls, subject: subj });
     const config = res.config;
+    
+    // ✨ รับค่าวันที่และวันหยุดจาก Backend มาเก็บไว้ในตัวแปร Global
+    TERM_DATES = res.termDates || {};
+    HOLIDAYS = res.holidays ||[];
 
     // 1. อัปเดตค่าสัดส่วนคะแนน (Config) 
     document.getElementById('c_t1a').value = config.t1_acc || 35;
@@ -821,7 +830,7 @@ async function loadGrades() {
     document.getElementById('c_t2a').value = config.t2_acc || 35;
     document.getElementById('c_t2e').value = config.t2_exam || 15;
 
-    // ✨ 1.5 โหลดข้อมูลรายวิชาและเวลาเรียน (ของใหม่)
+    // ✨ 1.5 โหลดข้อมูลรายวิชาและเวลาเรียน
     if (config.courseInfo) {
       document.getElementById('ci_code').value = config.courseInfo.code || "";
       document.getElementById('ci_type').value = config.courseInfo.type || "รายวิชาพื้นฐาน";
@@ -833,10 +842,12 @@ async function loadGrades() {
         document.getElementById('sch_wed').value = config.courseInfo.schedule.wed || 0;
         document.getElementById('sch_thu').value = config.courseInfo.schedule.thu || 0;
         document.getElementById('sch_fri').value = config.courseInfo.schedule.fri || 0;
+        // โหลดค่าช่องปรับแก้ด้วยตนเอง
+        document.getElementById('ci_manual_adjust').value = config.courseInfo.schedule.manualAdjust || 0;
         document.getElementById('ci_total_hours').textContent = config.courseInfo.schedule.totalHours || 0;
       }
     } else {
-      // กรณีเป็นวิชาใหม่ที่ยังไม่เคยตั้งค่า ให้ล้างค่าเป็นค่าเริ่มต้น
+      // กรณีวิชาใหม่ เคลียร์ค่าเป็นค่าเริ่มต้น
       document.getElementById('ci_code').value = "";
       document.getElementById('ci_type').value = "รายวิชาพื้นฐาน";
       document.getElementById('ci_credit').value = "";
@@ -845,6 +856,7 @@ async function loadGrades() {
       document.getElementById('sch_wed').value = 0;
       document.getElementById('sch_thu').value = 0;
       document.getElementById('sch_fri').value = 0;
+      document.getElementById('ci_manual_adjust').value = 0;
       document.getElementById('ci_total_hours').textContent = 0;
     }
 
@@ -871,15 +883,16 @@ async function loadGrades() {
     }
 
     // 3. ซิงค์หัวข้อย่อย 
-    SI[1] = config.subItems?.t1 || [];
+    SI[1] = config.subItems?.t1 ||[];
     if (!IS_SEM_MODE) {
-      SI[2] = config.subItems?.t2 ||[];
-    }
+      SI[2] = config.subItems?.t2 ||
+        }
 
-    // 4. สั่งวาดรายการหัวข้อย่อย
+    // 4. สั่งวาดรายการหัวข้อย่อย และคำนวณ Raw Max ใหม่
     renderSubList(1);
     if (!IS_SEM_MODE) renderSubList(2);
     onCfg(); 
+    calcTotalHours(); // ✨ เรียกคำนวณคาบเรียนทันทีเมื่อโหลดเสร็จ
 
     // 5. เตรียมข้อมูลนักเรียนและสร้างตาราง
     STUDENTS = res.students;
@@ -897,14 +910,6 @@ async function loadGrades() {
       acc.classList.remove('open');
       body.classList.add('hidden');
     }
-    
-    // ปิด Accordion ข้อมูลวิชาด้วยเช่นกัน
-    const accCourse = document.getElementById('accCourseInfo');
-    const bodyCourse = document.getElementById('accCourseInfoBody');
-    if (accCourse && bodyCourse) {
-      accCourse.classList.remove('open');
-      bodyCourse.classList.add('hidden');
-    }
 
     toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
 
@@ -915,7 +920,9 @@ async function loadGrades() {
   }
   pg_();
 }
-  // ─── BUILD TABLE ─────────────────────────
+        
+        
+        // ─── BUILD TABLE ─────────────────────────
 function buildTable(){ buildHead(); buildBody(); document.getElementById('gtbl').classList.remove('t1-collapsed','t2-collapsed'); EXP={1:true,2:true}; }
 
 // ==========================================
@@ -1716,21 +1723,110 @@ function saveCourseInfo() {
 // 🕒 ฟังก์ชันคำนวณเวลาเรียน & บันทึกข้อมูลวิชา
 // ==========================================
 
+// ประกาศตัวแปรเก็บวันที่และวันหยุด (ไว้บนสุด หรือในส่วนประกาศตัวแปร)
+let TERM_DATES = {};
+let HOLIDAYS =[];
+
+// ==========================================
+// 🕒 ฟังก์ชันคำนวณเวลาเรียนหักวันหยุด & บันทึกข้อมูล
+// ==========================================
+
 function calcTotalHours() {
-  // ฟังก์ชันนี้จะทำงานทันทีแค่ตอน "พิมพ์ตัวเลข" เพื่อคำนวณผลลัพธ์โชว์บนจอ (แต่ยังไม่บันทึกลงฐานข้อมูล)
-  const m = Number(document.getElementById('sch_mon').value) || 0;
-  const tu = Number(document.getElementById('sch_tue').value) || 0;
-  const w = Number(document.getElementById('sch_wed').value) || 0;
-  const th = Number(document.getElementById('sch_thu').value) || 0;
-  const f = Number(document.getElementById('sch_fri').value) || 0;
-  
-  const totalPerWeek = m + tu + w + th + f;
-  
-  // กำหนดให้ 1 ภาคเรียนมีประมาณ 20 สัปดาห์ (สามารถปรับตามจริงได้)
-  const totalWeeksInTerm = 20; 
-  
-  const totalHours = totalPerWeek * totalWeeksInTerm;
+  // หากยังโหลดวันที่ไม่สำเร็จ ให้เป็น 0 ไปก่อน
+  if (!TERM_DATES || Object.keys(TERM_DATES).length === 0) {
+    document.getElementById('ci_total_hours').textContent = 0;
+    return;
+  }
+
+  const cls = document.getElementById('gClass').value;
+  let startDateStr, endDateStr;
+
+  if (cls.includes("เทอม 2")) {
+    startDateStr = TERM_DATES['t2_start'];
+    endDateStr = TERM_DATES['t2_end'];
+  } else if (cls.includes("เทอม 1")) {
+    startDateStr = TERM_DATES['t1_start'];
+    endDateStr = TERM_DATES['t1_end'];
+  } else {
+    startDateStr = TERM_DATES['t1_start'];
+    endDateStr = TERM_DATES['t2_end'];
+  }
+
+  if (!startDateStr || !endDateStr) return;
+
+  // ฟังก์ชันแปลงวันที่กลับไปกลับมา
+  const parseDateAD = (dStr) => {
+    const parts = String(dStr).split(/[\/\-]/);
+    if (parts.length === 3) {
+      let d = parseInt(parts[0]);
+      let m = parseInt(parts[1]) - 1;
+      let y = parseInt(parts[2]);
+      if (y > 2500) y -= 543; // แปลง พ.ศ. เป็น ค.ศ.
+      return new Date(y, m, d);
+    }
+    return new Date();
+  };
+
+  const formatDateBE = (dateObj) => {
+    let dd = String(dateObj.getDate()).padStart(2, '0');
+    let mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    let yyyy = dateObj.getFullYear() + 543; // แปลงกลับเป็น พ.ศ.
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
+  const start = parseDateAD(startDateStr);
+  const end = parseDateAD(endDateStr);
+  start.setHours(0,0,0,0);
+  end.setHours(0,0,0,0);
+
+  const schedule = {
+    1: Number(document.getElementById('sch_mon').value) || 0,
+    2: Number(document.getElementById('sch_tue').value) || 0,
+    3: Number(document.getElementById('sch_wed').value) || 0,
+    4: Number(document.getElementById('sch_thu').value) || 0,
+    5: Number(document.getElementById('sch_fri').value) || 0,
+    0: 0, 6: 0 // เสาร์อาทิตย์เป็น 0
+  };
+
+  // สร้างเซ็ตของวันหยุด (เก็บเฉพาะที่ type = 'holiday')
+  const holidaySet = new Set();
+  HOLIDAYS.forEach(h => {
+    if (h.type === 'holiday') {
+      holidaySet.add(h.date); // format "DD/MM/YYYY" ตรงกับฝั่งเซิร์ฟเวอร์
+    }
+  });
+
+  let totalHours = 0;
+  let current = new Date(start);
+
+  // วนลูปนับวันตั้งแต่วันเปิดเทอม ถึง ปิดเทอม
+  while (current <= end) {
+    let currentBEStr = formatDateBE(current);
+    
+    // ถัาวันนี้ไม่ใช่วันหยุด ให้บวกจำนวนคาบเรียนของวันนั้นๆ เข้าไป
+    if (!holidaySet.has(currentBEStr)) {
+      let dayOfWeek = current.getDay();
+      totalHours += schedule[dayOfWeek];
+    }
+    
+    // ขยับไปวันถัดไป
+    current.setDate(current.getDate() + 1);
+  }
+
+  // นำไปบวก/ลบ กับช่องปรับแก้ด้วยตนเอง (สำหรับชดเชยเสาร์-อาทิตย์ หรือ กิจกรรมพิเศษ)
+  const manualAdjust = Number(document.getElementById('ci_manual_adjust').value) || 0;
+  totalHours += manualAdjust;
+
   document.getElementById('ci_total_hours').textContent = totalHours;
+}
+
+function saveCourseInfo() {
+  saveConfigOnly();
+  toast('✅ บันทึกข้อมูลรายวิชาสำเร็จ');
+  setTimeout(() => {
+    document.getElementById('accCourseInfo').classList.remove('open');
+    document.getElementById('accCourseInfoBody').classList.add('hidden');
+  }, 1000);
 }
 
 function saveCourseInfo() {
