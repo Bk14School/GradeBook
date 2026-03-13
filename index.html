@@ -417,10 +417,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
             📋 <span id="lblSubj"></span>
             <span style="font-weight:400;color:var(--muted);font-size:.85rem;"> — ชั้น <span id="lblClass"></span></span>
           </div>
-<div style="display: flex; gap: 8px;">
-  <button class="btn-pri" onclick="printClassPDF()" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">🖨️ พิมพ์ทั้งห้อง</button>
-  <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
-</div>
+          <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
         </div>
 
         <!-- แทนที่ Accordion เก่าด้วยอันใหม่นี้ -->
@@ -802,8 +799,6 @@ function buildHead(){
     <th rowspan="2" class="th-t2e" style="width:72px;">สอบ ท.2<br><small>(${t2e})</small></th>
     <th rowspan="2" class="th-t2t" style="width:72px;">รวม ท.2<br><small>(50)</small></th>
     <th rowspan="2" class="th-grand" style="width:74px;">รวม<br>ทั้งปี</th>`;
-    <th rowspan="2" class="th-base" style="width:50px;">พิมพ์</th>`;
-
   }
 
   let r2='';
@@ -872,8 +867,7 @@ function buildBody(){
         <td><span class="tbadge ${tc(t2t)} t2tot">${t2t||'-'}</span></td>
         <td><span class="gbadge ${gc} gtot">${g2||'-'}</span></td>`;
     }
-// ก่อนบรรทัด rowHtml += `</tr>`; (ประมาณบรรทัด 528) ให้เพิ่ม:
-rowHtml += `<td><button class="btn-sm" onclick="printStudentPDF('${s.studentId}', '${s.name}')" title="พิมพ์ ปพ.6">🖨️</button></td>`;
+
     rowHtml += `</tr>`;
     return rowHtml;
   }).join('');
@@ -1101,48 +1095,7 @@ document.addEventListener('keydown', function(event) {
     }
   }
 });
-// ─── PDF PRINT ─────────────────────────────────
-async function printStudentPDF(studentId, studentName) {
-  const year = document.getElementById('gYear').value;
-  const cls = document.getElementById('gClass').value;
-  if (!year || !cls) return toast('ข้อมูลไม่ครบถ้วน', 'error');
 
-  pg('กำลังสร้าง PDF รายบุคคล...');
-  try {
-    const pdfBase64 = await api('generateStudentPDF', { year, classroom: cls, studentId });
-    downloadPDF(pdfBase64, `ปพ6_${studentName}_${cls}.pdf`);
-    toast('✅ ดาวน์โหลด PDF สำเร็จ');
-  } catch (e) {
-    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
-  }
-  pg_();
-}
-
-async function printClassPDF() {
-  const year = document.getElementById('gYear').value;
-  const cls = document.getElementById('gClass').value;
-  if (!year || !cls) return toast('กรุณาโหลดรายชื่อก่อน', 'error');
-  if (!STUDENTS.length) return toast('ไม่พบนักเรียนในห้องนี้', 'error');
-
-  pg(`กำลังสร้าง PDF ทั้งห้อง (${STUDENTS.length} คน)... อาจใช้เวลา 10-30 วินาที`);
-  try {
-    const pdfBase64 = await api('generateClassPDF', { year, classroom: cls });
-    downloadPDF(pdfBase64, `ปพ6_ทั้งห้อง_${cls}_ปี${year}.pdf`);
-    toast('✅ ดาวน์โหลด PDF สำเร็จ');
-  } catch (e) {
-    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
-  }
-  pg_();
-}
-
-function downloadPDF(base64Data, filename) {
-  const link = document.createElement('a');
-  link.href = base64Data;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
 </script>
 </body>
 </html>
