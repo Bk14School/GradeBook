@@ -1000,15 +1000,35 @@ function restoreInputs(snap){
   });
 }
 
+// ==========================================
+// ✏️ ฟังก์ชันคำนวณคะแนนย่อย (พิมพ์ครบแล้วกระโดดลงล่าง)
+// ==========================================
 function calcSub(el,t){
   const mx=+el.getAttribute('max');
   if(+el.value>mx){el.value=mx;toast(`เต็ม ${mx} คะแนน`,'warning');}
   if(+el.value<0)el.value=0;
- if (el.value.length >= String(mx).length) {
-    const inputs = Array.from(document.querySelectorAll('.sinput'));
-    const currentIndex = inputs.indexOf(el);
-    if (currentIndex > -1 && currentIndex < inputs.length - 1) { inputs[currentIndex + 1].focus(); inputs[currentIndex + 1].select(); }
+  
+  // ✨ เลื่อนเคอร์เซอร์ลงล่างอัตโนมัติเมื่อพิมพ์ครบจำนวนหลัก
+  if (el.value.length >= String(mx).length) {
+    const td = el.closest('td');
+    const tr = el.closest('tr');
+    const tbody = tr.closest('tbody');
+    const colIndex = td.cellIndex;
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const currentRowIndex = rows.indexOf(tr);
+    
+    if (currentRowIndex > -1 && currentRowIndex + 1 < rows.length) {
+      const nextCell = rows[currentRowIndex + 1].cells[colIndex];
+      if (nextCell) {
+        const nextInput = nextCell.querySelector('.sinput');
+        if (nextInput) { 
+           nextInput.focus(); 
+           nextInput.select(); 
+        }
+      }
+    }
   }
+  
   const tr=el.closest('tr');
   let rs=0; tr.querySelectorAll(t===1?'.sub1':'.sub2').forEach(i=>rs+=+i.value||0);
   const rm=getRawMax(t), sm=+document.getElementById(`c_t${t}a`).value;
@@ -1020,10 +1040,35 @@ function calcSub(el,t){
   recalcTots(tr);
 }
 
+// ==========================================
+// ✏️ ฟังก์ชันคำนวณคะแนนสอบ (พิมพ์ครบแล้วกระโดดลงล่าง)
+// ==========================================
 function calcExam(el){
   const mx=+el.getAttribute('max');
   if(+el.value>mx){el.value=mx;toast(`เต็ม ${mx} คะแนน`,'warning');}
   if(+el.value<0)el.value=0;
+  
+  // ✨ เลื่อนเคอร์เซอร์ลงล่างอัตโนมัติเมื่อพิมพ์ครบจำนวนหลัก
+  if (el.value.length >= String(mx).length) {
+    const td = el.closest('td');
+    const tr = el.closest('tr');
+    const tbody = tr.closest('tbody');
+    const colIndex = td.cellIndex;
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const currentRowIndex = rows.indexOf(tr);
+    
+    if (currentRowIndex > -1 && currentRowIndex + 1 < rows.length) {
+      const nextCell = rows[currentRowIndex + 1].cells[colIndex];
+      if (nextCell) {
+        const nextInput = nextCell.querySelector('.sinput');
+        if (nextInput) { 
+           nextInput.focus(); 
+           nextInput.select(); 
+        }
+      }
+    }
+  }
+  
   recalcTots(el.closest('tr'));
 }
 
