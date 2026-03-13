@@ -426,7 +426,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     </label>
   </div>
 
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+ <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <!-- เพิ่มปุ่มนี้เข้าไป สีเขียวสไตล์ Excel -->
+    <button class="btn-pri" style="background: linear-gradient(135deg, #16a34a, #15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
+
     <button class="btn-pri" style="background: linear-gradient(135deg, #0284c7, #0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
     <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ ปพ.6 ทั้งห้อง</button>
     <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
@@ -1385,6 +1388,49 @@ function toggleIgnoreR() {
   document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr => {
     recalcTots(tr);
   });
+}
+
+  // ==========================================
+// 📥 ฟังก์ชันดาวน์โหลดไฟล์ CSV (Excel)
+// ==========================================
+async function exportSummaryCSV() {
+  const year = document.getElementById('gYear').value;
+  const classroom = document.getElementById('gClass').value;
+
+  if (!confirm(`ต้องการดาวน์โหลดไฟล์ Excel (CSV) ของห้อง ${classroom} ใช่หรือไม่?`)) return;
+
+  pg('กำลังเตรียมไฟล์ (อาจใช้เวลาสักครู่)...');
+  try {
+    // โหลดข้อมูลจาก Backend
+    const base64Data = await api('generateSummaryCSV', { year, classroom, ignoreR: IGNORE_R });
+
+    // ถอดรหัส Base64 ให้เป็นข้อมูลไบนารี (Binary)
+    const byteCharacters = atob(base64Data);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    
+    // สร้าง Blob สำหรับไฟล์ CSV
+    const blob = new Blob([byteArray], { type: 'text/csv;charset=utf-8;' });
+
+    // สร้างลิงก์ดาวน์โหลดจำลองแล้วสั่งคลิกอัตโนมัติ
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `สรุปผลการเรียน_${classroom}_ปี${year}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast('✅ ดาวน์โหลดไฟล์ Excel สำเร็จ');
+  } catch (e) {
+    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
+  }
+  pg_();
 }
   
 </script>
