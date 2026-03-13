@@ -523,7 +523,6 @@ function toggleAcc(id) {
 }
 
 // helper อ่าน id → summary el
-function getSumEl(id){ return document.getElementById(id==='acc1'?'acc1Summary':'acc2Summary'); }
 
 // แก้ไขให้เป็นแบบนี้ครับ
 function updateSummary(id) {
@@ -648,12 +647,12 @@ function rmSub(t, i) {
     onCfg(); 
   }
 }
-  function renderSubList(t){
+function renderSubList(t){
   document.getElementById(`subList_${t}`).innerHTML=SI[t].map((x,i)=>`
     <div class="sub-row">
       <span class="sub-n">${i+1}.</span>
       <input class="sub-name" type="text" placeholder="ชื่อหัวข้อ" value="${x.name}"
-        onchange="SI[${t}][${i}].name=this.value; updateSummary('acc2')">
+        onchange="SI[${t}][${i}].name=this.value;">
       <span class="sub-max-lbl">เต็ม</span>
       <input class="sub-max" type="number" min="1" value="${x.max}"
         onchange="SI[${t}][${i}].max=Number(this.value);updRaw(${t})">
@@ -661,17 +660,16 @@ function rmSub(t, i) {
     </div>`).join('');
   updRaw(t);
 }
-function updRaw(t){
+  function updRaw(t){
   const rm=getRawMax(t), sm=Number(document.getElementById(`c_t${t}a`).value)||0;
   document.getElementById(`rmx${t}`).textContent=rm;
   document.getElementById(`smx${t}`).textContent=sm;
-  updateSummary('acc2');
 }
 // แก้ไขฟังก์ชันนี้ใน JavaScript ของคุณ
+// แก้ไขเป็นแบบนี้ครับ
 function onCfg(){ 
   updRaw(1); 
   updRaw(2); 
-  // ลบ updateSummary('acc1'); ออกครับ
 }
 // ─── TOGGLE COLS (CSS only) ───────────────
 function toggleCols(t){
@@ -706,11 +704,7 @@ async function loadGrades(){
     SI[1] = res.config.subItems?.t1 || [];
     SI[2] = res.config.subItems?.t2 || [];
     
-    renderSubList(1); 
-    renderSubList(2);
-
-    // เนื่องจากเรายุบรวม Accordion แล้ว เราไม่จำเป็นต้องเรียก updateSummary('acc1') หรือ 'acc2'
-    // หากคุณมีการคำนวณ Max raw หรือสรุปยอด ให้เรียกฟังก์ชันคำนวณแทน เช่น:
+   
     updRaw(1);
     updRaw(2);
 
