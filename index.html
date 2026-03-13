@@ -1503,22 +1503,23 @@ function calcAssRow(inputEl, type) {
      resultBadge.className = `res-badge ${type}-result ${resClass}`;
   }
   if (hiddenFinal) hiddenFinal.value = pdfValue;
-}// ฟังก์ชันบันทึกข้อมูลประเมินลง Spreadsheet (ดึงจาก Hidden Input)
-// ฟังก์ชันบันทึกข้อมูลประเมินลง Spreadsheet (ส่งคะแนนย่อยไปด้วย)
+}
+  
 async function saveHolisticData() {
   const records = [];
   document.querySelectorAll('#assBody tr[data-hsid]').forEach(tr => {
     
-    // ดึงคะแนนทุกช่องเก็บเป็น Array ส่งให้ Backend
+    // ดึงค่าคะแนนรายข้อ (8 ช่องคุณลักษณะ)
     const cVals = [...tr.querySelectorAll('.c-inp')].map(i => i.value);
+    // ดึงค่าคะแนนรายข้อ (5 ช่องอ่านคิด)
     const rVals = [...tr.querySelectorAll('.r-inp')].map(i => i.value);
 
     records.push({
       studentId: tr.getAttribute('data-hsid'),
-      char_scores: cVals,
+      char_scores: cVals, // ส่ง Array 8 ช่องไป
       char_total: tr.querySelector('.c-total').textContent,
       char: tr.querySelector('.c-final-val').value,
-      read_scores: rVals,
+      read_scores: rVals, // ส่ง Array 5 ช่องไป
       read_total: tr.querySelector('.r-total').textContent,
       read: tr.querySelector('.r-final-val').value
     });
