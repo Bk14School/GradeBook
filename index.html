@@ -1500,35 +1500,39 @@ function calcAssRow(inputEl, type) {
 async function saveHolisticData() {
   const records = [];
   
-  // 1. วนลูปที่ตารางหลัก (gtBody) เพราะมี data-sid ที่แน่นอนที่สุด
+  // วนลูปที่ตารางหลัก (gtBody) เพื่อดึง sid
   document.querySelectorAll('#gtBody tr[data-sid]').forEach((tr, index) => {
     const sid = tr.getAttribute('data-sid');
     
-    // 2. ดึงแถวที่ตรงกันจากตารางประเมินผล (index คือเลขแถว)
+    // ดึงแถวตารางประเมินผล (ต้องระบุ index ให้ถูก)
     const assTr = document.querySelector(`#assBody tr:nth-child(${index + 1})`);
     const skillTr = document.querySelector(`#skillContainer tr:nth-child(${index + 1})`);
 
-    // 3. ดึงค่าจากทั้ง 3 ตารางมาใส่ในออบเจกต์เดียว
+    // ตรวจสอบว่าดึงค่าได้หรือไม่
+    const cVals = assTr ? [...assTr.querySelectorAll('.c-inp')].map(i => i.value) : Array(8).fill("");
+    const rVals = assTr ? [...assTr.querySelectorAll('.r-inp')].map(i => i.value) : Array(5).fill("");
+    const sVals = skillTr ? [...skillTr.querySelectorAll('.s-inp')].map(i => i.value) : Array(5).fill("");
+
     records.push({
       studentId: sid,
-      // ดึงจากตารางคุณลักษณะ (assBody)
-      char_scores: assTr ? [...assTr.querySelectorAll('.c-inp')].map(i => i.value) : Array(8).fill(""),
+      // ต้องส่งให้ตรงชื่อที่ Backend (saveHolistic) กำลังรอรับ!
+      char_scores: cVals, 
       char_total: assTr ? assTr.querySelector('.c-total').textContent : "0",
       char: assTr ? assTr.querySelector('.c-final-val').value : "ดีเยี่ยม (3)",
-      // ดึงจากตารางอ่านคิด (assBody)
-      read_scores: assTr ? [...assTr.querySelectorAll('.r-inp')].map(i => i.value) : Array(5).fill(""),
+      
+      read_scores: rVals,
       read_total: assTr ? assTr.querySelector('.r-total').textContent : "0",
       read: assTr ? assTr.querySelector('.r-final-val').value : "ดีเยี่ยม (3)",
-      // ดึงจากตารางสมรรถนะ (skillContainer)
-      skill_scores: skillTr ? [...skillTr.querySelectorAll('.s-inp')].map(i => i.value) : Array(5).fill(""),
+      
+      skill_scores: sVals,
       skill_total: skillTr ? skillTr.querySelector('.s-total').textContent : "0",
       skill: skillTr ? skillTr.querySelector('.s-final-val').value : "ดีเยี่ยม (3)"
     });
   });
 
-  if (records.length === 0) return toast('ไม่พบรายชื่อนักเรียนในตารางหลัก', 'error');
+  if (records.length === 0) return toast('ไม่พบรายชื่อนักเรียน', 'error');
 
-  pg('กำลังบันทึกคะแนนประเมิน...');
+  pg('กำลังบันทึกข้อมูล...');
   try {
     const msg = await api('saveHolistic', {
       year: document.getElementById('gYear').value,
@@ -1540,7 +1544,8 @@ async function saveHolisticData() {
     toast(e.message, 'error');
   }
   pg_();
-}  
+}
+  
   // ==========================================
 // 🖨️ ฟังก์ชันสั่งพิมพ์ PDF สรุปผลการเรียนรวมทุกวิชา
 // ==========================================
