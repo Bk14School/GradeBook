@@ -864,7 +864,10 @@ function buildBody(){
 
     // --- ส่วนตาราง dropdown สถานะ ร (เฉพาะมัธยม) ---
     if (IS_SEM_MODE) {
-      let rStatus = g.t2_acc || 'ปกติ'; // เก็บสถานะ ร. ลงใน t2_acc แบบลับๆ
+      // ดึงสถานะ ร จากฐานข้อมูล (ถ้าไม่มีให้เป็น ปกติ)
+      let rStatus = String(g.t2_acc || 'ปกติ').trim(); 
+      if (rStatus !== 'ติด ร' && rStatus !== 'แก้ ร') rStatus = 'ปกติ';
+
       rowHtml += `<td style="background:#f8fafc;">
          <select class="sinput r-status" style="width: 55px; font-size: 0.75rem; padding: 2px; text-align:center; cursor:pointer;" onchange="recalcTots(this.closest('tr'))">
            <option value="ปกติ" ${rStatus==='ปกติ'?'selected':''}>-</option>
@@ -910,7 +913,6 @@ function buildBody(){
   }).join('');
   document.getElementById('gtBody').innerHTML=rows;
 }
-
 function applySubConfig(){
   if(!STUDENTS.length) return toast('โหลดรายชื่อก่อน','error');
   const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
@@ -1018,10 +1020,13 @@ async function saveGrades(){
   const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
   const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
   const targetTotal = IS_SEM_MODE ? 100 : 50;
+  
   if(t1a + t1e !== targetTotal) return toast(`คะแนนรวมต้องเท่ากับ ${targetTotal}`,'error');
   if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) return toast(`คะแนนรวมเทอม 2 ต้องเท่ากับ ${targetTotal}`,'error');
 
   const rm1=getRawMax(1), rm2=getRawMax(2), records=[];
+  
+  // กวาดข้อมูลทุกแถวเพื่อส่งไปบันทึก (ป้องกันการตกหล่น)
   document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
     const sid=tr.getAttribute('data-sid');
     const t1sv=[...tr.querySelectorAll('.sub1')].map(i=>i.value);
@@ -1029,16 +1034,27 @@ async function saveGrades(){
     const t1r=t1sv.reduce((s,v)=>s+(+v||0),0), t2r=t2sv.reduce((s,v)=>s+(+v||0),0);
     const t1acc=rm1>0?scl(t1r,rm1,t1a):(+tr.querySelector('.t1sc')?.textContent||0);
     
-    // ตรงนี้คือการเก็บสถานะ 'ร' ลงฐานข้อมูล (ถ้าเป็นมัธยมจะแทนที่ t2_acc)
-    const t2acc = IS_SEM_MODE ? (tr.querySelector('.r-status')?.value || '') : (rm2>0?scl(t2r,rm2,t2a):(+tr.querySelector('.t2sc')?.textContent||0));
+    // ดึงสถานะ ร จากหน้าเว็บ (ถ้าเป็นมัธยมจะเก็บใส่ t2_acc)
+    let t2acc = 0;
+    if (IS_SEM_MODE) {
+        t2acc = tr.querySelector('.r-status')?.value || 'ปกติ';
+    } else {
+        t2acc = rm2>0 ? scl(t2r,rm2,t2a) : (+tr.querySelector('.t2sc')?.textContent||0);
+    }
 
     const t1ex=tr.querySelector('.s-t1e')?.value||'', t2ex=tr.querySelector('.s-t2e')?.value||'';
-    const rStat = tr.querySelector('.r-status')?.value;
-    const has=t1sv.some(v=>v!=='')||t2sv.some(v=>v!=='')||t1ex!==''||t2ex!==''||(rStat && rStat!=='ปกติ');
-    if(has)records.push({studentId:sid,t1_sub:t1sv,t1_acc:t1acc,t1_exam:t1ex,t2_sub:t2sv,t2_acc:t2acc,t2_exam:t2ex});
+    
+    // บันทึกข้อมูลของนักเรียนทุกคนในตาราง
+    records.push({
+      studentId:sid,
+      t1_sub:t1sv, t1_acc:t1acc, t1_exam:t1ex,
+      t2_sub:t2sv, t2_acc:t2acc, t2_exam:t2ex
+    });
   });
-  if(!records.length)return toast('ยังไม่มีข้อมูล','warning');
-  pg('บันทึก...');
+
+  if(!records.length) return toast('ยังไม่มีข้อมูล','warning');
+  
+  pg('กำลังบันทึกคะแนน...');
   try{
     const msg=await api('saveGrades',{
       year:document.getElementById('gYear').value,
@@ -1051,7 +1067,6 @@ async function saveGrades(){
   }catch(e){toast(e.message,'error');}
   pg_();
 }
-
 // ฟังก์ชันแปลงคะแนนเป็นเกรด
 function calcGradeFrontend(s) {
   s = Number(s) || 0;
