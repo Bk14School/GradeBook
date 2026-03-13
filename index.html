@@ -535,7 +535,57 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
         </div>
       </div>
 
-    </div><!-- /gradePanel -->
+      <!-- Accordion ข้อมูลรายวิชาและเวลาเรียน -->
+<div class="acc acc-main mb-3" id="accCourseInfo">
+  <div class="acc-hd" onclick="toggleAcc('accCourseInfo')" style="background:#f0fdf4; border:1.5px solid #bbf7d0;">
+    <div class="acc-title" style="color:#166534;">📝 ข้อมูลรายวิชา และ เวลาเรียน (ปพ.5)</div>
+    <span class="acc-arrow">▾</span>
+  </div>
+  <div class="acc-body hidden" id="accCourseInfoBody" style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-top:none;">
+    
+    <!-- ข้อมูลพื้นฐานรายวิชา -->
+    <div class="cfg-row mb-3">
+      <div class="cfg-block" style="flex:1; min-width:120px;">
+        <label class="cfg-ttl">รหัสวิชา</label>
+        <input type="text" id="ci_code" class="cfg-n" style="width:100%; text-align:left;" placeholder="เช่น ท21101" onchange="saveCourseInfo()">
+      </div>
+      <div class="cfg-block" style="flex:1; min-width:150px;">
+        <label class="cfg-ttl">ประเภทวิชา</label>
+        <select id="ci_type" class="cfg-n" style="width:100%; text-align:left;" onchange="saveCourseInfo()">
+          <option value="รายวิชาพื้นฐาน">รายวิชาพื้นฐาน</option>
+          <option value="รายวิชาเพิ่มเติม">รายวิชาเพิ่มเติม</option>
+          <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
+        </select>
+      </div>
+      <div class="cfg-block" style="flex:0.5; min-width:80px;">
+        <label class="cfg-ttl">หน่วยกิต</label>
+        <input type="number" step="0.5" id="ci_credit" class="cfg-n" style="width:100%;" placeholder="1.5" onchange="saveCourseInfo()">
+      </div>
+    </div>
+
+    <!-- ตารางสอน จ-ศ -->
+    <label class="cfg-ttl d-block mb-2">ตารางเรียน (ระบุจำนวนคาบที่สอนในแต่ละวัน)</label>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <div class="text-center"><small class="d-block text-muted">จ.</small><input type="number" id="sch_mon" class="cfg-n" style="width:50px;" value="0" min="0" onchange="calcTotalHours()"></div>
+      <div class="text-center"><small class="d-block text-muted">อ.</small><input type="number" id="sch_tue" class="cfg-n" style="width:50px;" value="0" min="0" onchange="calcTotalHours()"></div>
+      <div class="text-center"><small class="d-block text-muted">พ.</small><input type="number" id="sch_wed" class="cfg-n" style="width:50px;" value="0" min="0" onchange="calcTotalHours()"></div>
+      <div class="text-center"><small class="d-block text-muted">พฤ.</small><input type="number" id="sch_thu" class="cfg-n" style="width:50px;" value="0" min="0" onchange="calcTotalHours()"></div>
+      <div class="text-center"><small class="d-block text-muted">ศ.</small><input type="number" id="sch_fri" class="cfg-n" style="width:50px;" value="0" min="0" onchange="calcTotalHours()"></div>
+    </div>
+
+    <div class="p-2 rounded" style="background:#dcfce7; color:#14532d; font-size:0.85rem; font-weight:bold;">
+      ⏱️ เวลาเรียนรวมทั้งภาคเรียน: <span id="ci_total_hours" style="font-size:1.1rem; color:#166534;">0</span> คาบ/ชั่วโมง
+      <small class="d-block fw-normal text-muted mt-1">* คำนวณอัตโนมัติจากวันเปิด-ปิดเทอม (ลบวันหยุดเสาร์-อาทิตย์)</small>
+    </div>
+
+  </div>
+</div>
+
+    </div>
+    
+    
+    
+    <!-- /gradePanel -->
   </div>
 </div>
 
@@ -751,21 +801,48 @@ async function loadGrades() {
   document.getElementById('lblClass').textContent = cls;
   document.getElementById('lblSubj').textContent = subj;
   pg('กำลังโหลดข้อมูลและสถิติมาเรียน...');
-  // ค้นหาใน loadGrades() แถวๆ IS_SEM_MODE = cls.includes("เทอม"); แล้วเพิ่ม:
-document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
-document.getElementById('toggleR').checked = false;
-IGNORE_R = false;
+  
+  document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
+  document.getElementById('toggleR').checked = false;
+  IGNORE_R = false;
 
   try {
-    // เรียก API ดึงข้อมูลเกรดและสถิติมาเรียน (Backend จะกรองวันมาเรียนตามเทอมให้แล้ว)
+    // เรียก API ดึงข้อมูลเกรดและสถิติมาเรียน 
     const res = await api('getGrades', { year, classroom: cls, subject: subj });
     const config = res.config;
 
-    // 1. อัปเดตค่าสัดส่วนคะแนน (Config) ลงใน Input ของหน้าตั้งค่า
-    document.getElementById('c_t1a').value = config.t1_acc;
-    document.getElementById('c_t1e').value = config.t1_exam;
-    document.getElementById('c_t2a').value = config.t2_acc;
-    document.getElementById('c_t2e').value = config.t2_exam;
+    // 1. อัปเดตค่าสัดส่วนคะแนน (Config) 
+    document.getElementById('c_t1a').value = config.t1_acc || 35;
+    document.getElementById('c_t1e').value = config.t1_exam || 15;
+    document.getElementById('c_t2a').value = config.t2_acc || 35;
+    document.getElementById('c_t2e').value = config.t2_exam || 15;
+
+    // ✨ 1.5 โหลดข้อมูลรายวิชาและเวลาเรียน (ของใหม่)
+    if (config.courseInfo) {
+      document.getElementById('ci_code').value = config.courseInfo.code || "";
+      document.getElementById('ci_type').value = config.courseInfo.type || "รายวิชาพื้นฐาน";
+      document.getElementById('ci_credit').value = config.courseInfo.credit || "";
+      
+      if (config.courseInfo.schedule) {
+        document.getElementById('sch_mon').value = config.courseInfo.schedule.mon || 0;
+        document.getElementById('sch_tue').value = config.courseInfo.schedule.tue || 0;
+        document.getElementById('sch_wed').value = config.courseInfo.schedule.wed || 0;
+        document.getElementById('sch_thu').value = config.courseInfo.schedule.thu || 0;
+        document.getElementById('sch_fri').value = config.courseInfo.schedule.fri || 0;
+        document.getElementById('ci_total_hours').textContent = config.courseInfo.schedule.totalHours || 0;
+      }
+    } else {
+      // กรณีเป็นวิชาใหม่ที่ยังไม่เคยตั้งค่า ให้ล้างค่าเป็นค่าเริ่มต้น
+      document.getElementById('ci_code').value = "";
+      document.getElementById('ci_type').value = "รายวิชาพื้นฐาน";
+      document.getElementById('ci_credit').value = "";
+      document.getElementById('sch_mon').value = 0;
+      document.getElementById('sch_tue').value = 0;
+      document.getElementById('sch_wed').value = 0;
+      document.getElementById('sch_thu').value = 0;
+      document.getElementById('sch_fri').value = 0;
+      document.getElementById('ci_total_hours').textContent = 0;
+    }
 
     // 2. ปรับปรุง UI ส่วนการตั้งค่า (Accordion) ตามโหมดชั้นเรียน
     const t2Tab = document.querySelector('.ttab[onclick*="switchTerm(2"]');
@@ -774,32 +851,28 @@ IGNORE_R = false;
     const btnAddT1 = document.querySelector('.btn-add-sub[onclick="addSub(1)"]');
 
     if (IS_SEM_MODE) {
-      // --- โหมดมัธยม ---
-      if (t2Tab) t2Tab.style.display = 'none'; // ซ่อน Tab เทอม 2
-      if (t2Block) t2Block.style.display = 'none'; // ซ่อนช่องกรอกคะแนนเทอม 2
+      if (t2Tab) t2Tab.style.display = 'none'; 
+      if (t2Block) t2Block.style.display = 'none'; 
       if (t1Title) t1Title.textContent = "สัดส่วนคะแนน (เก็บ/สอบ)";
       if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อคะแนนย่อย";
       
-      // บังคับ Tab ตั้งค่าให้กลับมาอยู่ที่เทอม 1 เสมอ
       const t1TabBtn = document.querySelector('.ttab[onclick*="switchTerm(1"]');
       if (t1TabBtn) switchTerm(1, t1TabBtn);
-      
-      SI[2] = []; // มัธยมจะไม่ใช้หัวข้อย่อยเทอม 2
+      SI[2] =[]; 
     } else {
-      // --- โหมดประถม ---
       if (t2Tab) t2Tab.style.display = 'block';
       if (t2Block) t2Block.style.display = 'flex';
       if (t1Title) t1Title.textContent = "เทอม 1 (เก็บ/สอบ)";
       if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อ เทอม 1";
     }
 
-    // 3. ซิงค์หัวข้อย่อย (Sub-items) จากฐานข้อมูลเข้าสู่ตัวแปร SI
+    // 3. ซิงค์หัวข้อย่อย 
     SI[1] = config.subItems?.t1 || [];
     if (!IS_SEM_MODE) {
-      SI[2] = config.subItems?.t2 || [];
+      SI[2] = config.subItems?.t2 ||[];
     }
 
-    // 4. สั่งวาดรายการหัวข้อย่อยในหน้าตั้งค่า และคำนวณ Raw Max ใหม่
+    // 4. สั่งวาดรายการหัวข้อย่อย
     renderSubList(1);
     if (!IS_SEM_MODE) renderSubList(2);
     onCfg(); 
@@ -810,17 +883,23 @@ IGNORE_R = false;
 
     document.getElementById('gradePanel').style.display = '';
     
-    // เรียกใช้ buildTable (ที่ปรับปรุงแล้วให้ซ่อนคอลัมน์เทอม 2 หาก IS_SEM_MODE = true)
     buildTable();
-        renderHolisticTable(STUDENTS); // <--- เพิ่มบรรทัดนี้เข้าไป
+    renderHolisticTable(STUDENTS); 
 
-
-    // 6. ปิดหน้าต่างตั้งค่า (Accordion) อัตโนมัติเพื่อให้เห็นตารางข้อมูล
+    // 6. ปิดหน้าต่างตั้งค่า (Accordion) อัตโนมัติ
     const acc = document.getElementById('accMain');
     const body = document.getElementById('accMainBody');
     if (acc && body) {
       acc.classList.remove('open');
       body.classList.add('hidden');
+    }
+    
+    // ปิด Accordion ข้อมูลวิชาด้วยเช่นกัน
+    const accCourse = document.getElementById('accCourseInfo');
+    const bodyCourse = document.getElementById('accCourseInfoBody');
+    if (accCourse && bodyCourse) {
+      accCourse.classList.remove('open');
+      bodyCourse.classList.add('hidden');
     }
 
     toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
@@ -831,8 +910,8 @@ IGNORE_R = false;
     document.getElementById('gradePanel').style.display = 'none';
   }
   pg_();
-}  
-// ─── BUILD TABLE ─────────────────────────
+}
+  // ─── BUILD TABLE ─────────────────────────
 function buildTable(){ buildHead(); buildBody(); document.getElementById('gtbl').classList.remove('t1-collapsed','t2-collapsed'); EXP={1:true,2:true}; }
 
 // ==========================================
@@ -1204,19 +1283,28 @@ async function saveConfigOnly() {
 
   if (!subj || subj === "-- ไม่พบวิชา --") return;
 
-  // 1. เตรียมค่า Config ปัจจุบันจากหน้าจอ
+// 1. เตรียมค่า Config ปัจจุบันจากหน้าจอ
   const config = {
     t1_acc: +document.getElementById('c_t1a').value,
     t1_exam: +document.getElementById('c_t1e').value,
     t2_acc: +document.getElementById('c_t2a').value,
     t2_exam: +document.getElementById('c_t2e').value,
-    subItems: { 
-      t1: SI[1], 
-      t2: SI[2] 
-    },
-    rawMax: { 
-      t1: getRawMax(1), 
-      t2: getRawMax(2) 
+    subItems: { t1: SI[1], t2: SI[2] },
+    rawMax: { t1: getRawMax(1), t2: getRawMax(2) },
+    
+    // ✨ เพิ่มส่วนนี้เข้าไปใน Config JSON 
+    courseInfo: {
+      code: document.getElementById('ci_code').value,
+      type: document.getElementById('ci_type').value,
+      credit: document.getElementById('ci_credit').value,
+      schedule: {
+        mon: document.getElementById('sch_mon').value,
+        tue: document.getElementById('sch_tue').value,
+        wed: document.getElementById('sch_wed').value,
+        thu: document.getElementById('sch_thu').value,
+        fri: document.getElementById('sch_fri').value,
+        totalHours: document.getElementById('ci_total_hours').textContent
+      }
     }
   };
 
@@ -1612,6 +1700,32 @@ async function exportSummaryCSV() {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
   pg_();
+}
+  // ฟังก์ชันอ่านและบันทึกข้อมูลรายวิชาเข้า Config
+function saveCourseInfo() {
+  // ฟังก์ชันนี้จะถูกเรียกเมื่อครูพิมพ์ รหัสวิชา, หน่วยกิต, หรือเปลี่ยนจำนวนคาบ
+  // และจะไปเกาะติดกับฟังก์ชัน saveConfigOnly() เดิมของคุณ
+  saveConfigOnly(); 
+}
+
+// ฟังก์ชันคำนวณเวลาเรียนรวม
+function calcTotalHours() {
+  const m = Number(document.getElementById('sch_mon').value) || 0;
+  const tu = Number(document.getElementById('sch_tue').value) || 0;
+  const w = Number(document.getElementById('sch_wed').value) || 0;
+  const th = Number(document.getElementById('sch_thu').value) || 0;
+  const f = Number(document.getElementById('sch_fri').value) || 0;
+  
+  const totalPerWeek = m + tu + w + th + f;
+  
+  // สมมติว่า 1 ภาคเรียนมี 20 สัปดาห์การศึกษา (มาตรฐาน มัธยม)
+  // หากระบบคุณมีการดึง Start Date / End Date มาได้ สามารถเขียน Logic นับจำนวนวันเป๊ะๆ ได้
+  const totalWeeksInTerm = 20; 
+  
+  const totalHours = totalPerWeek * totalWeeksInTerm;
+  document.getElementById('ci_total_hours').textContent = totalHours;
+  
+  saveCourseInfo();
 }
   
 </script>
