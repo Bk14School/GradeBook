@@ -773,7 +773,7 @@ async function loadGrades() {
   }
   pg_();
 }  
- // ─── BUILD TABLE ─────────────────────────
+// ─── BUILD TABLE ─────────────────────────
 function buildTable(){ buildHead(); buildBody(); document.getElementById('gtbl').classList.remove('t1-collapsed','t2-collapsed'); EXP={1:true,2:true}; }
 
 function buildHead(){
@@ -787,7 +787,6 @@ function buildHead(){
     <th rowspan="2" class="th-base s-c2" style="text-align:left;min-width:145px;">ชื่อ-นามสกุล</th>
     <th rowspan="2" class="th-att" style="width:115px;">มาเรียน</th>`;
 
-  // --- ส่วนของเทอม 1 (มัธยมจะใช้ส่วนนี้เป็นคะแนนหลัก) ---
   if(n1>0) r1+=`<th colspan="${n1+1}" class="th-t1s sc1">📝 คะแนนย่อย</th>`;
   r1+=`<th rowspan="2" class="th-t1sc" style="width:88px;">
     <div style="margin-bottom:3px;">${IS_SEM_MODE ? 'คะแนนเก็บ' : 'เก็บ ท.1'}<br><small>(${t1a})</small></div>
@@ -796,7 +795,11 @@ function buildHead(){
   <th rowspan="2" class="th-t1e" style="width:72px;">${IS_SEM_MODE ? 'สอบ' : 'สอบ ท.1'}<br><small>(${t1e})</small></th>
   <th rowspan="2" class="th-t1t" style="width:72px;">รวม<br><small>(${IS_SEM_MODE ? '100' : '50'})</small></th>`;
 
-  // --- ส่วนของเทอม 2 และรวมทั้งปี (ซ่อนถ้าเป็นมัธยม) ---
+  // --- เพิ่มหัวตาราง สถานะ ร (เฉพาะมัธยม) ---
+  if (IS_SEM_MODE) {
+    r1 += `<th rowspan="2" class="th-base" style="width:65px; background:#475569; color:#fff;">สถานะ</th>`;
+  }
+
   if (!IS_SEM_MODE) {
     if(n2>0) r1+=`<th colspan="${n2+1}" class="th-t2s sc2">📝 คะแนนย่อย เทอม 2</th>`;
     r1+=`<th rowspan="2" class="th-t2sc" style="width:88px;">เก็บ ท.2<br><small>(${t2a})</small></th>
@@ -805,7 +808,6 @@ function buildHead(){
     <th rowspan="2" class="th-grand" style="width:74px;">รวม<br>ทั้งปี</th>`;
   }
 
-  // เพิ่มคอลัมน์ เกรด ที่ต่อท้ายตาราง
   r1 += `<th rowspan="2" style="width:65px; background:#4f46e5; color:#fff; font-size:15px; border-right: 1px solid rgba(255,255,255,.12); vertical-align:middle;">เกรด</th>`;
 
   let r2='';
@@ -834,7 +836,6 @@ function buildBody(){
   const rows=STUDENTS.map((s,idx)=>{
     const g=s.grades||{}, st=s.stats||{};
 
-    // คำนวณเทอม 1
     let t1rs=0;
     const t1sc=SI[1].map((x,i)=>{
       const v=(g.t1_sub||[])[i]??''; t1rs+=Number(v)||0;
@@ -843,7 +844,6 @@ function buildBody(){
     const t1rC=n1>0?`<td class="td-raw1 sc1 t1raw">${t1rs||'-'}</td>`:'';
     const t1sc_v=rm1>0?scl(t1rs,rm1,t1a):(g.t1_acc??'');
     const t1e_v=g.t1_exam??'', t1t=(Number(t1sc_v)||0)+(Number(t1e_v)||0);
-
     const tc=v=>v===0?'nil':v<50?'fail':'ok';
 
     let rowHtml = `
@@ -862,9 +862,19 @@ function buildBody(){
         <td><input type="number" class="sinput s-t1e" min="0" max="${t1eM}" value="${t1e_v}" oninput="calcExam(this)"></td>
         <td><span class="tbadge ${IS_SEM_MODE ? (t1t>=50?'ok':'fail') : tc(t1t)} t1tot">${t1t||'-'}</span></td>`;
 
-    let finalScore = 0;
+    // --- ส่วนตาราง dropdown สถานะ ร (เฉพาะมัธยม) ---
+    if (IS_SEM_MODE) {
+      let rStatus = g.t2_acc || 'ปกติ'; // เก็บสถานะ ร. ลงใน t2_acc แบบลับๆ
+      rowHtml += `<td style="background:#f8fafc;">
+         <select class="sinput r-status" style="width: 55px; font-size: 0.75rem; padding: 2px; text-align:center; cursor:pointer;" onchange="recalcTots(this.closest('tr'))">
+           <option value="ปกติ" ${rStatus==='ปกติ'?'selected':''}>-</option>
+           <option value="ติด ร" ${rStatus==='ติด ร'?'selected':''}>ติด ร</option>
+           <option value="แก้ ร" ${rStatus==='แก้ ร'?'selected':''}>แก้ ร</option>
+         </select>
+      </td>`;
+    }
 
-    // ถ้าไม่ใช่โหมดมัธยม ให้เพิ่มคอลัมน์เทอม 2 และรวมทั้งปี
+    let finalScore = 0;
     if (!IS_SEM_MODE) {
       let t2rs=0;
       const t2sc=SI[2].map((x,i)=>{const v=(g.t2_sub||[])[i]??'';t2rs+=Number(v)||0;
@@ -886,9 +896,14 @@ function buildBody(){
       finalScore = t1t;
     }
 
-    // คำนวณเกรดแสดงผล
-    const gradeVal = finalScore === 0 ? '-' : calcGradeFrontend(finalScore);
-    const gradeClass = finalScore === 0 ? 'nil' : (finalScore < 50 ? 'fail' : 'ok');
+    // คำนวณเกรดแสดงผล และสลับเป็น "ร" ถ้าติด ร
+    let gradeVal = finalScore === 0 ? '-' : calcGradeFrontend(finalScore);
+    let gradeClass = finalScore === 0 ? 'nil' : (finalScore < 50 ? 'fail' : 'ok');
+
+    if (IS_SEM_MODE && (g.t2_acc === 'ติด ร')) {
+       gradeVal = 'ร';
+       gradeClass = 'fail';
+    }
 
     rowHtml += `<td style="background: #f8fafc;"><span class="gbadge ${gradeClass} final-grade" style="font-size: 1.05rem; border: 2px solid #c7d2fe; min-width: 48px;">${gradeVal}</span></td></tr>`;
     return rowHtml;
@@ -896,23 +911,13 @@ function buildBody(){
   document.getElementById('gtBody').innerHTML=rows;
 }
 
-// ─── APPLY (snapshot→rebuild→restore) ────
 function applySubConfig(){
   if(!STUDENTS.length) return toast('โหลดรายชื่อก่อน','error');
   const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
   const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
-
-  // ปรับเป้าหมายคะแนนรวมตามโหมด: มัธยม = 100, ประถม = 50
   const targetTotal = IS_SEM_MODE ? 100 : 50;
-  
-  if(t1a + t1e !== targetTotal) {
-    return toast(`คะแนนเก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
-  }
-  
-  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) {
-    return toast(`เทอม 2: เก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
-  }
-
+  if(t1a + t1e !== targetTotal) return toast(`คะแนนเก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
+  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) return toast(`เทอม 2: เก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
   const snap = snapshotInputs();
   buildTable();
   restoreInputs(snap);
@@ -923,7 +928,13 @@ function snapshotInputs(){
   const d={};
   document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
     const sid=tr.getAttribute('data-sid');
-    d[sid]={t1s:[...tr.querySelectorAll('.sub1')].map(i=>i.value),t2s:[...tr.querySelectorAll('.sub2')].map(i=>i.value),t1e:tr.querySelector('.s-t1e')?.value||'',t2e:tr.querySelector('.s-t2e')?.value||''};
+    d[sid]={
+      t1s:[...tr.querySelectorAll('.sub1')].map(i=>i.value),
+      t2s:[...tr.querySelectorAll('.sub2')].map(i=>i.value),
+      t1e:tr.querySelector('.s-t1e')?.value||'',
+      t2e:tr.querySelector('.s-t2e')?.value||'',
+      rStat:tr.querySelector('.r-status')?.value||''
+    };
   });
   return d;
 }
@@ -935,12 +946,13 @@ function restoreInputs(snap){
     tr.querySelectorAll('.sub2').forEach((inp,i)=>{if(d.t2s[i]!==undefined)inp.value=d.t2s[i];});
     const e1=tr.querySelector('.s-t1e'),e2=tr.querySelector('.s-t2e');
     if(e1)e1.value=d.t1e; if(e2)e2.value=d.t2e;
+    const rSel = tr.querySelector('.r-status');
+    if(rSel && d.rStat) rSel.value = d.rStat;
     const d1=tr.querySelector('.sub1'),d2=tr.querySelector('.sub2');
     if(d1)calcSub(d1,1); if(d2)calcSub(d2,2);
   });
 }
 
-// ─── CALC ─────────────────────────────────
 function calcSub(el,t){
   const mx=+el.getAttribute('max');
   if(+el.value>mx){el.value=mx;toast(`เต็ม ${mx} คะแนน`,'warning');}
@@ -948,12 +960,8 @@ function calcSub(el,t){
  if (el.value.length >= String(mx).length) {
     const inputs = Array.from(document.querySelectorAll('.sinput'));
     const currentIndex = inputs.indexOf(el);
-    if (currentIndex > -1 && currentIndex < inputs.length - 1) {
-      inputs[currentIndex + 1].focus();
-      inputs[currentIndex + 1].select();
-    }
+    if (currentIndex > -1 && currentIndex < inputs.length - 1) { inputs[currentIndex + 1].focus(); inputs[currentIndex + 1].select(); }
   }
-  
   const tr=el.closest('tr');
   let rs=0; tr.querySelectorAll(t===1?'.sub1':'.sub2').forEach(i=>rs+=+i.value||0);
   const rm=getRawMax(t), sm=+document.getElementById(`c_t${t}a`).value;
@@ -983,15 +991,65 @@ function recalcTots(tr){
   if(e2){e2.textContent=t2t||'-';e2.className=`tbadge ${tc(t2t)} t2tot`;}
   if(eG){eG.textContent=g||'-';eG.className=`gbadge ${gc} gtot`;}
 
-  // อัปเดตคอลัมน์เกรดอัตโนมัติเมื่อมีการคีย์คะแนน
+  // อัปเดตคอลัมน์เกรดอัตโนมัติ
   const finalScore = IS_SEM_MODE ? t1t : g;
   const eGrade = tr.querySelector('.final-grade');
-  if (eGrade) {
-    const gradeVal = finalScore === 0 ? '-' : calcGradeFrontend(finalScore);
-    const gradeClass = finalScore === 0 ? 'nil' : (finalScore < 50 ? 'fail' : 'ok');
-    eGrade.textContent = gradeVal;
-    eGrade.className = `gbadge ${gradeClass} final-grade`;
+  
+  let isR = false;
+  if (IS_SEM_MODE) {
+     const rSel = tr.querySelector('.r-status');
+     if (rSel && rSel.value === 'ติด ร') isR = true;
   }
+
+  if (eGrade) {
+    if (isR) {
+        eGrade.textContent = 'ร';
+        eGrade.className = `gbadge fail final-grade`;
+    } else {
+        const gradeVal = finalScore === 0 ? '-' : calcGradeFrontend(finalScore);
+        const gradeClass = finalScore === 0 ? 'nil' : (finalScore < 50 ? 'fail' : 'ok');
+        eGrade.textContent = gradeVal;
+        eGrade.className = `gbadge ${gradeClass} final-grade`;
+    }
+  }
+}
+
+async function saveGrades(){
+  const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
+  const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
+  const targetTotal = IS_SEM_MODE ? 100 : 50;
+  if(t1a + t1e !== targetTotal) return toast(`คะแนนรวมต้องเท่ากับ ${targetTotal}`,'error');
+  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) return toast(`คะแนนรวมเทอม 2 ต้องเท่ากับ ${targetTotal}`,'error');
+
+  const rm1=getRawMax(1), rm2=getRawMax(2), records=[];
+  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
+    const sid=tr.getAttribute('data-sid');
+    const t1sv=[...tr.querySelectorAll('.sub1')].map(i=>i.value);
+    const t2sv=[...tr.querySelectorAll('.sub2')].map(i=>i.value);
+    const t1r=t1sv.reduce((s,v)=>s+(+v||0),0), t2r=t2sv.reduce((s,v)=>s+(+v||0),0);
+    const t1acc=rm1>0?scl(t1r,rm1,t1a):(+tr.querySelector('.t1sc')?.textContent||0);
+    
+    // ตรงนี้คือการเก็บสถานะ 'ร' ลงฐานข้อมูล (ถ้าเป็นมัธยมจะแทนที่ t2_acc)
+    const t2acc = IS_SEM_MODE ? (tr.querySelector('.r-status')?.value || '') : (rm2>0?scl(t2r,rm2,t2a):(+tr.querySelector('.t2sc')?.textContent||0));
+
+    const t1ex=tr.querySelector('.s-t1e')?.value||'', t2ex=tr.querySelector('.s-t2e')?.value||'';
+    const rStat = tr.querySelector('.r-status')?.value;
+    const has=t1sv.some(v=>v!=='')||t2sv.some(v=>v!=='')||t1ex!==''||t2ex!==''||(rStat && rStat!=='ปกติ');
+    if(has)records.push({studentId:sid,t1_sub:t1sv,t1_acc:t1acc,t1_exam:t1ex,t2_sub:t2sv,t2_acc:t2acc,t2_exam:t2ex});
+  });
+  if(!records.length)return toast('ยังไม่มีข้อมูล','warning');
+  pg('บันทึก...');
+  try{
+    const msg=await api('saveGrades',{
+      year:document.getElementById('gYear').value,
+      classroom:document.getElementById('gClass').value,
+      subject:document.getElementById('gSubj').value,
+      config:{t1_acc:t1a,t1_exam:t1e,t2_acc:t2a,t2_exam:t2e,subItems:{t1:SI[1],t2:SI[2]},rawMax:{t1:rm1,t2:rm2}},
+      gradeRecords:records
+    });
+    toast('✅ '+msg);
+  }catch(e){toast(e.message,'error');}
+  pg_();
 }
 
 // ฟังก์ชันแปลงคะแนนเป็นเกรด
