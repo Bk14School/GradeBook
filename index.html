@@ -420,87 +420,53 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
           <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
         </div>
 
-        <!-- ══════════════════════════════════════
-             ACCORDION 1 — สัดส่วนหลัก
-        ══════════════════════════════════════ -->
-        <div class="acc acc-main" id="acc1">
-          <div class="acc-hd" onclick="toggleAcc('acc1')">
-            <div>
-              <div class="acc-title">⚙️ สัดส่วนคะแนน <span style="font-weight:400;font-size:.8rem;color:var(--muted);">(เต็มเทอมละ 50)</span></div>
-              <!-- summary เมื่อพับ -->
-              <div class="acc-summary" id="acc1Summary" style="display:none;"></div>
-            </div>
-            <span class="acc-arrow">▾</span>
-          </div>
-          <div class="acc-body" id="acc1Body">
-            <div class="cfg-row">
-              <div class="cfg-block">
-                <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1</div>
-                <div class="cfg-inline">
-                  <span class="cfg-lbl">เก็บ</span>
-<input type="number" class="cfg-n" id="c_t1a" value="35" onchange="onCfg(); saveConfigOnly();">
-                  <span class="cfg-lbl">สอบ</span>
-                  <input type="number" class="cfg-n" id="c_t1e" value="15" onchange="onCfg()">
-                </div>
-              </div>
-              <div class="cfg-block">
-                <div class="cfg-ttl" style="color:#0e7490;">เทอม 2</div>
-                <div class="cfg-inline">
-                  <span class="cfg-lbl">เก็บ</span>
-                  <input type="number" class="cfg-n" id="c_t2a" value="35" onchange="onCfg()">
-                  <span class="cfg-lbl">สอบ</span>
-                  <input type="number" class="cfg-n" id="c_t2e" value="15" onchange="onCfg()">
-                </div>
-              </div>
-            </div>
+        <!-- แทนที่ Accordion เก่าด้วยอันใหม่นี้ -->
+<div class="acc acc-main open" id="accMain">
+  <div class="acc-hd" onclick="toggleAcc('accMain')">
+    <div class="acc-title">⚙️ ตั้งค่าคะแนนและหัวข้อย่อย</div>
+    <span class="acc-arrow">▾</span>
+  </div>
+  <div class="acc-body" id="accMainBody">
+    <!-- ส่วนสัดส่วนคะแนน -->
+    <div class="card mb-3" style="background:#f8fafc;">
+      <div class="cfg-row">
+        <div class="cfg-block">
+          <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (เก็บ/สอบ)</div>
+          <div class="cfg-inline">
+            <input type="number" class="cfg-n" id="c_t1a" value="35" onchange="onCfg(); saveConfigOnly();">
+            <input type="number" class="cfg-n" id="c_t1e" value="15" onchange="onCfg()">
           </div>
         </div>
-
-        <!-- ══════════════════════════════════════
-             ACCORDION 2 — หัวข้อย่อย (เปิดอยู่)
-        ══════════════════════════════════════ -->
-        <div class="acc acc-sub open" id="acc2">
-          <div class="acc-hd" onclick="toggleAcc('acc2')">
-            <div>
-              <div class="acc-title">🔢 หัวข้อคะแนนย่อย <span class="fml" style="font-size:.68rem;">scaled = raw/max × เต็มเก็บ</span></div>
-              <!-- summary เมื่อพับ -->
-              <div class="acc-summary" id="acc2Summary" style="display:none;"></div>
-            </div>
-            <span class="acc-arrow">▾</span>
-          </div>
-          <div class="acc-body" id="acc2Body">
-            <!-- term tabs -->
-            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-              <div class="ttabs">
-                <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
-                <button class="ttab"    onclick="switchTerm(2,this)">เทอม 2</button>
-              </div>
-            </div>
-
-            <!-- T1 panel -->
-            <div id="subPanel_1">
-              <div class="sub-list" id="subList_1"></div>
-              <button class="btn-add-sub" onclick="addSub(1)">＋ เพิ่มหัวข้อย่อย เทอม 1</button>
-              <div class="raw-preview">
-                <span>Max raw เทอม 1:</span><strong id="rmx1">0</strong>
-                <span>→ สเกลเป็น</span><span class="res" id="smx1">35</span><span>คะแนน</span>
-              </div>
-            </div>
-            <!-- T2 panel -->
-            <div id="subPanel_2" style="display:none;">
-              <div class="sub-list" id="subList_2"></div>
-              <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหัวข้อย่อย เทอม 2</button>
-              <div class="raw-preview">
-                <span>Max raw เทอม 2:</span><strong id="rmx2">0</strong>
-                <span>→ สเกลเป็น</span><span class="res" id="smx2">35</span><span>คะแนน</span>
-              </div>
-            </div>
-
-            <button class="btn-apply" onclick="applySubConfig()">🔄 ใช้การตั้งค่า / อัปเดตตาราง</button>
+        <div class="cfg-block">
+          <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (เก็บ/สอบ)</div>
+          <div class="cfg-inline">
+            <input type="number" class="cfg-n" id="c_t2a" value="35" onchange="onCfg()">
+            <input type="number" class="cfg-n" id="c_t2e" value="15" onchange="onCfg()">
           </div>
         </div>
+      </div>
+    </div>
+    
+    <!-- ส่วนหัวข้อย่อย (เดิมคือ acc2) -->
+    <div class="ttabs mb-3">
+      <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
+      <button class="ttab" onclick="switchTerm(2,this)">เทอม 2</button>
+    </div>
+    <div id="subPanel_1">
+      <div class="sub-list" id="subList_1"></div>
+      <button class="btn-add-sub" onclick="addSub(1)">＋ เพิ่มหัวข้อ เทอม 1</button>
+    </div>
+    <div id="subPanel_2" style="display:none;">
+      <div class="sub-list" id="subList_2"></div>
+      <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหัวข้อ เทอม 2</button>
+    </div>
+    <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
+  </div>
+</div>
 
-      </div><!-- /card -->
+      </div>
+      
+      <!-- /card -->
 
       <!-- TABLE -->
       <div class="card" style="padding:11px;">
@@ -542,22 +508,17 @@ function getRawMax(t){return SI[t].reduce((s,x)=>s+(Number(x.max)||0),0);}
 function scl(raw,rm,sm){return rm>0?Math.round(raw/rm*sm*100)/100:0;}
 
 // ─── ACCORDION ───────────────────────────
-function toggleAcc(id){
-  const el=document.getElementById(id);
-  const body=document.getElementById(id+'Body');
-  const sum=document.getElementById(id+'Sum'+'mary'.slice(0,-3)+'ary'); // works for acc1Summary/acc2Summary
-  const isOpen=el.classList.contains('open');
+function toggleAcc(id) {
+  const el = document.getElementById(id);
+  const body = document.getElementById(id + 'Body');
+  const isOpen = el.classList.contains('open');
 
-  if(isOpen){
+  if (isOpen) {
     el.classList.remove('open');
     body.classList.add('hidden');
-    // แสดง summary
-    if(sum) sum.style.display='flex';
-    updateSummary(id);
   } else {
     el.classList.add('open');
     body.classList.remove('hidden');
-    if(sum) sum.style.display='none';
   }
 }
 
@@ -693,8 +654,15 @@ function switchTerm(t,btn){
   document.getElementById('subPanel_2').style.display=t===2?'':'none';
 }
 function addSub(t){SI[t].push({name:`หัวข้อ ${SI[t].length+1}`,max:10});renderSubList(t);}
-function rmSub(t,i){SI[t].splice(i,1);renderSubList(t);}
-function renderSubList(t){
+function rmSub(t, i) {
+  if (confirm(`ยืนยันการลบหัวข้อ "${SI[t][i].name}" ใช่หรือไม่?`)) {
+    SI[t].splice(i, 1);
+    renderSubList(t);
+    // เมื่อลบแล้วให้คำนวณใหม่
+    onCfg(); 
+  }
+}
+  function renderSubList(t){
   document.getElementById(`subList_${t}`).innerHTML=SI[t].map((x,i)=>`
     <div class="sub-row">
       <span class="sub-n">${i+1}.</span>
@@ -725,31 +693,47 @@ function toggleCols(t){
 
 // ─── LOAD GRADES ─────────────────────────
 async function loadGrades(){
-  const year=document.getElementById('gYear').value;
-  const cls=document.getElementById('gClass').value;
-  const subj=document.getElementById('gSubj').value;
-  if(!subj)return toast('กรุณาเลือกวิชา','error');
-  document.getElementById('lblClass').textContent=cls;
-  document.getElementById('lblSubj').textContent=subj;
+  const year = document.getElementById('gYear').value;
+  const cls = document.getElementById('gClass').value;
+  const subj = document.getElementById('gSubj').value;
+  
+  if(!subj || subj === "-- ไม่พบวิชา --") return toast('กรุณาเลือกวิชาที่ถูกต้อง','error');
+  
+  document.getElementById('lblClass').textContent = cls;
+  document.getElementById('lblSubj').textContent = subj;
   pg('ดึงข้อมูล...');
+  
   try{
-    const res=await api('getGrades',{year,classroom:cls,subject:subj});
-    document.getElementById('c_t1a').value=res.config.t1_acc;
-    document.getElementById('c_t1e').value=res.config.t1_exam;
-    document.getElementById('c_t2a').value=res.config.t2_acc;
-    document.getElementById('c_t2e').value=res.config.t2_exam;
+    const res = await api('getGrades', {year, classroom: cls, subject: subj});
+    
+    // ตั้งค่าตัวเลขสัดส่วน
+    document.getElementById('c_t1a').value = res.config.t1_acc;
+    document.getElementById('c_t1e').value = res.config.t1_exam;
+    document.getElementById('c_t2a').value = res.config.t2_acc;
+    document.getElementById('c_t2e').value = res.config.t2_exam;
 
-    SI[1]=res.config.subItems?.t1||(SI[1].length?SI[1]:[{name:'คะแนนรวม',max:Number(res.config.t1_acc)||35}]);
-    SI[2]=res.config.subItems?.t2||(SI[2].length?SI[2]:[{name:'คะแนนรวม',max:Number(res.config.t2_acc)||35}]);
-    renderSubList(1); renderSubList(2);
-    // update summaries
-    updateSummary('acc1'); updateSummary('acc2');
+    // ตั้งค่าหัวข้อย่อย
+    SI[1] = res.config.subItems?.t1 || [];
+    SI[2] = res.config.subItems?.t2 || [];
+    
+    renderSubList(1); 
+    renderSubList(2);
 
-    STUDENTS=res.students;
-    EXP={1:true,2:true};
-    document.getElementById('gradePanel').style.display='';
+    // เนื่องจากเรายุบรวม Accordion แล้ว เราไม่จำเป็นต้องเรียก updateSummary('acc1') หรือ 'acc2'
+    // หากคุณมีการคำนวณ Max raw หรือสรุปยอด ให้เรียกฟังก์ชันคำนวณแทน เช่น:
+    updRaw(1);
+    updRaw(2);
+
+    STUDENTS = res.students;
+    EXP = {1: true, 2: true};
+    
+    document.getElementById('gradePanel').style.display = '';
     buildTable();
-  }catch(e){toast(e.message,'error');document.getElementById('gradePanel').style.display='none';}
+    
+  } catch(e) {
+    toast(e.message, 'error');
+    document.getElementById('gradePanel').style.display = 'none';
+  }
   pg_();
 }
 
