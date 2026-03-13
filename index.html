@@ -644,6 +644,7 @@ function renderSubList(t){
   document.getElementById(`subList_${t}`).innerHTML=SI[t].map((x,i)=>`
     <div class="sub-row">
       <span class="sub-n">${i+1}.</span>
+      <!-- ลบ updateSummary('acc2') ออกจากบรรทัดด้านล่างนี้ -->
       <input class="sub-name" type="text" placeholder="ชื่อหัวข้อ" value="${x.name}"
         onchange="SI[${t}][${i}].name=this.value;">
       <span class="sub-max-lbl">เต็ม</span>
