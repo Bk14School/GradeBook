@@ -433,6 +433,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     <button class="btn-pri" style="background: linear-gradient(135deg, #16a34a, #15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
     <button class="btn-pri" style="background: linear-gradient(135deg, #0284c7, #0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
     <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ ปพ.6 ทั้งห้อง</button>
+  <button class="btn-pri" style="background: linear-gradient(135deg, #db2777, #9d174d);" onclick="printPP5PDF()">🖨️ พิมพ์ ปพ.5 (รูปเล่ม)</button>
     <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
   </div>
 </div>
@@ -1580,6 +1581,37 @@ function saveSchedule() {
   closeScheduleModal();
   saveConfigOnly(); // เซฟทับลงระบบเดิมของคุณครูทันที (เรียกใช้ฟังก์ชันที่มีอยู่แล้ว)
   toast('✅ บันทึกตารางสอนสำหรับวิชานี้เรียบร้อย');
+}
+
+  // ==========================================
+// 🖨️ ฟังก์ชันสั่งพิมพ์ PDF ปพ.5 (แบบรูปเล่มแนวตั้ง)
+// ==========================================
+async function printPP5PDF() {
+  const year = document.getElementById('gYear').value;
+  const classroom = document.getElementById('gClass').value;
+  const subj = document.getElementById('gSubj').value;
+
+  if (!subj || subj === "-- ไม่พบวิชา --") {
+    return toast('กรุณาเลือกรายวิชาก่อนสั่งพิมพ์', 'warning');
+  }
+
+  if (!confirm(`ต้องการพิมพ์แบบรายงาน ปพ.5 วิชา ${subj} ชั้น ${classroom} ใช่หรือไม่?`)) return;
+
+  pg('กำลังสร้าง ปพ.5 (รวมข้อมูล 4 ส่วน)...');
+  try {
+    const pdfData = await api('generatePP5PDF', { 
+      year: year, 
+      classroom: classroom, 
+      subject: subj, 
+      ignoreR: IGNORE_R 
+    });
+    
+    openBase64Pdf(pdfData, `ปพ5_${subj}_${classroom}.pdf`);
+    toast('✅ สร้าง ปพ.5 สำเร็จ');
+  } catch (e) {
+    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
+  }
+  pg_();
 }
   
 </script>
