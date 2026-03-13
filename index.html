@@ -412,13 +412,18 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 
       <!-- Panel header -->
       <div class="card" style="padding:15px 20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
-          <div style="font-weight:800;font-size:.97rem;">
-            📋 <span id="lblSubj"></span>
-            <span style="font-weight:400;color:var(--muted);font-size:.85rem;"> — ชั้น <span id="lblClass"></span></span>
-          </div>
-          <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
-        </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+  <div style="font-weight:800;font-size:.97rem;">
+    📋 <span id="lblSubj"></span>
+    <span style="font-weight:400;color:var(--muted);font-size:.85rem;"> — ชั้น <span id="lblClass"></span></span>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn-pri" onclick="printStudentPDF()">🧾 พิมพ์รายคน</button>
+    <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ทั้งห้อง</button>
+    <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
+  </div>
+</div>
 
         <!-- แทนที่ Accordion เก่าด้วยอันใหม่นี้ -->
 <div class="acc acc-main" id="accMain">
@@ -1095,6 +1100,56 @@ document.addEventListener('keydown', function(event) {
     }
   }
 });
+
+  function openBase64Pdf(dataUri, fileName='report.pdf'){
+  const a = document.createElement('a');
+  a.href = dataUri;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function askStudentForPDF() {
+  const sid = prompt('กรอกรหัสนักเรียนที่ต้องการพิมพ์รายงาน');
+  if (!sid) return null;
+  return sid.trim();
+}
+
+async function printStudentPDF() {
+  const year = document.getElementById('gYear').value;
+  const classroom = document.getElementById('gClass').value;
+  const studentId = askStudentForPDF();
+
+  if (!studentId) return;
+
+  pg('กำลังสร้าง PDF รายบุคคล...');
+  try {
+    const pdfData = await api('generateStudentPDF', { year, classroom, studentId });
+    openBase64Pdf(pdfData, `ปพ6_${studentId}_${classroom}.pdf`);
+    toast('สร้าง PDF รายบุคคลสำเร็จ');
+  } catch (e) {
+    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
+  }
+  pg_();
+}
+
+async function printClassPDF() {
+  const year = document.getElementById('gYear').value;
+  const classroom = document.getElementById('gClass').value;
+
+  if (!confirm(`พิมพ์รายงานทั้งห้อง ${classroom} ปี ${year} ?`)) return;
+
+  pg('กำลังสร้าง PDF ทั้งห้อง...');
+  try {
+    const pdfData = await api('generateClassPDF', { year, classroom });
+    openBase64Pdf(pdfData, `ปพ6_ทั้งห้อง_${classroom}_ปี${year}.pdf`);
+    toast('สร้าง PDF ทั้งห้องสำเร็จ');
+  } catch (e) {
+    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
+  }
+  pg_();
+}
 
 </script>
 </body>
