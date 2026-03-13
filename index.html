@@ -426,10 +426,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     </label>
   </div>
 
- <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <!-- เพิ่มปุ่มนี้เข้าไป สีเขียวสไตล์ Excel -->
-    <button class="btn-pri" style="background: linear-gradient(135deg, #16a34a, #15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <!-- แทรกปุ่มนี้เข้าไปครับ -->
+    <button class="btn-pri" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);" onclick="openScheduleModal()">📅 ตั้งค่าคาบเรียน ปพ.5</button>
 
+    <button class="btn-pri" style="background: linear-gradient(135deg, #16a34a, #15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
     <button class="btn-pri" style="background: linear-gradient(135deg, #0284c7, #0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
     <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ ปพ.6 ทั้งห้อง</button>
     <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
@@ -521,6 +522,47 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       </div>
 
     </div><!-- /gradePanel -->
+  </div>
+</div>
+
+  <!-- Modal ตั้งค่าเวลาเรียน ปพ.5 -->
+<div id="scheduleModal" class="modal-bg">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="fw-bold mb-0" style="color:#6d28d9;">📅 ตั้งค่าวันสอน (สำหรับ ปพ.5)</h6>
+      <button class="btn-sm" onclick="closeScheduleModal()">✕</button>
+    </div>
+    <p style="font-size:0.8rem; color:var(--muted); margin-bottom:15px;">ระบุวันที่วิชานี้มีการเรียนการสอน และจำนวนชั่วโมง/คาบ (เพื่อดึงสถิติเวลาเรียนอัตโนมัติ)</p>
+    
+    <div class="p-3 bg-light rounded border mb-3">
+      <!-- จันทร์ -->
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <label style="cursor:pointer; font-weight:600;"><input type="checkbox" id="chkDay1" onchange="toggleDayInput(1)"> วันจันทร์</label>
+        <div style="display:flex; align-items:center; gap:5px;"><input type="number" id="hrDay1" class="sinput" min="1" max="5" value="1" disabled> ชม.</div>
+      </div>
+      <!-- อังคาร -->
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <label style="cursor:pointer; font-weight:600;"><input type="checkbox" id="chkDay2" onchange="toggleDayInput(2)"> วันอังคาร</label>
+        <div style="display:flex; align-items:center; gap:5px;"><input type="number" id="hrDay2" class="sinput" min="1" max="5" value="1" disabled> ชม.</div>
+      </div>
+      <!-- พุธ -->
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <label style="cursor:pointer; font-weight:600;"><input type="checkbox" id="chkDay3" onchange="toggleDayInput(3)"> วันพุธ</label>
+        <div style="display:flex; align-items:center; gap:5px;"><input type="number" id="hrDay3" class="sinput" min="1" max="5" value="1" disabled> ชม.</div>
+      </div>
+      <!-- พฤหัสบดี -->
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <label style="cursor:pointer; font-weight:600;"><input type="checkbox" id="chkDay4" onchange="toggleDayInput(4)"> วันพฤหัสบดี</label>
+        <div style="display:flex; align-items:center; gap:5px;"><input type="number" id="hrDay4" class="sinput" min="1" max="5" value="1" disabled> ชม.</div>
+      </div>
+      <!-- ศุกร์ -->
+      <div class="d-flex align-items-center justify-content-between">
+        <label style="cursor:pointer; font-weight:600;"><input type="checkbox" id="chkDay5" onchange="toggleDayInput(5)"> วันศุกร์</label>
+        <div style="display:flex; align-items:center; gap:5px;"><input type="number" id="hrDay5" class="sinput" min="1" max="5" value="1" disabled> ชม.</div>
+      </div>
+    </div>
+    
+    <button class="btn-pri w-100" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);" onclick="saveSchedule()">💾 บันทึกเวลาเรียน</button>
   </div>
 </div>
 
@@ -751,6 +793,8 @@ IGNORE_R = false;
     document.getElementById('c_t1e').value = config.t1_exam;
     document.getElementById('c_t2a').value = config.t2_acc;
     document.getElementById('c_t2e').value = config.t2_exam;
+    SUBJECT_SCHEDULE = config.schedule || {1:0, 2:0, 3:0, 4:0, 5:0}; // <-- เพิ่มบรรทัดนี้
+
 
     // 2. ปรับปรุง UI ส่วนการตั้งค่า (Accordion) ตามโหมดชั้นเรียน
     const t2Tab = document.querySelector('.ttab[onclick*="switchTerm(2"]');
@@ -1195,6 +1239,8 @@ async function saveConfigOnly() {
     t1_exam: +document.getElementById('c_t1e').value,
     t2_acc: +document.getElementById('c_t2a').value,
     t2_exam: +document.getElementById('c_t2e').value,
+        schedule: SUBJECT_SCHEDULE, // <-- เพิ่มบรรทัดนี้ เพื่อให้ระบบเซฟตารางสอนไปด้วย
+
     subItems: { 
       t1: SI[1], 
       t2: SI[2] 
@@ -1484,6 +1530,55 @@ async function exportSummaryCSV() {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
   pg_();
+}
+
+  // ==========================================
+// 📅 ระบบจัดการเวลาเรียน (เตรียมสำหรับ ปพ.5)
+// ==========================================
+let SUBJECT_SCHEDULE = {1:0, 2:0, 3:0, 4:0, 5:0}; // 1=จันทร์, 5=ศุกร์ (0 แปลว่าไม่ได้สอน)
+
+function toggleDayInput(day) {
+  const chk = document.getElementById('chkDay' + day);
+  const input = document.getElementById('hrDay' + day);
+  input.disabled = !chk.checked;
+  if(!chk.checked) input.value = 1; // รีเซ็ตเป็น 1 คาบถ้าปิด
+}
+
+function openScheduleModal() {
+  // ดึงค่ามาแสดงใน Popup
+  for(let i=1; i<=5; i++) {
+    const hours = SUBJECT_SCHEDULE[i];
+    const chk = document.getElementById('chkDay' + i);
+    const input = document.getElementById('hrDay' + i);
+    
+    if (hours > 0) {
+      chk.checked = true;
+      input.disabled = false;
+      input.value = hours;
+    } else {
+      chk.checked = false;
+      input.disabled = true;
+      input.value = 1;
+    }
+  }
+  document.getElementById('scheduleModal').style.display = 'flex';
+}
+
+function closeScheduleModal() {
+  document.getElementById('scheduleModal').style.display = 'none';
+}
+
+function saveSchedule() {
+  // เก็บค่าจากหน้าจอ
+  for(let i=1; i<=5; i++) {
+    const chk = document.getElementById('chkDay' + i);
+    const input = document.getElementById('hrDay' + i);
+    SUBJECT_SCHEDULE[i] = chk.checked ? Number(input.value) : 0;
+  }
+  
+  closeScheduleModal();
+  saveConfigOnly(); // เซฟทับลงระบบเดิมของคุณครูทันที (เรียกใช้ฟังก์ชันที่มีอยู่แล้ว)
+  toast('✅ บันทึกตารางสอนสำหรับวิชานี้เรียบร้อย');
 }
   
 </script>
