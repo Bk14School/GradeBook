@@ -812,67 +812,125 @@ function buildHead(){
 
   document.getElementById('gtHead').innerHTML=`<tr>${r1}</tr><tr>${r2}</tr>`;
 }
-function buildBody(){
-  const t1a=+document.getElementById('c_t1a').value, t1eM=+document.getElementById('c_t1e').value;
-  const n1=SI[1].length, rm1=getRawMax(1);
-  const n2=SI[2].length, rm2=getRawMax(2);
-  const t2a=+document.getElementById('c_t2a').value, t2eM=+document.getElementById('c_t2e').value;
 
-  if(!STUDENTS.length){
-    document.getElementById('gtBody').innerHTML=`<tr><td colspan="20" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้เรียน</td></tr>`;
+  
+function buildBody() {
+  const t1a = +document.getElementById('c_t1a').value, t1eM = +document.getElementById('c_t1e').value;
+  const t2a = +document.getElementById('c_t2a').value, t2eM = +document.getElementById('c_t2e').value;
+  
+  const n1 = SI[1].length;
+  const rm1 = getRawMax(1);
+  const n2 = SI[2].length;
+  const rm2 = getRawMax(2);
+
+  if (!STUDENTS || STUDENTS.length === 0) {
+    document.getElementById('gtBody').innerHTML = `<tr><td colspan="30" class="text-center py-4 text-muted">ไม่พบข้อมูลนักเรียนในชั้นเรียนนี้</td></tr>`;
     return;
   }
 
-  const rows=STUDENTS.map((s,idx)=>{
-    const g=s.grades||{}, st=s.stats||{};
+  const rows = STUDENTS.map((s, idx) => {
+    const g = s.grades || {};
+    const st = s.stats || { present: 0, absent: 0, leave: 0 };
 
-    // คำนวณเทอม 1
-    let t1rs=0;
-    const t1sc=SI[1].map((x,i)=>{
-      const v=(g.t1_sub||[])[i]??''; t1rs+=Number(v)||0;
-      return`<td class="td-sub1 sc1"><input type="number" class="sinput sub1" min="0" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,1)"></td>`;
+    // --- คำนวณเทอม 1 ---
+    let t1rs = 0;
+    const t1scHtml = SI[1].map((x, i) => {
+      const v = (g.t1_sub || [])[i] ?? ''; 
+      t1rs += Number(v) || 0;
+      return `<td class="td-sub1 sc1"><input type="number" class="sinput sub1" min="0" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,1)"></td>`;
     }).join('');
-    const t1rC=n1>0?`<td class="td-raw1 sc1 t1raw">${t1rs||'-'}</td>`:'';
-    const t1sc_v=rm1>0?scl(t1rs,rm1,t1a):(g.t1_acc??'');
-    const t1e_v=g.t1_exam??'', t1t=(Number(t1sc_v)||0)+(Number(t1e_v)||0);
+    
+    const t1rCHtml = n1 > 0 ? `<td class="td-raw1 sc1 t1raw">${t1rs || '-'}</td>` : '';
+    const t1sc_v = rm1 > 0 ? scl(t1rs, rm1, t1a) : (g.t1_acc ?? '');
+    const t1e_v = g.t1_exam ?? '';
+    const t1t = (Number(t1sc_v) || 0) + (Number(t1e_v) || 0);
 
-    const tc=v=>v===0?'nil':v<50?'fail':'ok';
-
+    // --- เริ่มสร้างแถว (Row) ---
     let rowHtml = `
       <tr data-sid="${s.studentId}">
-        <td class="s-c0">${idx+1}</td>
+        <td class="s-c0">${idx + 1}</td>
         <td class="s-c1">${s.studentId}</td>
-        <td class="s-c2">${s.name}</td>
-        <td><span class="sp p">ม ${st.present||0}</span> <span class="sp a">ข ${st.absent||0}</span> <span class="sp l">ล ${st.leave||0}</span></td>
-        ${t1sc}${t1rC}
-        <td class="td-sc1"><span class="t1sc">${t1sc_v!==''?t1sc_v:'-'}</span></td>
+        <td class="s-c2">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span>${s.name}</span>
+            <button class="btn-sm" onclick="printReport('${s.studentId}', '${s.name}')" title="พิมพ์ ปพ.6" style="padding:2px 6px; font-size:10px; border-color:#6366f1; color:#6366f1;">
+              🖨️ ปพ.6
+            </button>
+          </div>
+        </td>
+        <td><span class="sp p">ม ${st.present}</span> <span class="sp a">ข ${st.absent}</span> <span class="sp l">ล ${st.leave}</span></td>
+        
+        ${t1scHtml}
+        ${t1rCHtml}
+        
+        <td class="td-sc1"><span class="t1sc">${t1sc_v !== '' ? t1sc_v : '-'}</span></td>
         <td><input type="number" class="sinput s-t1e" min="0" max="${t1eM}" value="${t1e_v}" oninput="calcExam(this)"></td>
-        <td><span class="tbadge ${IS_SEM_MODE ? (t1t>=50?'ok':'fail') : tc(t1t)} t1tot">${t1t||'-'}</span></td>`;
+        <td><span class="tbadge ${t1t === 0 ? 'nil' : (t1t < (IS_SEM_MODE ? 50 : 25) ? 'fail' : 'ok')} t1tot">${t1t || '-'}</span></td>
+    `;
 
-    // ถ้าไม่ใช่โหมดมัธยม ให้เพิ่มคอลัมน์เทอม 2 และรวมทั้งปี
+    // --- ถ้าเป็นโหมดประถม (รายปี) ให้เพิ่มคอลัมน์เทอม 2 และรวมทั้งปี ---
     if (!IS_SEM_MODE) {
-      let t2rs=0;
-      const t2sc=SI[2].map((x,i)=>{const v=(g.t2_sub||[])[i]??'';t2rs+=Number(v)||0;
-        return`<td class="td-sub2 sc2"><input type="number" class="sinput t2 sub2" min="0" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,2)"></td>`;}).join('');
-      const t2rC=n2>0?`<td class="td-raw2 sc2 t2raw">${t2rs||'-'}</td>`:'';
-      const t2sc_v=rm2>0?scl(t2rs,rm2,t2a):(g.t2_acc??'');
-      const t2e_v=g.t2_exam??'', t2t=(Number(t2sc_v)||0)+(Number(t2e_v)||0);
-      const g2=t1t+t2t;
-      const gc=g2===0?'nil':g2<50?'fail':'ok';
+      let t2rs = 0;
+      const t2scHtml = SI[2].map((x, i) => {
+        const v = (g.t2_sub || [])[i] ?? '';
+        t2rs += Number(v) || 0;
+        return `<td class="td-sub2 sc2"><input type="number" class="sinput t2 sub2" min="0" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,2)"></td>`;
+      }).join('');
+      
+      const t2rCHtml = n2 > 0 ? `<td class="td-raw2 sc2 t2raw">${t2rs || '-'}</td>` : '';
+      const t2sc_v = rm2 > 0 ? scl(t2rs, rm2, t2a) : (g.t2_acc ?? '');
+      const t2e_v = g.t2_exam ?? '';
+      const t2t = (Number(t2sc_v) || 0) + (Number(t2e_v) || 0);
+      const g2 = t1t + t2t;
+      const gc = g2 === 0 ? 'nil' : (g2 < 50 ? 'fail' : 'ok');
 
       rowHtml += `
-        ${t2sc}${t2rC}
-        <td class="td-sc2"><span class="t2sc">${t2sc_v!==''?t2sc_v:'-'}</span></td>
+        ${t2scHtml}
+        ${t2rCHtml}
+        <td class="td-sc2"><span class="t2sc">${t2sc_v !== '' ? t2sc_v : '-'}</span></td>
         <td><input type="number" class="sinput t2 s-t2e" min="0" max="${t2eM}" value="${t2e_v}" oninput="calcExam(this)"></td>
-        <td><span class="tbadge ${tc(t2t)} t2tot">${t2t||'-'}</span></td>
-        <td><span class="gbadge ${gc} gtot">${g2||'-'}</span></td>`;
+        <td><span class="tbadge ${t2t === 0 ? 'nil' : (t2t < 25 ? 'fail' : 'ok')} t2tot">${t2t || '-'}</span></td>
+        <td><span class="gbadge ${gc} gtot">${g2 || '-'}</span></td>
+      `;
     }
 
     rowHtml += `</tr>`;
     return rowHtml;
   }).join('');
-  document.getElementById('gtBody').innerHTML=rows;
+
+  document.getElementById('gtBody').innerHTML = rows;
 }
+
+// ฟังก์ชันสำหรับเรียกพิมพ์ ปพ.6 (เพิ่มไว้ใน <script>)
+async function printReport(sid, sname) {
+  const year = document.getElementById('gYear').value;
+  const cls = document.getElementById('gClass').value;
+  
+  pg('กำลังรวบรวมคะแนนทุกวิชาเพื่อสร้าง ปพ.6...');
+  try {
+    // เรียก API generateStudentPDF ที่คุณเตรียมไว้ใน Backend
+    const pdfDataUri = await api('generateStudentPDF', { 
+      year: year, 
+      classroom: cls, 
+      studentId: sid 
+    });
+    
+    // สร้างลิงก์ดาวน์โหลดอัตโนมัติ
+    const link = document.createElement('a');
+    link.href = pdfDataUri;
+    link.download = `ปพ6_${sname}_${cls}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast('ดาวน์โหลด ปพ.6 สำเร็จ');
+  } catch(e) {
+    console.error(e);
+    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
+  }
+  pg_();
+}
+  
 // ─── APPLY (snapshot→rebuild→restore) ────
 function applySubConfig(){
   if(!STUDENTS.length) return toast('โหลดรายชื่อก่อน','error');
@@ -1095,6 +1153,116 @@ document.addEventListener('keydown', function(event) {
     }
   }
 });
+
+  // ฟังก์ชันหลักสำหรับสร้าง PDF รายบุคคล (ไม่ต้องมี Template)
+function generateStudentPDF(data) {
+  const { year, classroom, studentId } = data;
+  const ssMaster = SpreadsheetApp.openById(GRADE_MASTER_ID);
+  
+  // 1. หาไฟล์คะแนนของห้อง
+  const idxData = ssMaster.getSheetByName("DB_Index").getDataRange().getValues();
+  let fileId = null;
+  for (let i = 1; i < idxData.length; i++) {
+    if (idxData[i][0] == year && idxData[i][1] == classroom) { fileId = idxData[i][3]; break; }
+  }
+  if (!fileId) throw new Error("ไม่พบไฟล์คะแนน");
+
+  const gradeSS = SpreadsheetApp.openById(fileId);
+  const allSheets = gradeSS.getSheets();
+  let reportData = {
+    name: "", id: studentId, classroom: classroom, year: year,
+    subjects: [], attendance: { present: 0, absent: 0, leave: 0 }
+  };
+
+  // 2. วนลูปดึงคะแนนจากทุกชีทวิชา
+  allSheets.forEach(sheet => {
+    const subjName = sheet.getName();
+    const rows = sheet.getDataRange().getValues();
+    const isSem = classroom.includes("เทอม");
+    
+    for (let i = 2; i < rows.length; i++) {
+      if (String(rows[i][0]) === String(studentId)) {
+        reportData.name = reportData.name || "นักเรียนเลขที่ " + studentId; // (ควรดึงชื่อจริงมาใส่)
+        let score = isSem ? Number(rows[i][3]) : Number(rows[i][7]);
+        reportData.subjects.push({
+          name: subjName,
+          score: score || 0,
+          grade: calculateGrade(score || 0)
+        });
+        break;
+      }
+    }
+  });
+
+  // 3. ดึงสถิติมาเรียน (เรียกใช้ฟังก์ชันเดิมที่เรามี)
+  const attData = getStudentsAndAttendance(year, classroom);
+  const studentAtt = attData.find(s => s.studentId === studentId);
+  if (studentAtt) reportData.attendance = studentAtt.stats;
+
+  // 4. สร้าง HTML สำหรับหน้า ปพ.6
+  const htmlContent = buildReportHTML(reportData);
+  
+  // 5. แปลงเป็น PDF Blob
+  const blob = HtmlService.createHtmlOutput(htmlContent)
+    .setAs('application/pdf')
+    .setName(`ปพ6_${reportData.name}.pdf`);
+
+  // ส่งไฟล์เป็น Base64 กลับไปให้ฝั่งเว็บดาวน์โหลด
+  return "data:application/pdf;base64," + Utilities.base64Encode(blob.getBytes());
+}
+
+// ฟังก์ชันคำนวณเกรด
+function calculateGrade(s) {
+  if (s >= 80) return "4"; if (s >= 75) return "3.5"; if (s >= 70) return "3";
+  if (s >= 65) return "2.5"; if (s >= 60) return "2"; if (s >= 55) return "1.5";
+  if (s >= 50) return "1"; return "0";
+}
+
+// ฟังก์ชันวาดโครงสร้าง ปพ.6 ด้วย HTML/CSS
+function buildReportHTML(d) {
+  let rows = d.subjects.map((s, i) => `
+    <tr>
+      <td style="text-align:center;">${i+1}</td>
+      <td>${s.name}</td>
+      <td style="text-align:center;">100</td>
+      <td style="text-align:center;">${s.score}</td>
+      <td style="text-align:center;">${s.grade}</td>
+    </tr>`).join('');
+
+  return `
+    <html>
+      <head>
+        <style>
+          body { font-family: 'Sarabun', sans-serif; padding: 20px; }
+          .header { text-align: center; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          th, td { border: 1px solid black; padding: 5px; font-size: 14px; }
+          .footer { margin-top: 30px; display: flex; justify-content: space-between; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h3>แบบรายงานผลการพัฒนาคุณภาพผู้เรียนรายบุคคล (ปพ.6)</h3>
+          <p>ปีการศึกษา ${d.year} | โรงเรียนบ้านคลอง 14</p>
+          <p>ชื่อ-สกุล: ${d.name} | ชั้น: ${d.classroom} | รหัส: ${d.id}</p>
+        </div>
+        <table>
+          <thead>
+            <tr style="background:#eee;">
+              <th>ที่</th><th>ชื่อวิชา</th><th>คะแนนเต็ม</th><th>ได้</th><th>เกรด</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="margin-top:15px;">
+          <p>สถิติการมาเรียน: มา ${d.attendance.present} วัน | ขาด ${d.attendance.absent} วัน | ลา ${d.attendance.leave} วัน</p>
+        </div>
+        <div class="footer">
+          <p>ลงชื่อ......................................... ครูประจำชั้น</p>
+        </div>
+      </body>
+    </html>`;
+}
 
 </script>
 </body>
