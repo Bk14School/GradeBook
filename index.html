@@ -467,7 +467,32 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
   </div>
 </div>
-
+        
+<!-- Accordion ประเมินผลรวม -->
+<div class="acc acc-sub mt-3" id="accHolistic">
+  <div class="acc-hd" onclick="toggleAcc('accHolistic')">
+    <div class="acc-title">🌟 ประเมินคุณลักษณะฯ และ อ่านคิดวิเคราะห์</div>
+    <span class="acc-arrow">▾</span>
+  </div>
+  <div class="acc-body hidden" id="accHolisticBody">
+    <div style="overflow-x:auto; border-radius:8px; border:1px solid var(--border);">
+      <table class="gtbl" style="min-width: 500px;">
+        <thead>
+          <tr>
+            <th class="th-base">รหัส</th>
+            <th class="th-base" style="text-align:left;">ชื่อ-นามสกุล</th>
+            <th style="background:#f59e0b; color:#fff;">คุณลักษณะอันพึงประสงค์</th>
+            <th style="background:#d97706; color:#fff;">การอ่าน คิดวิเคราะห์ เขียน</th>
+          </tr>
+        </thead>
+        <tbody id="holisticBody">
+          <!-- จะใช้ JS สร้างแถวตรงนี้ -->
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">💾 บันทึกผลการประเมิน (ทั้งห้อง)</button>
+  </div>
+</div>
       </div>
       
       <!-- /card -->
@@ -755,6 +780,8 @@ async function loadGrades() {
     
     // เรียกใช้ buildTable (ที่ปรับปรุงแล้วให้ซ่อนคอลัมน์เทอม 2 หาก IS_SEM_MODE = true)
     buildTable();
+        renderHolisticTable(STUDENTS); // <--- เพิ่มบรรทัดนี้เข้าไป
+
 
     // 6. ปิดหน้าต่างตั้งค่า (Accordion) อัตโนมัติเพื่อให้เห็นตารางข้อมูล
     const acc = document.getElementById('accMain');
@@ -1258,7 +1285,60 @@ async function printClassPDF() {
   }
   pg_();
 }
+// ฟังก์ชันวาดตารางประเมินคุณลักษณะฯ
+function renderHolisticTable(students) {
+  if (!students.length) {
+    document.getElementById('holisticBody').innerHTML = `<tr><td colspan="4" class="text-center text-muted">ไม่พบข้อมูลผู้เรียน</td></tr>`;
+    return;
+  }
 
+  const options =["ดีเยี่ยม (3)", "ดี (2)", "ผ่าน (1)", "ไม่ผ่าน (0)"];
+  
+  const html = students.map(s => {
+    const h = s.holistic || { char: 'ดีเยี่ยม (3)', read: 'ดีเยี่ยม (3)' };
+    
+    const charOpts = options.map(opt => `<option value="${opt}" ${h.char === opt ? 'selected' : ''}>${opt}</option>`).join('');
+    const readOpts = options.map(opt => `<option value="${opt}" ${h.read === opt ? 'selected' : ''}>${opt}</option>`).join('');
+
+    return `
+      <tr data-hsid="${s.studentId}">
+        <td class="text-center">${s.studentId}</td>
+        <td class="text-start font-weight-bold" style="background:#fff;">${s.name}</td>
+        <td class="text-center"><select class="sinput h-char" style="width:140px;">${charOpts}</select></td>
+        <td class="text-center"><select class="sinput h-read" style="width:140px;">${readOpts}</select></td>
+      </tr>
+    `;
+  }).join('');
+  
+  document.getElementById('holisticBody').innerHTML = html;
+}
+
+// ฟังก์ชันบันทึกข้อมูลประเมินลง Spreadsheet
+async function saveHolisticData() {
+  const records =[];
+  document.querySelectorAll('#holisticBody tr[data-hsid]').forEach(tr => {
+    records.push({
+      studentId: tr.getAttribute('data-hsid'),
+      char: tr.querySelector('.h-char').value,
+      read: tr.querySelector('.h-read').value
+    });
+  });
+
+  if (!records.length) return toast('ไม่มีข้อมูลให้บันทึก', 'warning');
+
+  pg('กำลังบันทึกผลการประเมิน...');
+  try {
+    const msg = await api('saveHolistic', {
+      year: document.getElementById('gYear').value,
+      classroom: document.getElementById('gClass').value,
+      records: records
+    });
+    toast('✅ ' + msg);
+  } catch(e) {
+    toast(e.message, 'error');
+  }
+  pg_();
+}
 </script>
 </body>
 </html>
