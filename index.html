@@ -1499,28 +1499,33 @@ function calcAssRow(inputEl, type) {
   
 async function saveHolisticData() {
   const records = [];
+  
+  // ใช้ตารางคุณลักษณะฯ (assBody) เป็นตัวตั้งหลักในการวนลูป เพราะมี data-hsid แน่นอน
   document.querySelectorAll('#assBody tr[data-hsid]').forEach(tr => {
+    const sid = tr.getAttribute('data-hsid');
     
-    // ดึงค่าคะแนนรายข้อ (8 ช่องคุณลักษณะ)
-    const cVals = [...tr.querySelectorAll('.c-inp')].map(i => i.value);
-    // ดึงค่าคะแนนรายข้อ (5 ช่องอ่านคิด)
-    const rVals = [...tr.querySelectorAll('.r-inp')].map(i => i.value);
+    // หาแถวสมรรถนะที่ตรงกันจาก skillContainer
+    const skillTr = document.querySelector(`#skillContainer tr:nth-child(${tr.rowIndex})`);
 
     records.push({
-      studentId: tr.getAttribute('data-hsid'),
-      char_scores: cVals, // ส่ง Array 8 ช่องไป
+      studentId: sid,
+      // ดึงจากตารางคุณลักษณะ
+      char_scores: [...tr.querySelectorAll('.c-inp')].map(i => i.value),
       char_total: tr.querySelector('.c-total').textContent,
       char: tr.querySelector('.c-final-val').value,
-      read_scores: rVals, // ส่ง Array 5 ช่องไป
+      // ดึงจากตารางอ่านคิด
+      read_scores: [...tr.querySelectorAll('.r-inp')].map(i => i.value),
       read_total: tr.querySelector('.r-total').textContent,
       read: tr.querySelector('.r-final-val').value,
-         skill_scores: [...tr.querySelectorAll('.s-inp')].map(i => i.value),
-      skill_total: tr.querySelector('.s-total').textContent,
-      skill: tr.querySelector('.s-final-val').value
+      // ดึงจากตารางสมรรถนะ (ใช้ skillTr ที่หาได้ข้างบน)
+      skill_scores: skillTr ? [...skillTr.querySelectorAll('.s-inp')].map(i => i.value) : Array(5).fill(""),
+      skill_total: skillTr ? skillTr.querySelector('.s-total').textContent : "0",
+      skill: skillTr ? skillTr.querySelector('.s-final-val').value : ""
     });
   });
 
-  if (!records.length) return toast('ไม่มีข้อมูลให้บันทึก', 'warning');
+  // แก้เงื่อนไขตรวจสอบ ถ้าไม่มีนักเรียนในตารางเลยถึงค่อยแจ้งเตือน
+  if (records.length === 0) return toast('ไม่พบรายชื่อนักเรียน', 'warning');
 
   pg('กำลังบันทึกคะแนนย่อยและผลการประเมิน...');
   try {
@@ -1535,6 +1540,7 @@ async function saveHolisticData() {
   }
   pg_();
 }
+  
   // ==========================================
 // 🖨️ ฟังก์ชันสั่งพิมพ์ PDF สรุปผลการเรียนรวมทุกวิชา
 // ==========================================
