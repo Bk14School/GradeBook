@@ -1368,6 +1368,7 @@ async function printClassPDF() {
   pg_();
 }
 // ฟังก์ชันวาดตารางประเมินคุณลักษณะฯ แบบละเอียด (8 ข้อ และ 5 ข้อ)
+// ฟังก์ชันวาดตารางประเมินคุณลักษณะฯ แบบละเอียด (8 ข้อ และ 5 ข้อ)
 function renderHolisticTable(students) {
   if (!students.length) {
     document.getElementById('assContainer').innerHTML = `<div class="text-center text-muted py-3">ไม่พบข้อมูลผู้เรียน</div>`;
@@ -1391,28 +1392,19 @@ function renderHolisticTable(students) {
   rwItems.forEach((r, i) => thSub += `<th class="bg-rw v-text">${i+1}. ${r}</th>`);
   thSub += `<th class="bg-sum v-text">รวม</th><th class="bg-sum" style="width:80px;">ผลการ<br>ประเมิน</th>`;
 
-  // แปลงค่าจากข้อความ (ดีเยี่ยม, ดี) กลับเป็นตัวเลขตั้งต้นเพื่อแสดงในตาราง
-  const getDefVal = (txt) => {
-    if(!txt) return "";
-    if(txt.includes("3")) return "3";
-    if(txt.includes("2")) return "2";
-    if(txt.includes("1")) return "1";
-    if(txt.includes("0")) return "0";
-    return "";
-  };
-
   let trs = students.map((s, idx) => {
-    const h = s.holistic || { char: '', read: '' };
-    const defC = getDefVal(h.char);
-    const defR = getDefVal(h.read);
+    // โหลดข้อมูลคะแนนย่อยที่ Backend ส่งมา
+    const h = s.holistic || { char_scores: Array(8).fill(""), read_scores: Array(5).fill(""), char: '', read: '' };
+    const cVals = (h.char_scores && h.char_scores.length === 8) ? h.char_scores : Array(8).fill("");
+    const rVals = (h.read_scores && h.read_scores.length === 5) ? h.read_scores : Array(5).fill("");
 
-    // สร้างช่อง 8 ช่อง
-    let cHtml = charItems.map(() => `<td><input type="number" class="inp-ass c-inp" min="0" max="3" value="${defC}" oninput="calcAssRow(this, 'c')"></td>`).join('');
+    // สร้างช่อง 8 ช่องของคุณลักษณะ
+    let cHtml = cVals.map((v) => `<td><input type="number" class="inp-ass c-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'c')"></td>`).join('');
     cHtml += `<td class="bg-sum c-total">-</td>
               <td class="bg-sum"><span class="res-badge c-result">-</span><input type="hidden" class="c-final-val" value="${h.char}"></td>`;
 
-    // สร้างช่อง 5 ช่อง
-    let rHtml = rwItems.map(() => `<td><input type="number" class="inp-ass r-inp" min="0" max="3" value="${defR}" oninput="calcAssRow(this, 'r')"></td>`).join('');
+    // สร้างช่อง 5 ช่องของการอ่านคิดวิเคราะห์
+    let rHtml = rVals.map((v) => `<td><input type="number" class="inp-ass r-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'r')"></td>`).join('');
     rHtml += `<td class="bg-sum r-total">-</td>
               <td class="bg-sum"><span class="res-badge r-result">-</span><input type="hidden" class="r-final-val" value="${h.read}"></td>`;
 
@@ -1440,7 +1432,6 @@ function renderHolisticTable(students) {
     calcAssRow(tr.querySelector('.r-inp'), 'r');
   });
 }
-
 
 // คำนวณค่าเฉลี่ยแบบเรียลไทม์เมื่อพิมพ์คะแนน 0-3
 function calcAssRow(inputEl, type) {
@@ -1513,19 +1504,29 @@ function calcAssRow(inputEl, type) {
   }
   if (hiddenFinal) hiddenFinal.value = pdfValue;
 }// ฟังก์ชันบันทึกข้อมูลประเมินลง Spreadsheet (ดึงจาก Hidden Input)
+// ฟังก์ชันบันทึกข้อมูลประเมินลง Spreadsheet (ส่งคะแนนย่อยไปด้วย)
 async function saveHolisticData() {
   const records = [];
   document.querySelectorAll('#assBody tr[data-hsid]').forEach(tr => {
+    
+    // ดึงคะแนนทุกช่องเก็บเป็น Array ส่งให้ Backend
+    const cVals = [...tr.querySelectorAll('.c-inp')].map(i => i.value);
+    const rVals = [...tr.querySelectorAll('.r-inp')].map(i => i.value);
+
     records.push({
       studentId: tr.getAttribute('data-hsid'),
-      char: tr.querySelector('.c-final-val').value, // ดึงคำว่า ดีเยี่ยม (3) ที่ถูกซ่อนไว้
-      read: tr.querySelector('.r-final-val').value  // ดึงคำว่า ดีเยี่ยม (3) ที่ถูกซ่อนไว้
+      char_scores: cVals,
+      char_total: tr.querySelector('.c-total').textContent,
+      char: tr.querySelector('.c-final-val').value,
+      read_scores: rVals,
+      read_total: tr.querySelector('.r-total').textContent,
+      read: tr.querySelector('.r-final-val').value
     });
   });
 
   if (!records.length) return toast('ไม่มีข้อมูลให้บันทึก', 'warning');
 
-  pg('กำลังบันทึกผลการประเมิน...');
+  pg('กำลังบันทึกคะแนนย่อยและผลการประเมิน...');
   try {
     const msg = await api('saveHolistic', {
       year: document.getElementById('gYear').value,
@@ -1538,7 +1539,6 @@ async function saveHolisticData() {
   }
   pg_();
 }
-
   // ==========================================
 // 🖨️ ฟังก์ชันสั่งพิมพ์ PDF สรุปผลการเรียนรวมทุกวิชา
 // ==========================================
