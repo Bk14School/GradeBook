@@ -667,8 +667,12 @@ function updRaw(t){
   document.getElementById(`smx${t}`).textContent=sm;
   updateSummary('acc2');
 }
-function onCfg(){ updRaw(1); updRaw(2); updateSummary('acc1'); }
-
+// แก้ไขฟังก์ชันนี้ใน JavaScript ของคุณ
+function onCfg(){ 
+  updRaw(1); 
+  updRaw(2); 
+  // ลบ updateSummary('acc1'); ออกครับ
+}
 // ─── TOGGLE COLS (CSS only) ───────────────
 function toggleCols(t){
   EXP[t]=!EXP[t];
