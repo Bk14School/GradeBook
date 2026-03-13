@@ -413,15 +413,21 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       <!-- Panel header -->
       <div class="card" style="padding:15px 20px;">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
-  <div style="font-weight:800;font-size:.97rem;">
-    📋 <span id="lblSubj"></span>
-    <span style="font-weight:400;color:var(--muted);font-size:.85rem;"> — ชั้น <span id="lblClass"></span></span>
+  <div style="font-weight:800;font-size:.97rem; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
+    <div>
+      📋 <span id="lblSubj"></span>
+      <span style="font-weight:400;color:var(--muted);font-size:.85rem;"> — ชั้น <span id="lblClass"></span></span>
+    </div>
+    
+    <!-- ✨ สวิตช์เปิด-ปิด การซ่อน ร. -->
+    <label style="font-size:0.8rem; font-weight:700; color:#b45309; background:#fef3c7; border:1px solid #fde68a; padding:4px 10px; border-radius:8px; cursor:pointer; margin:0; display:flex; align-items:center; gap:6px;" id="toggleRWrapper" style="display:none;">
+      <input type="checkbox" id="toggleR" onchange="toggleIgnoreR()" style="width:16px; height:16px; cursor:pointer;">
+      ซ่อนสถานะ "ร" (คำนวณเกรดปกติ)
+    </label>
   </div>
 
-<div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <!-- เพิ่มปุ่มนี้เข้าไป -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
     <button class="btn-pri" style="background: linear-gradient(135deg, #0284c7, #0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
-    
     <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ ปพ.6 ทั้งห้อง</button>
     <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
   </div>
@@ -727,6 +733,10 @@ async function loadGrades() {
   document.getElementById('lblClass').textContent = cls;
   document.getElementById('lblSubj').textContent = subj;
   pg('กำลังโหลดข้อมูลและสถิติมาเรียน...');
+  // ค้นหาใน loadGrades() แถวๆ IS_SEM_MODE = cls.includes("เทอม"); แล้วเพิ่ม:
+document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
+document.getElementById('toggleR').checked = false;
+IGNORE_R = false;
 
   try {
     // เรียก API ดึงข้อมูลเกรดและสถิติมาเรียน (Backend จะกรองวันมาเรียนตามเทอมให้แล้ว)
@@ -934,7 +944,8 @@ function buildBody(){
     let gradeVal = finalScore === 0 ? '-' : calcGradeFrontend(finalScore);
     let gradeClass = finalScore === 0 ? 'nil' : (finalScore < 50 ? 'fail' : 'ok');
 
-    if (IS_SEM_MODE && (g.t2_acc === 'ติด ร')) {
+// ถ้าระบบเป็นโหมดเทอม + ไม่ได้เปิดสวิตช์ซ่อน ร + เด็กติด ร จริงๆ
+    if (IS_SEM_MODE && !IGNORE_R && (g.t2_acc === 'ติด ร')) {
        gradeVal = 'ร';
        gradeClass = 'fail';
     }
@@ -1029,7 +1040,7 @@ function recalcTots(tr){
   const eGrade = tr.querySelector('.final-grade');
   
   let isR = false;
-  if (IS_SEM_MODE) {
+  if (IS_SEM_MODE && !IGNORE_R) { // <-- เพิ่ม && !IGNORE_R ตรงนี้
      const rSel = tr.querySelector('.r-status');
      if (rSel && rSel.value === 'ติด ร') isR = true;
   }
@@ -1263,7 +1274,7 @@ async function printRowPDF(studentId) {
   pg('กำลังสร้าง PDF...');
   try {
     // เรียก Google Apps Script ให้สร้าง PDF ของรหัสนักเรียนที่กด
-    const pdfData = await api('generateStudentPDF', { year, classroom, studentId });
+  const pdfData = await api('generateStudentPDF', { year, classroom, studentId, ignoreR: IGNORE_R });
     openBase64Pdf(pdfData, `ปพ6_${studentId}_${classroom}.pdf`);
     toast('สร้าง PDF รายบุคคลสำเร็จ');
   } catch (e) {
@@ -1281,7 +1292,7 @@ async function printClassPDF() {
 
   pg('กำลังสร้าง PDF ทั้งห้อง...');
   try {
-    const pdfData = await api('generateClassPDF', { year, classroom });
+  const pdfData = await api('generateClassPDF', { year, classroom, ignoreR: IGNORE_R });
     openBase64Pdf(pdfData, `ปพ6_ทั้งห้อง_${classroom}_ปี${year}.pdf`);
     toast('สร้าง PDF ทั้งห้องสำเร็จ');
   } catch (e) {
@@ -1355,7 +1366,7 @@ async function printSummaryPDF() {
 
   pg('กำลังรวบรวมข้อมูลทุกวิชาและสร้าง PDF (อาจใช้เวลาสักครู่)...');
   try {
-    const pdfData = await api('generateSummaryPDF', { year, classroom });
+  const pdfData = await api('generateSummaryPDF', { year, classroom, ignoreR: IGNORE_R });
     openBase64Pdf(pdfData, `สรุปผลการเรียน_${classroom}_ปี${year}.pdf`);
     toast('สร้าง PDF สรุปสำเร็จ');
   } catch (e) {
@@ -1363,6 +1374,19 @@ async function printSummaryPDF() {
   }
   pg_();
 }
+
+  // ตัวแปรเก็บสถานะการซ่อน ร
+let IGNORE_R = false;
+
+function toggleIgnoreR() {
+  IGNORE_R = document.getElementById('toggleR').checked;
+  
+  // สั่งให้คำนวณเกรดใหม่ทุกแถวในหน้าจอทันที
+  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr => {
+    recalcTots(tr);
+  });
+}
+  
 </script>
 </body>
 </html>
