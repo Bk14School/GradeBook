@@ -1441,7 +1441,7 @@ function renderHolisticTable(students) {
   });
 }
 
-// คำนวณค่าเฉลี่ยแบบเรียลไทม์เมื่อพิมพ์คะแนน 0-3
+
 // คำนวณค่าเฉลี่ยแบบเรียลไทม์เมื่อพิมพ์คะแนน 0-3
 function calcAssRow(inputEl, type) {
   if (!inputEl) return;
@@ -1462,12 +1462,11 @@ function calcAssRow(inputEl, type) {
     }
   });
 
-  // 2. ✨ ย้ายระบบเคอร์เซอร์กระโดดมาไว้นอก Loop เพื่อให้ทำเฉพาะช่องที่กำลังพิมพ์
+  // 2. เลื่อนเคอร์เซอร์อัตโนมัติ
   if (document.activeElement === inputEl && inputEl.value.length >= 1) {
     let nextTd = inputEl.closest('td').nextElementSibling;
     let nextInput = null;
     
-    // วนหาช่องกรอกคะแนนถัดไป (ข้ามช่องผลรวม/เกรด)
     while (nextTd) {
       nextInput = nextTd.querySelector('.inp-ass');
       if (nextInput) break;
@@ -1480,7 +1479,7 @@ function calcAssRow(inputEl, type) {
     }
   }
 
-  // 3. ✨ เพิ่ม If ป้องกัน Error (Cannot set properties of null)
+  // 3. ดึง Element มาอัปเดต
   const totalEl = tr.querySelector(`.${type}-total`);
   const resultBadge = tr.querySelector(`.${type}-result`);
   const hiddenFinal = tr.querySelector(`.${type}-final-val`);
@@ -1489,7 +1488,8 @@ function calcAssRow(inputEl, type) {
     if (totalEl) totalEl.textContent = "-";
     if (resultBadge) {
        resultBadge.textContent = "-";
-       resultBadge.className = `res-badge`;
+       // ✨ แก้ไข: ต้องคงชื่อคลาส ${type}-result ไว้เสมอ
+       resultBadge.className = `res-badge ${type}-result`;
     }
     if (hiddenFinal) hiddenFinal.value = "";
     return;
@@ -1504,15 +1504,15 @@ function calcAssRow(inputEl, type) {
   else if (avg >= 1.0) { resText = "ผ่าน"; resClass = "res-1"; pdfValue = "ผ่าน (1)"; } 
   else { resText = "ไม่ผ่าน"; resClass = "res-0"; pdfValue = "ไม่ผ่าน (0)"; }
 
-  // 5. แสดงผลหน้าจอ (อัปเดตอย่างปลอดภัย)
+  // 5. แสดงผลหน้าจอ
   if (totalEl) totalEl.textContent = sum;
   if (resultBadge) {
      resultBadge.textContent = resText;
-     resultBadge.className = `res-badge ${resClass}`;
+     // ✨ แก้ไข: นำ ${type}-result กลับมาต่อท้าย เพื่อให้ระบบหาตัวป้ายเจอในการพิมพ์ครั้งถัดไป
+     resultBadge.className = `res-badge ${type}-result ${resClass}`;
   }
   if (hiddenFinal) hiddenFinal.value = pdfValue;
-}
-// ฟังก์ชันบันทึกข้อมูลประเมินลง Spreadsheet (ดึงจาก Hidden Input)
+}// ฟังก์ชันบันทึกข้อมูลประเมินลง Spreadsheet (ดึงจาก Hidden Input)
 async function saveHolisticData() {
   const records = [];
   document.querySelectorAll('#assBody tr[data-hsid]').forEach(tr => {
