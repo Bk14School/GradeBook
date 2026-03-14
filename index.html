@@ -805,54 +805,56 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
           </div>
         </div>
 
-        <!-- Accordion ประเมิน -->
-        <div class="acc acc-sub" id="accHolistic">
-          <div class="acc-hd" onclick="toggleAcc('accHolistic')">
-            <div class="acc-title">🌟 ประเมินคุณลักษณะฯ และ อ่านคิดวิเคราะห์</div>
-            <span class="acc-arrow">▾</span>
-          </div>
+       <!-- Accordion ประเมิน -->
+<div class="acc acc-sub" id="accHolistic">
+  <div class="acc-hd" onclick="toggleAcc('accHolistic')">
+    <div class="acc-title">🌟 ประเมินคุณลักษณะฯ / อ่านคิดวิเคราะห์ / สมรรถนะ</div>
+    <span class="acc-arrow">▾</span>
+  </div>
 
+  <div class="acc-body hidden" id="accHolisticBody">
     <div class="ttabs mb-3" id="holisticTabs">
-  <button class="ttab on" type="button" onclick="switchHolisticTab('subject', this)">
-    รายวิชา
-  </button>
-  <button class="ttab" type="button" onclick="switchHolisticTab('homeroom', this)">
-    ประจำชั้น
-  </button>
+      <button class="ttab on" type="button" onclick="switchHolisticTab('subject', this)">
+        รายวิชา
+      </button>
+      <button class="ttab" type="button" onclick="switchHolisticTab('homeroom', this)">
+        ประจำชั้น
+      </button>
+    </div>
+
+    <div id="holisticSubjectPanel">
+      <div id="assContainer">
+        <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
+      </div>
+
+      <div style="text-align:right;margin-top:10px;">
+        <button class="btn-pri" type="button" onclick="printHolisticReport('subject')">
+          🖨️ พิมพ์รายงานรายวิชา
+        </button>
+      </div>
+
+      <button class="btn-save mt-3 w-100" onclick="saveHolisticData('subject')">
+        💾 บันทึกผลการประเมินรายวิชา
+      </button>
+    </div>
+
+    <div id="holisticHomeroomPanel" style="display:none;">
+      <div id="hrAssContainer">
+        <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
+      </div>
+
+      <div style="text-align:right;margin-top:10px;">
+        <button class="btn-pri" type="button" onclick="printHolisticReport('homeroom')">
+          🖨️ พิมพ์รายงานประจำชั้น
+        </button>
+      </div>
+
+      <button class="btn-save mt-3 w-100" onclick="saveHolisticData('homeroom')">
+        💾 บันทึกผลการประเมินประจำชั้น
+      </button>
+    </div>
+  </div>
 </div>
-
-<div id="holisticSubjectPanel">
-  <div id="assContainer">
-    <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
-  </div>
-
-  <div style="text-align:right;margin-top:10px;">
-    <button class="btn-pri" type="button" onclick="printHolisticReport('subject')">
-      🖨️ พิมพ์รายงานรายวิชา
-    </button>
-  </div>
-
-  <button class="btn-save mt-3 w-100" onclick="saveHolisticData('subject')">
-    💾 บันทึกผลการประเมินรายวิชา
-  </button>
-</div>
-
-<div id="holisticHomeroomPanel" style="display:none;">
-  <div id="hrAssContainer">
-    <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
-  </div>
-
-  <div style="text-align:right;margin-top:10px;">
-    <button class="btn-pri" type="button" onclick="printHolisticReport('homeroom')">
-      🖨️ พิมพ์รายงานประจำชั้น
-    </button>
-  </div>
-
-  <button class="btn-save mt-3 w-100" onclick="saveHolisticData('homeroom')">
-    💾 บันทึกผลการประเมินประจำชั้น
-  </button>
-</div>
-        </div>
 
       </div>
     </div>
@@ -2781,14 +2783,13 @@ function calcTotalHours() {
     .replace(/'/g, '&#39;');
 }
 
-function getAssPrintRows() {
+function getAssPrintRows(mode = 'subject') {
+  const tableSelector = mode === 'homeroom' ? '#hrAssBody' : '#assBody';
   const rows = [];
-  const trs = document.querySelectorAll('#assBody tr[data-hsid]');
+  const trs = document.querySelectorAll(`${tableSelector} tr[data-hsid]`);
 
   trs.forEach((tr, idx) => {
-    const name = tr.querySelector('.ass-name')?.textContent?.trim()
-      || tr.children[1]?.textContent?.trim()
-      || '';
+    const name = tr.querySelector('.ass-name')?.textContent?.trim() || '';
 
     const charScores = [...tr.querySelectorAll('.c-inp')].map(i => i.value || '');
     const readScores = [...tr.querySelectorAll('.r-inp')].map(i => i.value || '');
@@ -2863,15 +2864,16 @@ function buildPrintTable(title, headers, rows, scoreKey, totalKey, resultKey, th
 }
 
 function printHolisticReport(mode = 'subject') {
-const reportScope = mode === 'homeroom' ? 'ประจำชั้น' : 'รายวิชา';
-  const trs = document.querySelectorAll(`${tableSelector} tr[data-hsid]`);
+  const rows = getAssPrintRows(mode);
+  const reportScope = mode === 'homeroom' ? 'ประจำชั้น' : 'รายวิชา';
+
   if (!rows.length) {
     toast('ไม่พบข้อมูลสำหรับพิมพ์', 'error');
     return;
   }
 
   const page1 = buildPrintTable(
-    'รายงานประเมินคุณลักษณะอันพึงประสงค์',
+    `รายงานประเมินคุณลักษณะอันพึงประสงค์ (${reportScope})`,
     [
       '1.รักชาติฯ',
       '2.ซื่อสัตย์ฯ',
@@ -2890,7 +2892,7 @@ const reportScope = mode === 'homeroom' ? 'ประจำชั้น' : 'ร�
   );
 
   const page2 = buildPrintTable(
-    'รายงานประเมินการอ่าน คิดวิเคราะห์ และเขียน',
+    `รายงานประเมินการอ่าน คิดวิเคราะห์ และเขียน (${reportScope})`,
     [
       '1.สามารถอ่านฯ',
       '2.สามารถจับประเด็นฯ',
@@ -2906,7 +2908,7 @@ const reportScope = mode === 'homeroom' ? 'ประจำชั้น' : 'ร�
   );
 
   const page3 = buildPrintTable(
-    'รายงานประเมินสมรรถนะสำคัญของผู้เรียน',
+    `รายงานประเมินสมรรถนะสำคัญของผู้เรียน (${reportScope})`,
     [
       '1.สื่อสาร',
       '2.คิด',
@@ -2932,56 +2934,46 @@ const reportScope = mode === 'homeroom' ? 'ประจำชั้น' : 'ร�
           size: A4 landscape;
           margin: 10mm;
         }
-
         * { box-sizing: border-box; }
-
         body {
           font-family: "Sarabun", sans-serif;
           margin: 0;
           color: #111827;
           background: #fff;
         }
-
         .print-page {
           width: 100%;
           min-height: 100vh;
           page-break-after: always;
           padding: 4mm 2mm;
         }
-
         .print-page:last-child {
           page-break-after: auto;
         }
-
         .report-head {
           text-align: center;
           margin-bottom: 10px;
         }
-
         .report-school {
           font-size: 18px;
           font-weight: 700;
         }
-
         .report-title {
           font-size: 20px;
           font-weight: 800;
           margin-top: 2px;
         }
-
         .report-meta {
           font-size: 12px;
           margin-top: 4px;
           color: #374151;
         }
-
         .print-tbl {
           width: 100%;
           border-collapse: collapse;
           table-layout: fixed;
           font-size: 12px;
         }
-
         .print-tbl th,
         .print-tbl td {
           border: 1px solid #9ca3af;
@@ -2990,45 +2982,36 @@ const reportScope = mode === 'homeroom' ? 'ประจำชั้น' : 'ร�
           vertical-align: middle;
           word-wrap: break-word;
         }
-
         .print-tbl th {
           font-weight: 700;
         }
-
         .print-tbl .col-no {
           width: 36px;
         }
-
         .print-tbl .col-name {
           width: 230px;
           text-align: left;
           font-weight: 600;
         }
-
         .print-tbl .col-total {
           width: 55px;
           font-weight: 700;
           background: #f3f4f6;
         }
-
         .print-tbl .col-result {
           width: 78px;
           font-weight: 700;
           background: #f9fafb;
         }
-
         .theme-char thead th {
           background: #fef08a;
         }
-
         .theme-read thead th {
           background: #fdba74;
         }
-
         .theme-skill thead th {
           background: #d1d5db;
         }
-
         @media print {
           html, body {
             width: 100%;
@@ -3041,7 +3024,6 @@ const reportScope = mode === 'homeroom' ? 'ประจำชั้น' : 'ร�
       ${page1}
       ${page2}
       ${page3}
-
       <script>
         window.onload = function () {
           setTimeout(function () {
