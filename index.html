@@ -453,14 +453,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     </label>
   </div>
 
- <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <!-- เพิ่มปุ่มนี้เข้าไป สีเขียวสไตล์ Excel -->
-    <button class="btn-pri" style="background: linear-gradient(135deg, #16a34a, #15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
-
-    <button class="btn-pri" style="background: linear-gradient(135deg, #0284c7, #0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
-    <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ ปพ.6 ทั้งห้อง</button>
-    <button class="btn-save" onclick="saveGrades()">💾 บันทึกคะแนน</button>
-  </div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+  <button class="btn-pri" style="background: linear-gradient(135deg, #16a34a, #15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
+  <button class="btn-pri" style="background: linear-gradient(135deg, #0284c7, #0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
+  <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ ปพ.6 ทั้งห้อง</button>
+</div>
 </div>
 
       
@@ -498,6 +495,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
           </table>
         </div>
       </div>
+      <div class="card" style="padding:14px 16px;">
+  <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap;">
+    <button class="btn-save" onclick="saveGrades()" style="min-width:180px;font-size:.95rem;padding:12px 22px;">
+      💾 บันทึกคะแนน
+    </button>
+  </div>
+</div>
 
       <!-- Accordion ข้อมูลรายวิชาและเวลาเรียน -->
 <div class="acc acc-main mb-3" id="accCourseInfo">
