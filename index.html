@@ -1313,68 +1313,65 @@ async function saveConfigOnly() {
 
   if (!subj || subj === "-- ไม่พบวิชา --") return;
 
-// 1. เตรียมค่า Config ปัจจุบันจากหน้าจอ
   const config = {
-    t1_acc: +document.getElementById('c_t1a').value,
-    t1_exam: +document.getElementById('c_t1e').value,
-    t2_acc: +document.getElementById('c_t2a').value,
-    t2_exam: +document.getElementById('c_t2e').value,
-    subItems: { t1: SI[1], t2: SI[2] },
-    rawMax: { t1: getRawMax(1), t2: getRawMax(2) },
-    
-    // ✨ เพิ่มส่วนนี้เข้าไปใน Config JSON 
+    t1_acc: +document.getElementById('c_t1a').value || 0,
+    t1_exam: +document.getElementById('c_t1e').value || 0,
+    t2_acc: +document.getElementById('c_t2a').value || 0,
+    t2_exam: +document.getElementById('c_t2e').value || 0,
+    subItems: {
+      t1: SI[1] || [],
+      t2: SI[2] || []
+    },
+    rawMax: {
+      t1: getRawMax(1),
+      t2: getRawMax(2)
+    },
     courseInfo: {
-      code: document.getElementById('ci_code').value,
-      type: document.getElementById('ci_type').value,
-      credit: document.getElementById('ci_credit').value,
+      code: document.getElementById('ci_code').value || "",
+      type: document.getElementById('ci_type').value || "รายวิชาพื้นฐาน",
+      credit: document.getElementById('ci_credit').value || "",
       schedule: {
-        mon: document.getElementById('sch_mon').value,
-        tue: document.getElementById('sch_tue').value,
-        wed: document.getElementById('sch_wed').value,
-        thu: document.getElementById('sch_thu').value,
-        fri: document.getElementById('sch_fri').value,
-        totalHours: document.getElementById('ci_total_hours').textContent
+        mon: +document.getElementById('sch_mon').value || 0,
+        tue: +document.getElementById('sch_tue').value || 0,
+        wed: +document.getElementById('sch_wed').value || 0,
+        thu: +document.getElementById('sch_thu').value || 0,
+        fri: +document.getElementById('sch_fri').value || 0,
+        manualAdjust: +document.getElementById('ci_manual_adjust').value || 0,
+        totalHours: +document.getElementById('ci_total_hours').textContent || 0
       }
     }
   };
 
-  // --- ส่วนที่ปรับปรุง: ตรวจสอบความถูกต้องตามโหมดชั้นเรียน ---
   const targetTotal = IS_SEM_MODE ? 100 : 50;
   const term1Label = IS_SEM_MODE ? "ภาคเรียนนี้" : "เทอม 1";
 
-  // ตรวจสอบเทอม 1 (หรือภาคเรียนที่เลือก)
   if (config.t1_acc + config.t1_exam !== targetTotal) {
     return toast(`${term1Label}: เก็บ+สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`, 'warning');
   }
 
-  // ตรวจสอบเทอม 2 (เฉพาะโหมดประถม)
   if (!IS_SEM_MODE && (config.t2_acc + config.t2_exam !== 50)) {
     return toast('เทอม 2: เก็บ+สอบ ต้องรวมให้ได้ 50 คะแนน', 'warning');
   }
 
-  pg('กำลังบันทึกสัดส่วนคะแนน...');
+  pg('กำลังบันทึกการตั้งค่า...');
   try {
-    // 2. เรียก API เดิม แต่ส่ง gradeRecords เป็น [] เพื่อให้อัปเดตแค่ Config ในแถว A2
     await api('saveGrades', {
       year: year,
       classroom: cls,
       subject: subj,
       config: config,
-      gradeRecords: [] 
+      gradeRecords: []
     });
-    
-    // 3. แจ้งเตือนสำเร็จ
-    toast('✅ อัปเดตสัดส่วนคะแนนลงฐานข้อมูลแล้ว');
-    
-    // อัปเดตตารางใหม่เพื่อให้ Header และการคำนวณสะท้อนค่าที่เพิ่งบันทึก
-    buildTable(); 
-    
+
+    toast('✅ บันทึกข้อมูลรายวิชา / เวลาเรียน / ตั้งค่าคะแนน เรียบร้อยแล้ว');
+    buildTable();
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   } finally {
     pg_();
   }
 }
+  
 document.addEventListener('keydown', function(event) {
   // ดักจับปุ่ม Enter, ลูกศรลง (ArrowDown) และ ลูกศรขึ้น (ArrowUp)
   if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -1837,19 +1834,12 @@ function calcTotalHours() {
 
 
 
-function saveCourseInfo() {
-  // เมื่อกดปุ่ม "บันทึกข้อมูลรายวิชา" จะมาเรียกใช้ฟังก์ชันนี้
-  // ซึ่งจะไปสั่งให้ saveConfigOnly() กวาดข้อมูลทั้งหมดบันทึกลง Google Sheet
-  saveConfigOnly();
-  
-  // แจ้งเตือนย้ำให้ครูทราบ
-  toast('✅ บันทึกข้อมูลรายวิชาสำเร็จ');
-  
-  // (ทางเลือก) ปิด Accordion อัตโนมัติหลังบันทึกเสร็จ
+async function saveCourseInfo() {
+  await saveConfigOnly();
   setTimeout(() => {
     document.getElementById('accCourseInfo').classList.remove('open');
     document.getElementById('accCourseInfoBody').classList.add('hidden');
-  }, 1000);
+  }, 800);
 }
   
 </script>
