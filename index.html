@@ -1321,38 +1321,35 @@ function calcGradeFrontend(s) {
 }
   
 async function saveConfigOnly() {
-  
-  // 1. ดึงค่าตัวแปรที่จำเป็น
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
   
-  const totalเก็บ1 = +document.getElementById('c_t1a').value;
-  const totalสอบ1 = +document.getElementById('c_t1e').value;
-  const totalเก็บ2 = !IS_SEM_MODE ? +document.getElementById('c_t2a').value : 0;
-  const totalสอบ2 = !IS_SEM_MODE ? +document.getElementById('c_t2e').value : 0;
+  // 1. ดึงค่าจากช่อง Input (ซึ่งตอนนี้ควรเป็น readonly หรือแก้ไขได้ตามที่คุณต้องการ)
+  const t1a = +document.getElementById('c_t1a').value || 0;
+  const t1e = +document.getElementById('c_t1e').value || 0;
+  const t2a = !IS_SEM_MODE ? (+document.getElementById('c_t2a').value || 0) : 0;
+  const t2e = !IS_SEM_MODE ? (+document.getElementById('c_t2e').value || 0) : 0;
   
-  // 2. กำหนด Target ตามโหมด
+  // 2. กำหนด Target เช็คเงื่อนไขก่อนบันทึก
   const targetTotal = IS_SEM_MODE ? 100 : 50;
-  const term1Label = IS_SEM_MODE ? "ภาคเรียนนี้" : "เทอม 1";
-
-  // 3. ตรวจสอบความถูกต้อง
-  if ((totalเก็บ1 + totalสอบ1) !== targetTotal) {
-    return toast(`${term1Label}: เก็บ+สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`, 'error');
+  
+  if ((t1a + t1e) !== targetTotal) {
+    return toast(`เทอม 1: คะแนนรวมต้องเท่ากับ ${targetTotal} (ปัจจุบัน ${t1a + t1e})`, 'error');
   }
   
-  if (!IS_SEM_MODE && (totalเก็บ2 + totalสอบ2) !== 50) {
-    return toast('เทอม 2: เก็บ+สอบ ต้องรวมให้ได้ 50 คะแนน', 'error');
+  if (!IS_SEM_MODE && (t2a + t2e) !== 50) {
+    return toast(`เทอม 2: คะแนนรวมต้องเท่ากับ 50 (ปัจจุบัน ${t2a + t2e})`, 'error');
   }
 
-  // 4. เตรียมค่า Config
+  // 3. จัดเตรียม Object Config เพื่อส่งไปบันทึกใน __CONFIG__
   const config = {
-    t1_acc: totalเก็บ1,
-    t1_exam: totalสอบ1,
-    t2_acc: totalเก็บ2,
-    t2_exam: totalสอบ2,
-    subItems: { t1: SI[1], t2: SI[2] },
-    rawMax: { t1: getRawMax(1), t2: getRawMax(2) },
+    t1_acc: t1a,
+    t1_exam: t1e,
+    t2_acc: t2a,
+    t2_exam: t2e,
+    subItems: { t1: SI[1], t2: SI[2] }, // บันทึกหัวข้อย่อยไปด้วย
+    rawMax: { t1: getRawMax(1), t2: getRawMax(2) }, // บันทึกคะแนนเต็มรวมไปด้วย
     
     courseInfo: {
       code: document.getElementById('ci_code').value,
@@ -1370,18 +1367,18 @@ async function saveConfigOnly() {
     }
   };
 
-  // 5. บันทึก
-  pg('กำลังบันทึกสัดส่วนคะแนน...');
+  // 4. สั่งบันทึก
+  pg('กำลังบันทึกสัดส่วนคะแนนลงฐานข้อมูล...');
   try {
     await api('saveGrades', {
       year: year,
       classroom: cls,
       subject: subj,
-      config: config,
+      config: config, // ค่าเหล่านี้จะถูกส่งไปเขียนทับในแถว __CONFIG__
       gradeRecords: [] 
     });
     
-    toast('✅ อัปเดตสัดส่วนคะแนนลงฐานข้อมูลแล้ว');
+    toast('✅ บันทึกการตั้งค่าลง Config สำเร็จ');
     buildTable(); 
     
   } catch (e) {
@@ -1389,8 +1386,7 @@ async function saveConfigOnly() {
   } finally {
     pg_();
   }
-}
-  
+}  
 document.addEventListener('keydown', function(event) {
   // ดักจับปุ่ม Enter, ลูกศรลง (ArrowDown) และ ลูกศรขึ้น (ArrowUp)
   if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
