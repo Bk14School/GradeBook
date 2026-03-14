@@ -335,11 +335,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 .res-2 { background: #e0f2fe; color: #075985; }
 .res-1 { background: #fef3c7; color: #92400e; }
 .res-0 { background: #fee2e2; color: #991b1b; }
-  /* =====================================================
+/* =====================================================
    MOBILE: ซ่อนคอลัมน์ ที่ / รหัส และตรึงชื่อ-นามสกุล
+   ใช้ทั้งตารางคะแนน และตารางประเมิน
    ===================================================== */
 @media (max-width: 768px) {
-  /* ซ่อนคอลัมน์ ที่ และ รหัส ทั้งหัวตารางและข้อมูล */
+  /* -----------------------------
+     1) ตารางคะแนนหลัก
+     ----------------------------- */
   .gtbl thead th.s-c0,
   .gtbl thead th.s-c1,
   .gtbl tbody td.s-c0,
@@ -347,21 +350,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     display: none !important;
   }
 
-  /* ให้คอลัมน์ชื่อมาเริ่มชิดซ้ายแทน */
   .gtbl thead th.s-c2,
   .gtbl tbody td.s-c2 {
     left: 0 !important;
-  }
-
-  /* ชื่อ-นามสกุล ไม่ตัดบรรทัด */
-  .gtbl thead th.s-c2,
-  .gtbl tbody td.s-c2 {
     white-space: nowrap !important;
     min-width: 190px !important;
     max-width: none !important;
   }
 
-  /* คงพื้นหลัง/ชั้นซ้อนของ sticky column */
   .gtbl thead th.s-c2 {
     z-index: 60 !important;
     background: #1e293b !important;
@@ -373,12 +369,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     background: #fff !important;
   }
 
-  /* hover ของแถว */
   .gtbl tbody tr:hover td.s-c2 {
     background: #f0f4ff !important;
   }
 
-  /* ปุ่มพิมพ์ท้ายชื่อ จัดให้อยู่บรรทัดเดียวกัน */
   .gtbl tbody td.s-c2 > div {
     flex-wrap: nowrap !important;
     gap: 6px;
@@ -388,10 +382,66 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     white-space: nowrap !important;
   }
 
-  /* ลด padding นิดหน่อยให้พอดูในจอเล็ก */
+  /* -----------------------------
+     2) ตารางประเมินคุณลักษณะ
+     ----------------------------- */
+  .ass-tbl th:first-child,
+  .ass-tbl td:first-child {
+    display: none !important; /* ซ่อนคอลัมน์ ที่ */
+  }
+
+  .ass-tbl th:nth-child(2),
+  .ass-tbl td:nth-child(2) {
+    position: sticky;
+    left: 0;
+    z-index: 25;
+    white-space: nowrap !important;
+    min-width: 170px;
+    max-width: none;
+  }
+
+  .ass-tbl thead th:nth-child(2) {
+    background: #f8fafc !important;
+    z-index: 35;
+  }
+
+  .ass-tbl tbody td:nth-child(2) {
+    background: #fff !important;
+    text-align: left !important;
+    font-weight: 600;
+  }
+
+  .ass-tbl tbody tr:hover td:nth-child(2) {
+    background: #f8fafc !important;
+  }
+
+  /* ให้ input และ cell กระชับขึ้นบนมือถือ */
   .gtbl th,
-  .gtbl td {
-    padding: 5px 6px;
+  .gtbl td,
+  .ass-tbl th,
+  .ass-tbl td {
+    padding: 4px 5px;
+  }
+
+  .inp-ass {
+    width: 30px;
+    min-width: 30px;
+  }
+}
+  @media (max-width: 768px) {
+  .ass-wrap {
+    max-height: 70vh;
+    overflow: auto;
+  }
+
+  .ass-tbl thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .ass-tbl thead th:nth-child(2) {
+    z-index: 40;
   }
 }
 </style>
