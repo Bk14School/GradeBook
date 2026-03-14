@@ -1769,18 +1769,17 @@ async function saveConfigOnly() {
   };
 
   pg('กำลังบันทึกการตั้งค่า...');
-  try {
-    await api('saveGrades', {
-      year,
-      classroom: cls,
-      subject: subj,
-      config,
-      gradeRecords: []
-    });
+try {
+  await api('saveGrades', {
+    year,
+    classroom: cls,
+    subject: subj,
+    config,
+    gradeRecords: []
+  });
 
-    toast('✅ บันทึกการตั้งค่าหน่วยการเรียนรู้เรียบร้อย');
-    return true;
-  } catch (e) {
+  return true;
+} catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
     return false;
   } finally {
