@@ -469,17 +469,19 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       <div class="cfg-row">
         <div class="cfg-block">
           <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (เก็บ/สอบ)</div>
-          <div class="cfg-inline">
-          <input type="number" class="cfg-n" id="c_t1a" readonly>
-<input type="number" class="cfg-n" id="c_t1e" readonly>
-          </div>
+      <!-- ในส่วนการตั้งค่าสัดส่วนคะแนน -->
+<div class="cfg-inline">
+  <input type="number" class="cfg-n" id="c_t1a" value="70" readonly style="background:#f1f5f9;">
+  <input type="number" class="cfg-n" id="c_t1e" value="30" readonly style="background:#f1f5f9;">
+</div>
         </div>
         <div class="cfg-block">
           <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (เก็บ/สอบ)</div>
-          <div class="cfg-inline">
-            <input type="number" class="cfg-n" id="c_t2a" value="35" onchange="onCfg()">
-            <input type="number" class="cfg-n" id="c_t2e" value="15" onchange="onCfg()">
-          </div>
+     <!-- ในส่วนการตั้งค่าสัดส่วนคะแนน -->
+<div class="cfg-inline">
+  <input type="number" class="cfg-n" id="c_t2a" value="70" readonly style="background:#f1f5f9;">
+  <input type="number" class="cfg-n" id="c_t2e" value="30" readonly style="background:#f1f5f9;">
+</div>
         </div>
       </div>
     </div>
@@ -1293,11 +1295,13 @@ function calcGradeFrontend(s) {
 }
   
 async function saveConfigOnly() {
-  const year = document.getElementById('gYear').value;
-  const cls = document.getElementById('gClass').value;
-  const subj = document.getElementById('gSubj').value;
-
-  if (!subj || subj === "-- ไม่พบวิชา --") return;
+    // เพิ่มการเช็คก่อน Save
+    const total เก็บ = +document.getElementById('c_t1a').value;
+    const totalสอบ = +document.getElementById('c_t1e').value;
+    
+    if((totalเก็บ + totalสอบ) !== 100) {
+        return toast('ไม่สามารถบันทึกได้: คะแนนรวมต้องเท่ากับ 100', 'error');
+    }
 
 // 1. เตรียมค่า Config ปัจจุบันจากหน้าจอ
   const config = {
@@ -1863,7 +1867,8 @@ function renderUnits(t) {
 // ในส่วนของ renderUnits (ที่สร้าง input unitMax)
 <input class="form-control text-center" type="number" 
        placeholder="คะแนนเต็มหน่วย" value="${u.unitMax}" 
-       onchange="UNITS[${t}][${uIdx}].unitMax=+this.value; updateAutoScoring();">        </div>
+       onchange="UNITS[${t}][${uIdx}].unitMax=+this.value; updateAutoScoring();">       
+       </div>
         <button class="btn btn-sm btn-outline-danger" onclick="removeUnit(${t}, ${uIdx})">✕</button>
       </div>
       <div class="ms-3 border-start ps-2">
@@ -1899,20 +1904,29 @@ function calculateUnitScore(t, uIdx) {
 }
   // ฟังก์ชันคำนวณคะแนนเก็บรวม และอัปเดตคะแนนสอบ
 function updateAutoScoring() {
-    // 1. รวมคะแนนเก็บจากทุกหน่วย (Units)
-    // สมมติโครงสร้าง UNITS คือ { 1: [ {unitMax: 10}, {unitMax: 10} ], 2: [...] }
+    // รวมคะแนนเต็มจากทุกหน่วย (Units)
     let totalUnitScore = UNITS[1].reduce((sum, u) => sum + (Number(u.unitMax) || 0), 0);
     
-    // 2. แสดงผลรวมในช่องคะแนนเก็บ (เทอม 1)
-    document.getElementById('c_t1a').value = totalUnitScore;
+    // ตั้งค่าเป้าหมายคือ 100
+    const TOTAL_TARGET = 100;
     
-    // 3. คำนวณคะแนนสอบที่เหลือ (ให้ครบ 100)
-    let remainingForExam = 100 - totalUnitScore;
-    document.getElementById('c_t1e').value = remainingForExam >= 0 ? remainingForExam : 0;
+    // อัปเดตช่องคะแนนเก็บ (c_t1a)
+    const t1aInput = document.getElementById('c_t1a');
+    t1aInput.value = totalUnitScore;
     
-    // ถ้าคะแนนเกิน 100 ให้แจ้งเตือน
-    if (remainingForExam < 0) {
-        toast('⚠️ คะแนนรวมเกิน 100 แล้ว กรุณาตรวจสอบ!', 'error');
+    // อัปเดตช่องคะแนนสอบ (c_t1e) = 100 - คะแนนเก็บ
+    const t1eInput = document.getElementById('c_t1e');
+    let remaining = TOTAL_TARGET - totalUnitScore;
+    t1eInput.value = remaining >= 0 ? remaining : 0;
+    
+    // Highlight แจ้งเตือนถ้าคะแนนเกิน
+    if (remaining < 0) {
+        t1aInput.style.borderColor = 'red';
+        t1eInput.style.borderColor = 'red';
+        toast('⚠️ คะแนนรวมเกิน 100 แล้ว!', 'error');
+    } else {
+        t1aInput.style.borderColor = '';
+        t1eInput.style.borderColor = '';
     }
 }
   
