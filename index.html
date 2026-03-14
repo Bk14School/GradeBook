@@ -780,16 +780,9 @@ async function loadGrades() {
 
   pg('กำลังโหลดข้อมูลและสถิติมาเรียน...');
   
- // แก้ไขให้เช็คว่า Element มีอยู่จริงก่อนสั่งเปลี่ยน style
-const toggleRWrapper = document.getElementById('toggleRWrapper');
-if (toggleRWrapper) {
-    toggleRWrapper.style.display = IS_SEM_MODE ? 'flex' : 'none';
-}
 
-const toggleR = document.getElementById('toggleR');
-if (toggleR) {
-    toggleR.checked = false;
-}
+
+
 
 IGNORE_R = false;
 
