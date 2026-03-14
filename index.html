@@ -338,21 +338,36 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 </style>
 </head>
 <body>
-
 <div class="nav">
   <div class="nav-i">
-    <div class="brand"><div class="brand-ic">G+</div>ระบบบันทึกคะแนน</div>
+    <div class="brand">
+      <div class="brand-ic">G+</div>
+      ระบบบันทึกคะแนน
+    </div>
+
     <div class="nav-r">
       <div class="tag" id="teacherTag">🎓</div>
-      <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">⚙️ <span>แอดมิน</span></button>
-      <button class="nbtn" id="btnGrade" onclick="showPage('gradePage')" style="display:none;">📝 <span>กรอกคะแนน</span></button>
-      <button class="nbtn red" id="btnOut" onclick="logout()" style="display:none;">⏏ <span>ออก</span></button>
+      <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">
+        ⚙️ <span>แอดมิน</span>
+      </button>
+      <button class="nbtn" id="btnGrade" onclick="showPage('gradePage')" style="display:none;">
+        📝 <span>กรอกคะแนน</span>
+      </button>
+      <button class="nbtn red" id="btnOut" onclick="logout()" style="display:none;">
+        ⏏ <span>ออก</span>
+      </button>
     </div>
   </div>
 </div>
 
 <div class="tshelf" id="tshelf"></div>
-<div id="pgov"><div class="pgbox"><div class="spin"></div><p id="pgTxt" style="margin:0;font-weight:700;color:var(--pd);">กำลังโหลด...</p></div></div>
+
+<div id="pgov">
+  <div class="pgbox">
+    <div class="spin"></div>
+    <p id="pgTxt" style="margin:0;font-weight:700;color:var(--pd);">กำลังโหลด...</p>
+  </div>
+</div>
 
 <!-- LOGIN -->
 <div id="loginPage" class="pg on">
@@ -361,12 +376,29 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       <div class="login-ic">G+</div>
       <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:2px;">ระบบบันทึกคะแนน</h2>
       <p style="color:#94a3b8;font-size:.83rem;margin-bottom:20px;">โรงเรียนบ้านคลอง 14</p>
-      <div class="dots" id="pinDots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+
+      <div class="dots" id="pinDots">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+
       <div class="pinpad">
-        <button class="pkey" onclick="ap('1')">1</button><button class="pkey" onclick="ap('2')">2</button><button class="pkey" onclick="ap('3')">3</button>
-        <button class="pkey" onclick="ap('4')">4</button><button class="pkey" onclick="ap('5')">5</button><button class="pkey" onclick="ap('6')">6</button>
-        <button class="pkey" onclick="ap('7')">7</button><button class="pkey" onclick="ap('8')">8</button><button class="pkey" onclick="ap('9')">9</button>
-        <button class="pkey fn" onclick="cp()">C</button><button class="pkey" onclick="ap('0')">0</button>
+        <button class="pkey" onclick="ap('1')">1</button>
+        <button class="pkey" onclick="ap('2')">2</button>
+        <button class="pkey" onclick="ap('3')">3</button>
+
+        <button class="pkey" onclick="ap('4')">4</button>
+        <button class="pkey" onclick="ap('5')">5</button>
+        <button class="pkey" onclick="ap('6')">6</button>
+
+        <button class="pkey" onclick="ap('7')">7</button>
+        <button class="pkey" onclick="ap('8')">8</button>
+        <button class="pkey" onclick="ap('9')">9</button>
+
+        <button class="pkey fn" onclick="cp()">C</button>
+        <button class="pkey" onclick="ap('0')">0</button>
         <button class="pkey fn" style="color:var(--danger)" onclick="dp()">⌫</button>
       </div>
     </div>
@@ -378,16 +410,28 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
   <div class="wrap">
     <div class="card">
       <div style="font-weight:800;font-size:.97rem;margin-bottom:13px;">จัดการวิชาที่ครูสอน</div>
-      <div style="overflow-x:auto;"><table class="adm-table">
-        <thead><tr><th>ชื่อครู</th><th>รายวิชา</th><th style="width:110px;text-align:center;">จัดการ</th></tr></thead>
-        <tbody id="tTbody"></tbody>
-      </table></div>
+
+      <div style="overflow-x:auto;">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>ชื่อครู</th>
+              <th>รายวิชา</th>
+              <th style="width:110px;text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="tTbody"></tbody>
+        </table>
+      </div>
     </div>
+
     <div class="card" style="max-width:520px;margin:0 auto;">
       <div style="font-weight:800;font-size:.97rem;margin-bottom:11px;">🚀 สร้างฐานข้อมูลประจำปี</div>
       <p style="color:var(--muted);font-size:.83rem;margin-bottom:13px;">สร้างไฟล์ Spreadsheet แต่ละชั้นเรียนอัตโนมัติ</p>
+
       <label style="font-weight:700;font-size:.82rem;display:block;margin-bottom:5px;">ปีการศึกษา (พ.ศ.)</label>
       <input type="number" id="setupYear" class="form-control form-control-lg text-center fw-bold mb-3" value="2568" style="max-width:170px;">
+
       <button class="btn-pri" style="width:100%;padding:12px;" onclick="adminSetup()">สร้างไฟล์ฐานข้อมูล</button>
     </div>
   </div>
@@ -400,36 +444,54 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       <h6 class="fw-bold mb-0">📚 <span id="modalName" class="text-primary"></span></h6>
       <button class="btn-sm" onclick="closeModal()">✕</button>
     </div>
+
     <div class="p-3 bg-light rounded border mb-3">
       <label class="fw-bold d-block mb-2" style="font-size:.82rem;">1. เลือกชั้นเรียน</label>
       <select id="mClassSel" class="form-select mb-3" onchange="renderMCbs()"></select>
+
       <label class="fw-bold d-block mb-2" style="font-size:.82rem;">2. เลือกวิชา</label>
       <div id="mCbs" class="d-flex flex-wrap gap-2"></div>
     </div>
+
     <div class="mb-3">
       <label class="fw-bold d-block mb-1" style="font-size:.82rem;">สรุปวิชาทั้งหมด:</label>
       <div id="mAssigned" class="p-2 border rounded bg-white" style="min-height:60px;"></div>
     </div>
+
     <button class="btn-pri w-100" onclick="saveModal()">💾 บันทึก</button>
   </div>
 </div>
 
-<!-- GRADE PAGE -->
-  <div style="display:none;">
+<!-- Hidden config inputs -->
+<div style="display:none;">
   <input type="number" id="c_t1a" value="35">
   <input type="number" id="c_t1e" value="15">
   <input type="number" id="c_t2a" value="35">
   <input type="number" id="c_t2e" value="15">
 </div>
+
+<!-- GRADE PAGE -->
 <div id="gradePage" class="pg">
   <div class="wrap">
 
     <!-- Selector -->
     <div class="card">
       <div class="sel-bar">
-        <div class="sg"><label>ปีการศึกษา</label><input type="number" id="gYear" style="width:88px;" value="2568"></div>
-        <div class="sg"><label>ชั้นเรียน</label><select id="gClass" style="min-width:130px;" onchange="updateSubjDrop()"></select></div>
-        <div class="sg"><label>รายวิชา</label><select id="gSubj" style="min-width:210px;"></select></div>
+        <div class="sg">
+          <label>ปีการศึกษา</label>
+          <input type="number" id="gYear" style="width:88px;" value="2568">
+        </div>
+
+        <div class="sg">
+          <label>ชั้นเรียน</label>
+          <select id="gClass" style="min-width:130px;" onchange="updateSubjDrop()"></select>
+        </div>
+
+        <div class="sg">
+          <label>รายวิชา</label>
+          <select id="gSubj" style="min-width:210px;"></select>
+        </div>
+
         <button class="btn-pri" onclick="loadGrades()">🔄 โหลดรายชื่อ</button>
       </div>
     </div>
@@ -439,33 +501,30 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 
       <!-- Panel header -->
       <div class="card" style="padding:15px 20px;">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
-  <div style="font-weight:800;font-size:.97rem; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-    <div>
-      📋 <span id="lblSubj"></span>
-      <span style="font-weight:400;color:var(--muted);font-size:.85rem;"> — ชั้น <span id="lblClass"></span></span>
-    </div>
-    
-    <!-- ✨ สวิตช์เปิด-ปิด การซ่อน ร. -->
-    <label style="font-size:0.8rem; font-weight:700; color:#b45309; background:#fef3c7; border:1px solid #fde68a; padding:4px 10px; border-radius:8px; cursor:pointer; margin:0; display:flex; align-items:center; gap:6px;" id="toggleRWrapper" style="display:none;">
-      <input type="checkbox" id="toggleR" onchange="toggleIgnoreR()" style="width:16px; height:16px; cursor:pointer;">
-      ซ่อนสถานะ "ร" (คำนวณเกรดปกติ)
-    </label>
-  </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
 
-<div style="display:flex;gap:8px;flex-wrap:wrap;">
-  <button class="btn-pri" style="background: linear-gradient(135deg, #16a34a, #15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
-  <button class="btn-pri" style="background: linear-gradient(135deg, #0284c7, #0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
-  <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ ปพ.6 ทั้งห้อง</button>
-</div>
-</div>
+          <div style="font-weight:800;font-size:.97rem;display:flex;align-items:center;gap:15px;flex-wrap:wrap;">
+            <div>
+              📋 <span id="lblSubj"></span>
+              <span style="font-weight:400;color:var(--muted);font-size:.85rem;"> — ชั้น <span id="lblClass"></span></span>
+            </div>
 
-      
-        
+            <label
+              id="toggleRWrapper"
+              style="font-size:0.8rem;font-weight:700;color:#b45309;background:#fef3c7;border:1px solid #fde68a;padding:4px 10px;border-radius:8px;cursor:pointer;margin:0;display:none;align-items:center;gap:6px;">
+              <input type="checkbox" id="toggleR" onchange="toggleIgnoreR()" style="width:16px;height:16px;cursor:pointer;">
+              ซ่อนสถานะ "ร" (คำนวณเกรดปกติ)
+            </label>
+          </div>
 
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-pri" style="background:linear-gradient(135deg,#16a34a,#15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
+            <button class="btn-pri" style="background:linear-gradient(135deg,#0284c7,#0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
+            <button class="btn-pri" onclick="printClassPDF()">🖨️ พิมพ์ ปพ.6 ทั้งห้อง</button>
+          </div>
+
+        </div>
       </div>
-      
-      <!-- /card -->
 
       <!-- TABLE -->
       <div class="card" style="padding:11px;">
@@ -476,194 +535,184 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
           </table>
         </div>
       </div>
-<div class="card" style="padding:14px 16px;">
-  <button class="btn-save w-100" onclick="saveGrades()" style="font-size:1rem;padding:13px 20px;">
-    💾 บันทึกคะแนน
-  </button>
-</div>
 
-     <!-- Accordion ข้อมูลรายวิชาและเวลาเรียน -->
-<div class="acc acc-main mb-3" id="accCourseInfo">
-  <div class="acc-hd" onclick="toggleAcc('accCourseInfo')" style="background:#f0fdf4; border:1.5px solid #bbf7d0;">
-    <div class="acc-title" style="color:#166534;">📝 ข้อมูลรายวิชา / เวลาเรียน / ตั้งค่าคะแนน</div>
-    <span class="acc-arrow">▾</span>
-  </div>
-<div class="card" style="padding:14px 16px;">
-
-  <div class="acc-body hidden" id="accCourseInfoBody" style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-top:none;">
-
-    <!-- =========================
-         1) ข้อมูลพื้นฐานรายวิชา
-         ========================= -->
-    <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
-      <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">1) ข้อมูลรายวิชา</div>
-
-      <div class="cfg-row mb-3">
-        <div class="cfg-block" style="flex:1; min-width:120px;">
-          <label class="cfg-ttl">รหัสวิชา</label>
-          <input type="text" id="ci_code" class="cfg-n" style="width:100%; text-align:left;" placeholder="เช่น ท21101">
-        </div>
-        <div class="cfg-block" style="flex:1; min-width:150px;">
-          <label class="cfg-ttl">ประเภทวิชา</label>
-          <select id="ci_type" class="cfg-n" style="width:100%; text-align:left;">
-            <option value="รายวิชาพื้นฐาน">รายวิชาพื้นฐาน</option>
-            <option value="รายวิชาเพิ่มเติม">รายวิชาเพิ่มเติม</option>
-            <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
-          </select>
-        </div>
-        <div class="cfg-block" style="flex:0.5; min-width:80px;">
-          <label class="cfg-ttl">หน่วยกิต</label>
-          <input type="number" step="0.5" id="ci_credit" class="cfg-n" style="width:100%;" placeholder="1.5">
-        </div>
-      </div>
-
-      <div style="display:flex;justify-content:flex-end;">
-        <button class="btn-save" onclick="saveCourseMetaOnly()" style="background:linear-gradient(135deg,#16a34a,#15803d);min-width:210px;">
-          💾 บันทึกข้อมูลวิชา
+      <!-- Save score -->
+      <div class="card" style="padding:14px 16px;">
+        <button class="btn-save w-100" onclick="saveGrades()" style="font-size:1rem;padding:13px 20px;">
+          💾 บันทึกคะแนน
         </button>
       </div>
-    </div>
 
-    <!-- =========================
-         2) เวลาเรียน
-         ========================= -->
-    <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
-      <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">2) เวลาเรียน (ปพ.5)</div>
+      <!-- Card รวม accordion -->
+      <div class="card" style="padding:14px 16px;">
 
-      <label class="cfg-ttl d-block mb-2">ตารางเรียน (ระบุจำนวนคาบที่สอนในแต่ละวัน)</label>
-      <div class="d-flex flex-wrap gap-2 mb-3">
-        <div class="text-center"><small class="d-block text-muted">จ.</small><input type="number" id="sch_mon" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
-        <div class="text-center"><small class="d-block text-muted">อ.</small><input type="number" id="sch_tue" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
-        <div class="text-center"><small class="d-block text-muted">พ.</small><input type="number" id="sch_wed" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
-        <div class="text-center"><small class="d-block text-muted">พฤ.</small><input type="number" id="sch_thu" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
-        <div class="text-center"><small class="d-block text-muted">ศ.</small><input type="number" id="sch_fri" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
-      </div>
-
-      <div class="d-flex align-items-center gap-2 mb-3 px-2">
-        <label class="cfg-ttl mb-0">ปรับแก้เวลาเรียนด้วยตนเอง:</label>
-        <input type="number" id="ci_manual_adjust" class="cfg-n" style="width:60px;" value="0" oninput="calcTotalHours()">
-        <span style="font-size:0.8rem; color:var(--muted);">คาบ (+ หรือ - ได้)</span>
-      </div>
-
-      <div class="p-2 rounded mb-3" style="background:#dcfce7; color:#14532d; font-size:0.85rem; font-weight:bold;">
-        ⏱️ เวลาเรียนรวมทั้งภาคเรียน: <span id="ci_total_hours" style="font-size:1.1rem; color:#166534;">0</span> คาบ/ชั่วโมง
-        <small class="d-block fw-normal text-muted mt-1">* คำนวณอัตโนมัติจากวันเปิด-ปิดเทอม และตัดวันหยุดเสาร์-อาทิตย์/วันหยุดที่ตั้งไว้</small>
-      </div>
-
-      <div style="display:flex;justify-content:flex-end;">
-        <button class="btn-save" onclick="saveScheduleOnly()" style="background:linear-gradient(135deg,#16a34a,#15803d);min-width:210px;">
-          💾 บันทึกเวลาเรียน
-        </button>
-      </div>
-    </div>
-
-    <!-- =========================
-         3) ตั้งค่าคะแนนแบบหน่วยการเรียนรู้
-         ========================= -->
-    <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
-      <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">
-        3) ตั้งค่าคะแนนแบบหน่วยการเรียนรู้
-      </div>
-
-      <div class="card mb-3" style="background:#f8fafc;">
-        <div class="cfg-row">
-          <div class="cfg-block">
-            <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (คำนวณอัตโนมัติ)</div>
-            <div class="cfg-inline">
-              <div class="cfg-n" id="show_t1_keep" style="background:#dbeafe;color:#1e3a8a;display:flex;align-items:center;justify-content:center;">0</div>
-              <div class="cfg-n" id="show_t1_exam" style="background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;">0</div>
-            </div>
-            <div style="font-size:.78rem;color:var(--muted);margin-top:4px;">
-              เก็บ = รวมคะแนนทุกหน่วย / สอบ = ส่วนที่เหลือจากคะแนนเต็ม
-            </div>
+        <!-- Accordion ข้อมูลรายวิชา -->
+        <div class="acc acc-main mb-3" id="accCourseInfo">
+          <div class="acc-hd" onclick="toggleAcc('accCourseInfo')" style="background:#f0fdf4;border:1.5px solid #bbf7d0;">
+            <div class="acc-title" style="color:#166534;">📝 ข้อมูลรายวิชา / เวลาเรียน / ตั้งค่าคะแนน</div>
+            <span class="acc-arrow">▾</span>
           </div>
 
-          <div class="cfg-block" id="t2AutoBlock">
-            <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (คำนวณอัตโนมัติ)</div>
-            <div class="cfg-inline">
-              <div class="cfg-n" id="show_t2_keep" style="background:#cffafe;color:#155e75;display:flex;align-items:center;justify-content:center;">0</div>
-              <div class="cfg-n" id="show_t2_exam" style="background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;">0</div>
+          <div class="acc-body hidden" id="accCourseInfoBody">
+
+            <!-- 1) ข้อมูลพื้นฐานรายวิชา -->
+            <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
+              <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">1) ข้อมูลรายวิชา</div>
+
+              <div class="cfg-row mb-3">
+                <div class="cfg-block" style="flex:1;min-width:120px;">
+                  <label class="cfg-ttl">รหัสวิชา</label>
+                  <input type="text" id="ci_code" class="cfg-n" style="width:100%;text-align:left;" placeholder="เช่น ท21101">
+                </div>
+
+                <div class="cfg-block" style="flex:1;min-width:150px;">
+                  <label class="cfg-ttl">ประเภทวิชา</label>
+                  <select id="ci_type" class="cfg-n" style="width:100%;text-align:left;">
+                    <option value="รายวิชาพื้นฐาน">รายวิชาพื้นฐาน</option>
+                    <option value="รายวิชาเพิ่มเติม">รายวิชาเพิ่มเติม</option>
+                    <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
+                  </select>
+                </div>
+
+                <div class="cfg-block" style="flex:0.5;min-width:80px;">
+                  <label class="cfg-ttl">หน่วยกิต</label>
+                  <input type="number" step="0.5" id="ci_credit" class="cfg-n" style="width:100%;" placeholder="1.5">
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;">
+                <button class="btn-save" onclick="saveCourseMetaOnly()" style="background:linear-gradient(135deg,#16a34a,#15803d);min-width:210px;">
+                  💾 บันทึกข้อมูลวิชา
+                </button>
+              </div>
             </div>
-            <div style="font-size:.78rem;color:var(--muted);margin-top:4px;">
-              เก็บ = รวมคะแนนทุกหน่วย / สอบ = ส่วนที่เหลือจากคะแนนเต็ม
+
+            <!-- 2) เวลาเรียน -->
+            <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
+              <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">2) เวลาเรียน (ปพ.5)</div>
+
+              <label class="cfg-ttl d-block mb-2">ตารางเรียน (ระบุจำนวนคาบที่สอนในแต่ละวัน)</label>
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <div class="text-center"><small class="d-block text-muted">จ.</small><input type="number" id="sch_mon" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+                <div class="text-center"><small class="d-block text-muted">อ.</small><input type="number" id="sch_tue" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+                <div class="text-center"><small class="d-block text-muted">พ.</small><input type="number" id="sch_wed" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+                <div class="text-center"><small class="d-block text-muted">พฤ.</small><input type="number" id="sch_thu" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+                <div class="text-center"><small class="d-block text-muted">ศ.</small><input type="number" id="sch_fri" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2 mb-3 px-2">
+                <label class="cfg-ttl mb-0">ปรับแก้เวลาเรียนด้วยตนเอง:</label>
+                <input type="number" id="ci_manual_adjust" class="cfg-n" style="width:60px;" value="0" oninput="calcTotalHours()">
+                <span style="font-size:0.8rem;color:var(--muted);">คาบ (+ หรือ - ได้)</span>
+              </div>
+
+              <div class="p-2 rounded mb-3" style="background:#dcfce7;color:#14532d;font-size:0.85rem;font-weight:bold;">
+                ⏱️ เวลาเรียนรวมทั้งภาคเรียน:
+                <span id="ci_total_hours" style="font-size:1.1rem;color:#166534;">0</span> คาบ/ชั่วโมง
+                <small class="d-block fw-normal text-muted mt-1">* คำนวณอัตโนมัติจากวันเปิด-ปิดเทอม และตัดวันหยุดเสาร์-อาทิตย์/วันหยุดที่ตั้งไว้</small>
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;">
+                <button class="btn-save" onclick="saveScheduleOnly()" style="background:linear-gradient(135deg,#16a34a,#15803d);min-width:210px;">
+                  💾 บันทึกเวลาเรียน
+                </button>
+              </div>
             </div>
+
+            <!-- 3) ตั้งค่าคะแนน -->
+            <div class="card mb-0" style="background:#ffffff;border:1px solid #dcfce7;">
+              <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">
+                3) ตั้งค่าคะแนนแบบหน่วยการเรียนรู้
+              </div>
+
+              <div class="card mb-3" style="background:#f8fafc;">
+                <div class="cfg-row">
+                  <div class="cfg-block">
+                    <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (คำนวณอัตโนมัติ)</div>
+                    <div class="cfg-inline">
+                      <div class="cfg-n" id="show_t1_keep" style="background:#dbeafe;color:#1e3a8a;display:flex;align-items:center;justify-content:center;">0</div>
+                      <div class="cfg-n" id="show_t1_exam" style="background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;">0</div>
+                    </div>
+                    <div style="font-size:.78rem;color:var(--muted);margin-top:4px;">
+                      เก็บ = รวมคะแนนทุกหน่วย / สอบ = ส่วนที่เหลือจากคะแนนเต็ม
+                    </div>
+                  </div>
+
+                  <div class="cfg-block" id="t2AutoBlock">
+                    <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (คำนวณอัตโนมัติ)</div>
+                    <div class="cfg-inline">
+                      <div class="cfg-n" id="show_t2_keep" style="background:#cffafe;color:#155e75;display:flex;align-items:center;justify-content:center;">0</div>
+                      <div class="cfg-n" id="show_t2_exam" style="background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;">0</div>
+                    </div>
+                    <div style="font-size:.78rem;color:var(--muted);margin-top:4px;">
+                      เก็บ = รวมคะแนนทุกหน่วย / สอบ = ส่วนที่เหลือจากคะแนนเต็ม
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ttabs mb-3">
+                <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
+                <button class="ttab" id="tabTerm2Btn" onclick="switchTerm(2,this)">เทอม 2</button>
+              </div>
+
+              <div id="subPanel_1">
+                <div class="raw-preview mb-2">
+                  <span>คะแนนรวมทุกหน่วย เทอม 1:</span>
+                  <strong id="sum_t1_units">0</strong>
+                  <span>/</span>
+                  <span class="res">50</span>
+                </div>
+                <div class="sub-list" id="subList_1"></div>
+                <button class="btn-add-sub" onclick="addSub(1)">＋ เพิ่มหน่วยการเรียนรู้ เทอม 1</button>
+              </div>
+
+              <div id="subPanel_2" style="display:none;">
+                <div class="raw-preview mb-2">
+                  <span>คะแนนรวมทุกหน่วย เทอม 2:</span>
+                  <strong id="sum_t2_units">0</strong>
+                  <span>/</span>
+                  <span class="res">50</span>
+                </div>
+                <div class="sub-list" id="subList_2"></div>
+                <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหน่วยการเรียนรู้ เทอม 2</button>
+              </div>
+
+              <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
+
+              <button class="btn-save w-100 mt-2" onclick="saveScoreConfigOnly()" style="background:linear-gradient(135deg,#16a34a,#15803d);">
+                💾 บันทึกการตั้งค่าคะแนน
+              </button>
+            </div>
+
           </div>
         </div>
-      </div>
 
-      <div class="ttabs mb-3">
-        <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
-        <button class="ttab" id="tabTerm2Btn" onclick="switchTerm(2,this)">เทอม 2</button>
-      </div>
+        <!-- Accordion ประเมิน -->
+        <div class="acc acc-sub" id="accHolistic">
+          <div class="acc-hd" onclick="toggleAcc('accHolistic')">
+            <div class="acc-title">🌟 ประเมินคุณลักษณะฯ และ อ่านคิดวิเคราะห์</div>
+            <span class="acc-arrow">▾</span>
+          </div>
 
-      <div id="subPanel_1">
-        <div class="raw-preview mb-2">
-          <span>คะแนนรวมทุกหน่วย เทอม 1:</span>
-          <strong id="sum_t1_units">0</strong>
-          <span>/</span>
-          <span class="res">50</span>
+          <div class="acc-body hidden" id="accHolisticBody">
+            <div id="assContainer">
+              <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
+            </div>
+
+            <div id="skillContainer" class="mt-4"></div>
+
+            <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">
+              💾 บันทึกผลการประเมิน (ทั้งห้อง)
+            </button>
+          </div>
         </div>
-        <div class="sub-list" id="subList_1"></div>
-        <button class="btn-add-sub" onclick="addSub(1)">＋ เพิ่มหน่วยการเรียนรู้ เทอม 1</button>
+
       </div>
-
-      <div id="subPanel_2" style="display:none;">
-        <div class="raw-preview mb-2">
-          <span>คะแนนรวมทุกหน่วย เทอม 2:</span>
-          <strong id="sum_t2_units">0</strong>
-          <span>/</span>
-          <span class="res">50</span>
-        </div>
-        <div class="sub-list" id="subList_2"></div>
-        <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหน่วยการเรียนรู้ เทอม 2</button>
-      </div>
-
-      <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
-
-      <button class="btn-save w-100 mt-2" onclick="saveScoreConfigOnly()" style="background:linear-gradient(135deg,#16a34a,#15803d);">
-        💾 บันทึกการตั้งค่าคะแนน
-      </button>
     </div>
-
-    
- </div>
   </div>
-  <!-- Accordion ประเมินผลรวม -->
-  <div class="card" style="padding:14px 16px;">
-
-    <div class="acc acc-sub mt-3" id="accHolistic">
-      <div class="acc-hd" onclick="toggleAcc('accHolistic')">
-        <div class="acc-title">🌟 ประเมินคุณลักษณะฯ และ อ่านคิดวิเคราะห์ (ครูประจำชั้นบันทึก)</div>
-        <span class="acc-arrow">▾</span>
-      </div>
-
-      <div class="acc-body hidden" id="accHolisticBody">
-        <div id="assContainer">
-          <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
-        </div>
-
-        <div id="skillContainer" class="mt-4">
-          <!-- JavaScript จะมาวาดตารางสมรรถนะ 5 ข้อตรงนี้ -->
-        </div>
-
-        <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">💾 บันทึกผลการประเมิน (ทั้งห้อง)</button>
-      </div>
-    </div>
-    </div>
-
-
-  
 </div>
-    </div>
-    
-    
-    
-  </div>
 
- 
-
-  
-</div>
 
   
 
