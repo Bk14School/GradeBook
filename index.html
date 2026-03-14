@@ -810,11 +810,11 @@ async function loadGrades() {
     return toast('กรุณาเลือกวิชาที่ถูกต้อง', 'error');
   }
 
-  // กำหนดโหมดชั้นเรียน: ถ้ามีคำว่า "เทอม" จะถือว่าเป็นโหมดมัธยม (Semester Mode)
-  IS_SEM_MODE = cls.includes("เทอม");
-
-  document.getElementById('lblClass').textContent = cls;
-  document.getElementById('lblSubj').textContent = subj;
+// ในฟังก์ชัน loadGrades() เมื่อตรวจพบว่าเป็นมัธยมif (IS_SEM_MODE) {
+    // 1. ซ่อนส่วนประกอบของเทอม 2 ทันที
+    document.getElementById('block_t2').style.display = 'none';
+    document.getElementById('tab_t2').style.display = 'none';
+    document.getElementById('subPanel_2').style.display = 'none';
   pg('กำลังโหลดข้อมูลและสถิติมาเรียน...');
   
   document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
@@ -876,23 +876,30 @@ async function loadGrades() {
       document.getElementById('ci_total_hours').textContent = 0;
     }
 
-    // 2. ปรับปรุง UI ส่วนการตั้งค่า (Accordion) ตามโหมดชั้นเรียน
-    const t2Tab = document.getElementById('tab_t2'); // ใช้ ID ที่เราตั้งให้ใหม่
-    const t2Block = document.getElementById('block_t2'); // ใช้ ID ที่เราตั้งให้ใหม่
+// 2. ปรับปรุง UI ส่วนการตั้งค่า (Accordion) ตามโหมดชั้นเรียน
+    const t2Tab = document.getElementById('tab_t2');
+    const t2Block = document.getElementById('block_t2');
+    const t2Panel = document.getElementById('subPanel_2'); // เพิ่มการจัดการ Panel ของเทอม 2
     const t1Title = document.querySelector('.cfg-ttl[style*="color:#1d4ed8"]');
     const btnAddT1 = document.querySelector('.btn-add-sub[onclick="addSub(1)"]');
 
     if (IS_SEM_MODE) {
+        // --- โหมดมัธยม (ซ่อนเทอม 2) ---
         if (t2Tab) t2Tab.style.display = 'none'; 
         if (t2Block) t2Block.style.display = 'none'; 
-        if (t1Title) t1Title.textContent = "สัดส่วนคะแนน (เก็บ/สอบ)";
+        if (t2Panel) t2Panel.style.display = 'none'; // ซ่อนรายการหน่วยของเทอม 2
+        
+        if (t1Title) t1Title.textContent = "คะแนน ภาคเรียนนี้ (เก็บ/สอบ)";
         if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อคะแนนย่อย";
         
-        // บังคับให้หน้าจอแสดงแค่เทอม 1
+        // บังคับให้แสดงแค่เทอม 1
         switchTerm(1, document.getElementById('tab_t1')); 
     } else {
+        // --- โหมดประถม (แสดงปกติ) ---
         if (t2Tab) t2Tab.style.display = 'block';
         if (t2Block) t2Block.style.display = 'flex';
+        // ไม่ต้องสั่ง show panel ตรงนี้ เพราะ switchTerm จะจัดการตอนกดปุ่ม
+        
         if (t1Title) t1Title.textContent = "คะแนน เทอม 1 (เก็บ/สอบ)";
         if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 1)";
     }
@@ -1320,33 +1327,44 @@ function calcGradeFrontend(s) {
   return "0";
 }
   
-async function saveConfigOnly() {
+ async function saveConfigOnly() {
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
   
-  // 1. ดึงคะแนนเก็บ/สอบ
+  // 1. ดึงคะแนน (ถ้าเป็นมัธยมให้ใช้ 0 สำหรับเทอม 2)
   const t1a = +document.getElementById('c_t1a').value || 0;
   const t1e = +document.getElementById('c_t1e').value || 0;
   const t2a = !IS_SEM_MODE ? (+document.getElementById('c_t2a').value || 0) : 0;
   const t2e = !IS_SEM_MODE ? (+document.getElementById('c_t2e').value || 0) : 0;
   
   // 2. เช็คเงื่อนไขคะแนนรวม
-  const targetTotal = IS_SEM_MODE ? 100 : 50;
-  if ((t1a + t1e) !== targetTotal) return toast(`เทอม 1: ต้องรวมได้ ${targetTotal} คะแนน`, 'error');
-  if (!IS_SEM_MODE && (t2a + t2e) !== 50) return toast('เทอม 2: ต้องรวมได้ 50 คะแนน', 'error');
+  const targetT1 = IS_SEM_MODE ? 100 : 50;
+  if ((t1a + t1e) !== targetT1) return toast(`เทอม 1: ต้องรวมได้ ${targetT1} คะแนน`, 'error');
+  
+  if (!IS_SEM_MODE && (t2a + t2e) !== 50) {
+    return toast('เทอม 2: ต้องรวมได้ 50 คะแนน', 'error');
+  }
 
-  // 3. เตรียม Config รวมข้อมูลทุกส่วน
+  // 3. เตรียม Config
   const config = {
     t1_acc: t1a,
     t1_exam: t1e,
     t2_acc: t2a,
     t2_exam: t2e,
     
-    // บันทึกโครงสร้าง Units และ Tasks ทั้งหมด
-    units: UNITS, 
+    // บันทึก Units โดยกรองตามโหมด (ถ้ามัธยมเทอม 2 ไม่ต้องบันทึก)
+    units: {
+        1: UNITS[1],
+        2: !IS_SEM_MODE ? UNITS[2] : []
+    },
     
-    // บันทึกข้อมูล ปพ.5
+    // คำนวณ RawMax
+    rawMax: { 
+      t1: UNITS[1].reduce((s, u) => s + (Number(u.unitMax) || 0), 0),
+      t2: !IS_SEM_MODE ? UNITS[2].reduce((s, u) => s + (Number(u.unitMax) || 0), 0) : 0
+    },
+    
     courseInfo: {
       code: document.getElementById('ci_code').value,
       type: document.getElementById('ci_type').value,
@@ -1364,17 +1382,15 @@ async function saveConfigOnly() {
   };
 
   // 4. สั่งบันทึก
-  pg('กำลังบันทึกข้อมูลทั้งหมดลงฐานข้อมูล...');
+  pg('กำลังบันทึกข้อมูล...');
   try {
     await api('saveGrades', {
-      year: year,
-      classroom: cls,
-      subject: subj,
+      year, classroom: cls, subject: subj,
       config: config,
       gradeRecords: [] 
     });
     
-    toast('✅ บันทึกโครงสร้างการเรียนรู้และข้อมูลรายวิชาเรียบร้อย');
+    toast('✅ บันทึกข้อมูลเรียบร้อย');
     buildTable(); 
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
@@ -1382,6 +1398,7 @@ async function saveConfigOnly() {
     pg_();
   }
 }
+  
   document.addEventListener('keydown', function(event) {
   // ดักจับปุ่ม Enter, ลูกศรลง (ArrowDown) และ ลูกศรขึ้น (ArrowUp)
   if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
