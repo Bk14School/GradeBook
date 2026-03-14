@@ -635,6 +635,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
           </div>
 
 <div style="display:flex;gap:8px;flex-wrap:wrap;">
+  <button class="btn-pri" style="background:linear-gradient(135deg,#0f766e,#0d9488);" onclick="printPp5SubjectPDF()">
+  🖨️ พิมพ์ ปพ.5 รายวิชา
+</button>
   <button class="btn-pri" style="background:linear-gradient(135deg,#16a34a,#15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
   <button class="btn-pri" style="background:linear-gradient(135deg,#0284c7,#0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
 
@@ -3031,6 +3034,35 @@ function printHolisticReport(mode = 'subject') {
 
   document.getElementById('holisticHomeroomPanel').style.display =
     mode === 'homeroom' ? '' : 'none';
+}
+
+    async function printPp5SubjectPDF() {
+  const year = document.getElementById('gYear').value;
+  const classroom = document.getElementById('gClass').value;
+  const subject = document.getElementById('gSubj').value;
+
+  if (!classroom.includes('เทอม')) {
+    return toast('ปพ.5 เวอร์ชันนี้เริ่มใช้สำหรับฝั่งมัธยมก่อน', 'warning');
+  }
+
+  if (!subject || subject === '-- ไม่พบวิชา --') {
+    return toast('กรุณาเลือกรายวิชา', 'error');
+  }
+
+  pg('กำลังสร้าง ปพ.5 ...');
+  try {
+    const pdfData = await api('generatePp5SubjectPDF', {
+      year,
+      classroom,
+      subject
+    });
+
+    openBase64PdfInPrintWindow(pdfData, `ปพ5_${subject}_${classroom}_ปี${year}.pdf`);
+    toast('เปิดหน้าพิมพ์ ปพ.5 แล้ว');
+  } catch (e) {
+    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
+  }
+  pg_();
 }
 </script>
 
