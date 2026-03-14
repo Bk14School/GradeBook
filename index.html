@@ -2460,22 +2460,27 @@ async function printClassPDF(reportType = 'year') {
   pg_();
 }
 
-async function printClassPDF() {
+async function printClassPDF(reportMode = 'year') {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
+  const modeLabel = reportMode === 'term1' ? 'เทอม 1' : 'ทั้งปี';
 
-  if (!confirm(`พิมพ์รายงานทั้งห้อง ${classroom} ปี ${year} ?`)) return;
+  if (!confirm(`พิมพ์รายงาน ปพ.6 ${modeLabel} ของห้อง ${classroom} ปี ${year} ?`)) return;
 
-  pg('กำลังสร้างเอกสารทั้งห้อง...');
+  pg(`กำลังสร้างเอกสาร ปพ.6 ${modeLabel}...`);
   try {
     const pdfData = await api('generateClassPDF', {
       year,
       classroom,
-      ignoreR: IGNORE_R
+      ignoreR: IGNORE_R,
+      reportMode
     });
 
-    openBase64PdfInPrintWindow(pdfData, `ปพ6_ทั้งห้อง_${classroom}_ปี${year}.pdf`);
-    toast('เปิดหน้าพิมพ์ทั้งห้องแล้ว');
+    openBase64PdfInPrintWindow(
+      pdfData,
+      `ปพ6_ทั้งห้อง_${classroom}_${reportMode}_ปี${year}.pdf`
+    );
+    toast(`เปิดหน้าพิมพ์ ปพ.6 ${modeLabel} แล้ว`);
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
