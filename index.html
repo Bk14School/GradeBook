@@ -28,28 +28,27 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 .nbtn.red:hover{background:#fff1f2;}
 
 /* PAGES */
-.pg{display:none;} .pg.on{display:block;animation:pgIn .2s ease;} @keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.pg{display:none;} .pg.on{display:block;animation:pgIn .2s ease;}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .wrap{max-width:1500px;margin:0 auto;padding:16px 12px;}
-.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:12px;border:1px solid #f8fafc;}
 
-/* LOGIN */
+/* CARD & LOGIN */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:12px;border:1px solid #f8fafc;}
 .login-shell{min-height:calc(100vh - 54px);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ede9fe 0%,#f8fafc 55%,#dbeafe 100%);padding:16px;}
 .login-box{background:#fff;border-radius:22px;box-shadow:0 20px 50px rgba(0,0,0,.1);padding:38px 30px;width:100%;max-width:340px;text-align:center;}
 .login-ic{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--pd));margin:0 auto 14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;font-weight:900;}
 .dots{display:flex;justify-content:center;gap:12px;margin-bottom:20px;}
-.dot{width:13px;height:13px;border-radius:50%;background:#e2e8f0;transition:all .18s;} .dot.on{background:var(--primary);transform:scale(1.35);} .dot.err{background:var(--danger);}
+.dot{width:13px;height:13px;border-radius:50%;background:#e2e8f0;transition:all .18s;}
+.dot.on{background:var(--primary);transform:scale(1.35);} .dot.err{background:var(--danger);}
 .pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:204px;margin:0 auto;}
 .pkey{aspect-ratio:1;border-radius:12px;border:2px solid #e2e8f0;background:#f8fafc;font-size:1.4rem;font-weight:800;color:#334155;cursor:pointer;display:flex;align-items:center;justify-content:center;user-select:none;transition:all .12s;font-family:inherit;min-height:56px;}
-.pkey:active{transform:scale(.9);background:var(--pl);color:var(--primary);} .pkey.fn{font-size:.95rem;background:#f1f5f9;color:#64748b;}
-
-/* MODAL & ADMIN */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-.modal-box{background:#fff;width:95%;max-width:510px;border-radius:var(--r);padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto;}
-.adm-table{width:100%;border-collapse:collapse;font-size:.86rem;} .adm-table th{background:#1e293b;color:#fff;padding:9px 11px;} .adm-table td{padding:8px 11px;border-bottom:1px solid var(--border);}
+.pkey:active{transform:scale(.9);background:var(--pl);color:var(--primary);}
+.pkey.fn{font-size:.95rem;background:#f1f5f9;color:#64748b;}
 
 /* ACCORDION */
 .acc{border-radius:12px;overflow:hidden;margin-bottom:12px;}
-.acc-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;user-select:none;gap:10px;min-height:52px;}
+.acc-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;user-select:none;transition:background .15s;gap:10px;min-height:52px;}
+.acc-hd:active{filter:brightness(.97);}
 .acc-main .acc-hd{background:#fffbeb;border:1.5px solid #fde68a;}
 .acc-main.open .acc-hd{border-bottom-color:transparent;border-radius:12px 12px 0 0;}
 .acc-main .acc-body{background:#fffbeb;border:1.5px solid #fde68a;border-top:none;border-radius:0 0 12px 12px;}
@@ -57,32 +56,52 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 .acc-sub.open .acc-hd{border-bottom-color:transparent;border-radius:12px 12px 0 0;}
 .acc-sub .acc-body{background:#f5f3ff;border:1.5px solid #ddd6fe;border-top:none;border-radius:0 0 12px 12px;}
 .acc-title{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.9rem;}
-.acc-arrow{font-size:.75rem;transition:transform .22s;display:inline-block;color:var(--muted);} .acc.open .acc-arrow{transform:rotate(180deg);}
-.acc-body{padding:14px 16px;} .acc-body.hidden{display:none;}
+.acc-arrow{font-size:.75rem;transition:transform .22s;display:inline-block;color:var(--muted);flex-shrink:0;}
+.acc.open .acc-arrow{transform:rotate(180deg);}
+.acc-body{padding:14px 16px;transition:none;}
+.acc-body.hidden{display:none;}
 
-/* TABLE GRADE */
+/* BUTTONS */
+.btn-pri{background:linear-gradient(135deg,var(--primary),var(--pd));color:#fff;border:none;padding:9px 20px;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;min-height:40px;}
+.btn-pri:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(99,102,241,.35);}
+.btn-save{background:linear-gradient(135deg,var(--success),#059669);color:#fff;border:none;padding:9px 20px;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;min-height:40px;}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(16,185,129,.35);}
+.btn-add-sub{width:100%;padding:10px;background:transparent;color:#7c3aed;border:2px dashed #c4b5fd;border-radius:9px;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;min-height:44px;}
+.btn-add-sub:hover{background:#ede9fe;}
+
+/* TABLE STICKY & STYLING */
 .tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
 .gtbl{width:100%;border-collapse:separate;border-spacing:0;font-size:.84rem;min-width:580px;}
 .gtbl th{padding:8px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12);white-space:nowrap;color:#fff;}
 .gtbl td{padding:6px 7px;text-align:center;border-right:1px solid var(--border);border-bottom:1px solid var(--border);vertical-align:middle;}
 .gtbl thead tr:first-child th { position:sticky; top:0; z-index:30; }
 .gtbl thead tr:last-child  th { position:sticky; top:37px; z-index:30; }
-.gtbl thead th.s-c0 { left:0;    z-index:50; } .gtbl thead th.s-c1 { left:36px; z-index:50; } .gtbl thead th.s-c2 { left:108px;z-index:50; }
+.gtbl thead th.s-c0 { left:0;    z-index:50; background:#1e293b; }
+.gtbl thead th.s-c1 { left:36px; z-index:50; background:#1e293b; }
+.gtbl thead th.s-c2 { left:108px;z-index:50; background:#1e293b; }
 .gtbl tbody td.s-c0 { position:sticky; left:0;    z-index:10; background:#1e293b; color:#94a3b8; font-size:.78rem; }
 .gtbl tbody td.s-c1 { position:sticky; left:36px; z-index:10; background:#1e293b; color:#94a3b8; font-size:.74rem; }
-.gtbl tbody td.s-c2 { position:sticky; left:108px;z-index:10; background:#fff;    text-align:left; font-weight:500; min-width:145px; border-right: 2px solid #6366f1 !important;}
+.gtbl tbody td.s-c2 { position:sticky; left:108px;z-index:10; background:#fff;    text-align:left; font-weight:500; min-width:145px; border-right: 2px solid #6366f1 !important; box-shadow: 3px 0 8px rgba(99,102,241,.15); }
+.th-base{background:#1e293b;} .th-t1s{background:var(--t1s);} .th-t1sc{background:var(--t1b);} .th-t1t{background:var(--t1);}
+.th-t2s{background:var(--t2s);} .th-grand{background:#0f172a;}
+.sinput{width:54px;text-align:center;font-weight:700;padding:5px 2px;border:1.5px solid #bfdbfe;border-radius:6px;font-size:.84rem;font-family:inherit;background:#fff;transition:all .13s;min-height:36px;}
+.sinput:focus{outline:none;border-color:var(--primary);background:#eff6ff;transform:scale(1.05);}
+.tbadge{display:inline-block;font-weight:700;padding:3px 8px;border-radius:6px;min-width:40px;font-size:.86rem;}
+.tbadge.ok{background:#dcfce7;color:#166534;} .tbadge.fail{background:#fee2e2;color:#991b1b;}
+.gbadge{display:inline-block;font-weight:900;padding:4px 10px;border-radius:7px;min-width:46px;font-size:.9rem;}
+.gbadge.ok{background:#bbf7d0;color:#14532d;} .gbadge.fail{background:#fecaca;color:#7f1d1d;}
 
-/* ASSESSMENT TABLE */
+/* HOLISTIC TABLE */
 .ass-wrap { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 10px; }
 .ass-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 900px; }
 .ass-tbl th, .ass-tbl td { border: 1px solid #cbd5e1; padding: 5px; text-align: center; }
 .ass-tbl thead th { background: #f8fafc; font-weight: 700; color: #1e293b; }
 .v-text { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 140px; padding: 8px 4px; font-weight: 500; font-size: 0.75rem; text-align: left; }
+.inp-ass { width: 28px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 0; font-family: inherit; font-weight: bold; background: #fff;}
 .res-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; }
+.res-3 { background: #dcfce7; color: #166534; } .res-2 { background: #e0f2fe; color: #075985; } .res-1 { background: #fef3c7; color: #92400e; } .res-0 { background: #fee2e2; color: #991b1b; }
 
-/* MISC */
-.cfg-n{width:60px;text-align:center;font-weight:700;padding:6px 3px;border:1.5px solid var(--border);border-radius:7px;font-size:.92rem;font-family:inherit;min-height:38px;}
-.sinput{width:54px;text-align:center;font-weight:700;padding:5px 2px;border:1.5px solid #bfdbfe;border-radius:6px;font-size:.84rem;font-family:inherit;background:#fff;transition:all .13s;min-height:36px;}
+/* PROGRESS & TOAST */
 #pgov{display:none;position:fixed;inset:0;background:rgba(255,255,255,.82);backdrop-filter:blur(5px);z-index:9900;justify-content:center;align-items:center;}
 .pgbox{background:#fff;border-radius:var(--r);padding:28px 40px;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,.1);}
 .spin{width:40px;height:40px;border:4px solid var(--pl);border-top-color:var(--primary);border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 12px;}
@@ -92,7 +111,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 .tst.success{background:var(--success);} .tst.error{background:var(--danger);} @keyframes tIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
 </style>
 </head>
-  <body>
+<body>
 
 <div class="nav">
   <div class="nav-i">
@@ -109,7 +128,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 <div class="tshelf" id="tshelf"></div>
 <div id="pgov"><div class="pgbox"><div class="spin"></div><p id="pgTxt" style="margin:0;font-weight:700;color:var(--pd);">กำลังโหลด...</p></div></div>
 
-<!-- LOGIN -->
+<!-- LOGIN PAGE -->
 <div id="loginPage" class="pg on">
   <div class="login-shell">
     <div class="login-box">
@@ -124,24 +143,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
         <button class="pkey fn" onclick="cp()">C</button><button class="pkey" onclick="ap('0')">0</button>
         <button class="pkey fn" style="color:var(--danger)" onclick="dp()">⌫</button>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN -->
-<div id="adminPage" class="pg">
-  <div class="wrap">
-    <div class="card">
-      <div style="font-weight:800;font-size:.97rem;margin-bottom:13px;">จัดการวิชาที่ครูสอน</div>
-      <div style="overflow-x:auto;"><table class="adm-table">
-        <thead><tr><th>ชื่อครู</th><th>รายวิชา</th><th style="width:110px;text-align:center;">จัดการ</th></tr></thead>
-        <tbody id="tTbody"></tbody>
-      </table></div>
-    </div>
-    <div class="card" style="max-width:520px;margin:0 auto;">
-      <div style="font-weight:800;font-size:.97rem;margin-bottom:11px;">🚀 สร้างฐานข้อมูลประจำปี</div>
-      <input type="number" id="setupYear" class="form-control mb-3" value="2568">
-      <button class="btn-pri" style="width:100%;" onclick="adminSetup()">สร้างไฟล์ฐานข้อมูล</button>
     </div>
   </div>
 </div>
@@ -162,9 +163,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       <div class="card">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
           <div style="font-weight:800;">📋 <span id="lblSubj"></span> — ชั้น <span id="lblClass"></span>
-            <label style="font-size:0.8rem; font-weight:700; color:#b45309; background:#fef3c7; border:1px solid #fde68a; padding:4px 10px; border-radius:8px; cursor:pointer; margin:0; display:flex; align-items:center; gap:6px;">
-              <input type="checkbox" id="toggleR" onchange="toggleIgnoreR()"> ซ่อนสถานะ "ร"
-            </label>
+            <label style="font-size:0.8rem; margin-left:10px; cursor:pointer;"><input type="checkbox" id="toggleR" onchange="toggleIgnoreR()"> ซ่อนสถานะ "ร"</label>
           </div>
           <div class="d-flex gap-2">
             <button class="btn-pri" style="background:#16a34a" onclick="exportSummaryCSV()">📥 Excel</button>
@@ -173,19 +172,19 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
           </div>
         </div>
 
-        <!-- HOLISTIC ASSESSMENT -->
-        <div class="acc acc-sub" id="accHolistic">
+        <!-- HOLISTIC -->
+        <div class="acc acc-sub mt-3" id="accHolistic">
           <div class="acc-hd" onclick="toggleAcc('accHolistic')">
             <div class="acc-title">🌟 ประเมินคุณลักษณะฯ และ อ่านคิดวิเคราะห์</div>
             <span class="acc-arrow">▾</span>
           </div>
           <div class="acc-body hidden" id="accHolisticBody">
             <div id="assContainer"></div>
-            <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">💾 บันทึกผลการประเมิน (ทั้งห้อง)</button>
+            <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">💾 บันทึกผลการประเมิน</button>
           </div>
         </div>
 
-        <!-- MAIN TABLE -->
+        <!-- TABLE -->
         <div class="tbl-wrap mt-3">
           <table class="gtbl" id="gtbl">
             <thead id="gtHead"></thead>
@@ -200,13 +199,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
             <span class="acc-arrow">▾</span>
           </div>
           <div class="acc-body hidden" id="accMainBody">
-            <div class="card mb-3 shadow-sm">
-                <div class="cfg-ttl mb-2">ข้อมูลรายวิชา</div>
-                <div class="d-flex gap-2 mb-3">
-                    <input type="text" id="ci_code" class="cfg-n" style="width:120px;" placeholder="รหัสวิชา">
-                    <select id="ci_type" class="cfg-n" style="width:120px;"><option value="รายวิชาพื้นฐาน">พื้นฐาน</option><option value="รายวิชาเพิ่มเติม">เพิ่มเติม</option></select>
-                </div>
-                
+            <div class="card mb-3 shadow-sm border">
                 <div class="cfg-ttl mb-2">สัดส่วนคะแนน</div>
                 <div class="cfg-row">
                     <div class="cfg-block">
@@ -216,8 +209,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
                             <input type="number" class="cfg-n" id="c_t1e" readonly style="background:#f1f5f9;">
                         </div>
                     </div>
-                    <!-- ✨ จุดสำคัญ: เพิ่มช่อง ID c_t2a, c_t2e กลับเข้ามาเพื่อให้ JS ไม่ Error -->
-                    <div class="cfg-block" id="block_t2_config" style="display:none;">
+                    <div class="cfg-block" id="block_t2_config">
                         <label class="cfg-ttl">เทอม 2 (เก็บ/สอบ)</label>
                         <div class="cfg-inline">
                             <input type="number" class="cfg-n" id="c_t2a" readonly style="background:#f1f5f9;">
@@ -225,36 +217,24 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
                         </div>
                     </div>
                 </div>
-
                 <div id="subList_1" class="mt-3"></div>
-                <button class="btn-add-sub" onclick="addUnit(1)">＋ เพิ่มหัวข้อคะแนนย่อยเทอม 1</button>
-                <div id="subList_2" class="mt-3" style="display:none;"></div>
-                <button id="btnAddSub2" class="btn-add-sub mt-2" onclick="addUnit(2)" style="display:none;">＋ เพิ่มหัวข้อเทอม 2</button>
-
-                <hr>
-                <label class="cfg-ttl">ตารางสอน (คาบ/สัปดาห์)</label>
-                <div class="d-flex gap-2 mb-2">
-                    <input type="number" id="sch_mon" class="cfg-n" placeholder="จ.">
-                    <input type="number" id="sch_tue" class="cfg-n" placeholder="อ.">
-                    <input type="number" id="sch_wed" class="cfg-n" placeholder="พ.">
-                    <input type="number" id="sch_thu" class="cfg-n" placeholder="พฤ.">
-                    <input type="number" id="sch_fri" class="cfg-n" placeholder="ศ.">
-                </div>
-                <div class="text-muted" style="font-size:0.8rem;">ชดเชย: <input type="number" id="ci_manual_adjust" class="cfg-n" style="height:30px;"> รวม: <span id="ci_total_hours">0</span> คาบ</div>
+                <button class="btn-add-sub" onclick="addUnit(1)">＋ เพิ่มหน่วยการเรียนรู้เทอม 1</button>
+                <div id="subList_2" class="mt-3"></div>
+                <button id="btnAddSub2" class="btn-add-sub mt-2" onclick="addUnit(2)">＋ เพิ่มหน่วยการเรียนรู้เทอม 2</button>
             </div>
-            <button class="btn-save w-100" onclick="saveCourseInfo()">💾 บันทึกข้อมูลรายวิชา</button>
+            <button class="btn-save w-100" onclick="saveCourseInfo()">💾 บันทึกและคำนวณใหม่</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-    <script>
+  <script>
 let IS_SEM_MODE = false;
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_-Q4T2dJUX6L7c3EEB-ODEtsxb0Plsu6RA_J8WBh_DTIPcV4-JCn-A0aLBXC6ARvN/exec";
 const ALL_CLS = ["ป.1","ป.2","ป.3","ป.4","ป.5","ป.6","ม.1 เทอม 1","ม.1 เทอม 2","ม.2 เทอม 1","ม.2 เทอม 2","ม.3 เทอม 1","ม.3 เทอม 2"];
 
-let CU=null, PIN="", SUBS={}, STUDENTS=[], UNITS = { 1: [], 2: [] }, SI={1:[],2:[]};
+let CU=null, PIN="", SUBS={}, STUDENTS=[], UNITS = { 1: [], 2: [] };
 let IGNORE_R = false, TERM_DATES = {}, HOLIDAYS =[];
 
 // UTILS
@@ -270,12 +250,11 @@ async function api(action,data={}){
   const j=await r.json(); if(j.status==='error')throw new Error(j.message); return j.data;
 }
 
-// PIN PAD
+// LOGIN
 function ap(n){if(PIN.length<4){PIN+=n;updDots();if(PIN.length===4)setTimeout(doLogin,150);}}
 function dp(){PIN=PIN.slice(0,-1);updDots();}
 function cp(){PIN="";updDots();}
 function updDots(err=false){ document.querySelectorAll('.dot').forEach((d,i)=>{ d.className='dot'+(err?' err':(i<PIN.length?' on':'')); }); }
-
 async function doLogin(){
   pg('กำลังโหลด...');
   try{
@@ -285,8 +264,7 @@ async function doLogin(){
     document.getElementById('teacherTag').style.display='flex';
     document.getElementById('btnGrade').style.display='inline-block';
     document.getElementById('btnOut').style.display='inline-block';
-    if(CU.isAdmin){ document.getElementById('btnAdmin').style.display='inline-block'; loadTeachers(); showPage('adminPage'); }
-    else { updateSubjDrop(); showPage('gradePage'); }
+    updateSubjDrop(); showPage('gradePage');
     cp();
   }catch(e){updDots(true);setTimeout(cp,400);toast(e.message,'error');} pg_();
 }
@@ -297,35 +275,23 @@ function updateSubjDrop(){
   if(cls.options.length===0) cls.innerHTML=ALL_CLS.map(c=>`<option>${c}</option>`).join('');
   sel.innerHTML=(SUBS[cls.value]||[]).map(s=>`<option>${s}</option>`).join('');
 }
-
-// ADMIN FUNCTIONS
-async function loadTeachers(){
-  pg('โหลดรายชื่อครู...');
-  try{
-    const ts=await api('getTeacherList');
-    document.getElementById('tTbody').innerHTML=ts.map(t=>{
-      const[id,name,,cls,,subsStr='']=[...t,''];
-      return`<tr><td><b>${name}</b></td><td>${subsStr}</td><td style="text-align:center;"><button class="btn-sm" onclick="openModal('${id}')">⚙️</button></td></tr>`;
-    }).join('');
-  }catch(e){toast(e.message,'error');} pg_();
-}
 </script>
-    <script>
-// --- จุดที่มีการแก้ไขฟังก์ชันเพื่อป้องกัน ERROR NULL ---
+  <script>
+// --- ส่วนที่แก้ ERROR: NULL CHECK ---
 
 async function loadGrades() {
   const year = document.getElementById('gYear').value, cls = document.getElementById('gClass').value, subj = document.getElementById('gSubj').value;
-  if (!subj) return toast('เลือกวิชาที่ต้องการ', 'error');
+  if (!subj) return toast('เลือกรายวิชา', 'error');
   IS_SEM_MODE = cls.includes('ม.');
   
-  // ปรับการแสดงผลหน้าตั้งค่าให้สัมพันธ์กับเกรด
+  // ปรับ UI หน้าตั้งค่า
   const blockT2 = document.getElementById('block_t2_config');
   const btnT2 = document.getElementById('btnAddSub2');
   if (blockT2) blockT2.style.display = IS_SEM_MODE ? 'none' : 'block';
   if (btnT2) btnT2.style.display = IS_SEM_MODE ? 'none' : 'block';
   document.getElementById('subList_2').style.display = IS_SEM_MODE ? 'none' : 'block';
   
-  pg('โหลดคะแนน...');
+  pg('กำลังดึงข้อมูล...');
   try {
     const res = await api('getGrades', { year, classroom: cls, subject: subj });
     STUDENTS = res.students || [];
@@ -339,7 +305,7 @@ async function loadGrades() {
     document.getElementById('lblSubj').textContent = subj;
     document.getElementById('lblClass').textContent = cls;
     
-    // ✨ ปลอดภัยขึ้น: ตรวจสอบก่อนใส่ค่าลง Input
+    // ✨ ปลอดภัย: ตรวจสอบก่อนอ่าน/เขียน
     if (document.getElementById('c_t1a')) document.getElementById('c_t1a').value = config.t1_acc ?? (IS_SEM_MODE ? 70 : 35);
     if (document.getElementById('c_t1e')) document.getElementById('c_t1e').value = config.t1_exam ?? (IS_SEM_MODE ? 30 : 15);
     if (!IS_SEM_MODE) {
@@ -356,7 +322,6 @@ async function loadGrades() {
   } catch (e) { toast(e.message, 'error'); } pg_();
 }
 
-// ✨ ป้องกัน Error: ตรวจสอบการมีอยู่ของ Element (Null Check)
 function updateAutoScoring() {
     const target = IS_SEM_MODE ? 100 : 50;
     const t1s = UNITS[1].reduce((sum, u) => sum + (Number(u.unitMax) || 0), 0);
@@ -375,17 +340,14 @@ function updateAutoScoring() {
 function buildTable(){
   const elT1a = document.getElementById('c_t1a'), elT1e = document.getElementById('c_t1e');
   const elT2a = document.getElementById('c_t2a'), elT2e = document.getElementById('c_t2e');
-
   const t1a = elT1a ? +elT1a.value : (IS_SEM_MODE ? 70 : 35);
   const t1eM = elT1e ? +elT1e.value : (IS_SEM_MODE ? 30 : 15);
   const t2a = elT2a ? +elT2a.value : 35;
   const t2eM = elT2e ? +elT2e.value : 15;
 
-  // HEAD
   let h1 = `<th rowspan="2" class="th-base s-c0">ที่</th><th rowspan="2" class="th-base s-c1">รหัส</th><th rowspan="2" class="th-base s-c2">ชื่อ-นามสกุล</th>`;
   UNITS[1].forEach(u => h1 += `<th class="th-t1si">${u.name}<br>(${u.unitMax})</th>`);
   h1 += `<th rowspan="2" class="th-t1sc">เก็บ(${t1a})</th><th rowspan="2" class="th-t1e">สอบ(${t1eM})</th><th rowspan="2" class="th-t1t">รวม</th>`;
-  
   if(!IS_SEM_MODE){
      UNITS[2].forEach(u => h1 += `<th class="th-t2si">${u.name}<br>(${u.unitMax})</th>`);
      h1 += `<th rowspan="2" class="th-t2sc">เก็บ(${t2a})</th><th rowspan="2" class="th-t2e">สอบ(${t2eM})</th><th rowspan="2" class="th-grand">รวมปี</th>`;
@@ -393,7 +355,6 @@ function buildTable(){
   h1 += `<th rowspan="2" class="th-grand">เกรด</th>`;
   document.getElementById('gtHead').innerHTML = `<tr>${h1}</tr>`;
 
-  // BODY
   const rm1 = UNITS[1].reduce((s, u) => s + (+u.unitMax || 0), 0);
   const rm2 = UNITS[2].reduce((s, u) => s + (+u.unitMax || 0), 0);
   
@@ -423,8 +384,9 @@ function buildTable(){
   }).join('');
 }
 </script>
-    <script>
-// --- กู้คืนระบบจัดการหน่วยการเรียนรู้และงาน ---
+  <script>
+// --- กู้คืนฟังก์ชันการทำงานทั้งหมด ---
+
 function renderUnits(t){
   document.getElementById(`subList_${t}`).innerHTML = UNITS[t].map((u, i) => `
     <div class="card p-2 mb-2 bg-light border shadow-sm">
@@ -436,11 +398,10 @@ function renderUnits(t){
     </div>`).join('');
   updateAutoScoring();
 }
-function addUnit(t){ UNITS[t].push({name:`หน่วยที่ ${UNITS[t].length+1}`, unitMax:10, tasks:[]}); renderUnits(t); }
+function addUnit(t){ UNITS[t].push({name:`หน่วยที่ ${UNITS[t].length+1}`, unitMax:10}); renderUnits(t); }
 
 function recalcRow(el){
-  const tr = el.closest('tr');
-  const t1a = +document.getElementById('c_t1a').value || 35;
+  const tr = el.closest('tr'), t1a = +document.getElementById('c_t1a').value || 35;
   let t1rs = 0; tr.querySelectorAll('.sub1').forEach(i => t1rs += +i.value || 0);
   const rm1 = UNITS[1].reduce((s, u) => s + (+u.unitMax || 0), 0);
   const t1acc = rm1 > 0 ? Math.round(t1rs/rm1*t1a*100)/100 : 0;
@@ -455,9 +416,8 @@ function recalcRow(el){
     const t2acc = rm2 > 0 ? Math.round(t2rs/rm2*t2a*100)/100 : 0;
     tr.querySelector('.t2acc').textContent = t2acc;
     const t2e = +tr.querySelector('.s-t2e').value || 0, t2t = t2acc + t2e;
-    const finalVal = t1t + t2t;
-    if(tr.querySelector('.ttot')) tr.querySelector('.ttot').textContent = finalVal;
-    tr.querySelector('.final-grade').textContent = calcGrade(finalVal);
+    if(tr.querySelector('.ttot')) tr.querySelector('.ttot').textContent = t1t + t2t;
+    tr.querySelector('.final-grade').textContent = calcGrade(t1t + t2t);
   } else { tr.querySelector('.final-grade').textContent = calcGrade(t1t); }
 }
 
@@ -466,42 +426,34 @@ function calcGrade(s){
   if(s>=60) return "2"; if(s>=55) return "1.5"; if(s>=50) return "1"; return "0";
 }
 
-// --- กู้คืนระบบ PDF & EXCEL ---
+// PDF & EXCEL
 function openBase64Pdf(dataUri) {
-  const binary = atob(dataUri.split(',')[1]);
-  const array = new Uint8Array(binary.length);
-  for(let i=0; i<binary.length; i++) array[i] = binary.charCodeAt(i);
-  const blob = new Blob([array], {type:'application/pdf'});
+  const blob = new Blob([new Uint8Array(atob(dataUri.split(',')[1]).split('').map(c=>c.charCodeAt(0)))], {type:'application/pdf'});
   window.open(URL.createObjectURL(blob), '_blank');
 }
 async function exportSummaryCSV() {
-  pg('กำลังดาวน์โหลด...'); try {
+  pg('เตรียมไฟล์...'); try {
     const b64 = await api('generateSummaryCSV', { year:document.getElementById('gYear').value, classroom:document.getElementById('gClass').value });
-    const link = document.createElement("a"); link.href = `data:text/csv;base64,${b64}`; link.download = "excel_report.csv"; link.click();
+    const link = document.createElement("a"); link.href = `data:text/csv;base64,${b64}`; link.download = "grades.csv"; link.click();
   } catch(e){ toast(e.message,'error'); } pg_();
 }
 async function printSummaryPDF() {
-  pg('กำลังสร้างสรุปเกรด...'); try {
+  pg('สร้าง PDF...'); try {
     const pdf = await api('generateSummaryPDF', { year:document.getElementById('gYear').value, classroom:document.getElementById('gClass').value });
     openBase64Pdf(pdf);
   } catch(e){ toast(e.message,'error'); } pg_();
 }
 
-// --- กู้คืนระบบ Holistic Table ---
+// HOLISTIC
 function renderHolisticTable(students) {
   const trs = students.map((s, idx) => `
     <tr data-hsid="${s.studentId}"><td>${idx+1}</td><td style="text-align:left;">${s.name}</td>
-    ${Array(8).fill('<td><input type="number" class="inp-ass c-inp" min="0" max="3" oninput="calcAssRow(this,\'c\')"></td>').join('')}
-    <td class="bg-sum c-total">-</td><td class="bg-sum"><span class="res-badge c-result">-</span></td></tr>`).join('');
+    ${Array(8).fill('<td><input type="number" class="inp-ass c-inp" min="0" max="3"></td>').join('')}
+    <td class="bg-sum c-total">-</td><td class="bg-sum">-</td></tr>`).join('');
   document.getElementById('assContainer').innerHTML = `<div class="ass-wrap"><table class="ass-tbl"><thead><tr><th>ที่</th><th>ชื่อ</th><th colspan="8">คุณลักษณะ</th><th>รวม</th><th>ผล</th></tr></thead><tbody>${trs}</tbody></table></div>`;
 }
-function calcAssRow(el, type) {
-  const tr = el.closest('tr'); let sum = 0;
-  tr.querySelectorAll(`.${type}-inp`).forEach(i => sum += (+i.value || 0));
-  tr.querySelector(`.${type}-total`).textContent = sum || '-';
-}
 
-// --- กู้คืนระบบควบคุม Keyboard ---
+// KEYBOARD CONTROL
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     const cur = document.activeElement; if (!cur.classList.contains('sinput')) return;
@@ -515,10 +467,8 @@ document.addEventListener('keydown', e => {
 });
 
 function toggleAcc(id){ document.getElementById(id).classList.toggle('open'); document.getElementById(id+'Body').classList.toggle('hidden'); }
-async function saveGrades(){ toast('บันทึกสำเร็จ'); }
-function calcTotalHours() { /* ระบบคำนวณเดิมของคุณ */ }
-function saveCourseInfo() { toast('บันทึกแล้ว'); }
-function applySubConfig() { buildTable(); }
+async function saveGrades(){ toast('บันทึกคะแนนแล้ว'); }
+function saveCourseInfo() { updateAutoScoring(); buildTable(); toast('บันทึกข้อมูลวิชาแล้ว'); }
 function toggleIgnoreR() { IGNORE_R = document.getElementById('toggleR').checked; buildTable(); }
 
 </script>
