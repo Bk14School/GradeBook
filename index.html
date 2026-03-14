@@ -462,26 +462,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 
       
         
-<!-- Accordion ประเมินผลรวม -->
-<div class="acc acc-sub mt-3" id="accHolistic">
-  <div class="acc-hd" onclick="toggleAcc('accHolistic')">
-    <div class="acc-title">🌟 ประเมินคุณลักษณะฯ และ อ่านคิดวิเคราะห์(ครูประจำชั้นบันทึก)</div>
-    <span class="acc-arrow">▾</span>
-  </div>
-  <div class="acc-body hidden" id="accHolisticBody">
-    
-    <!-- พื้นที่สำหรับสร้างตาราง 8 ข้อ และ 5 ข้อ -->
-    <div id="assContainer">
-      <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
-    </div>
-    <!-- ใน div id="accHolisticBody" ให้เพิ่มโค้ดนี้ต่อท้ายส่วนเดิม -->
-<div id="skillContainer" class="mt-4">
-  <!-- JavaScript จะมาวาดตารางสมรรถนะ 5 ข้อตรงนี้ -->
-</div>
 
-    <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">💾 บันทึกผลการประเมิน (ทั้งห้อง)</button>
-  </div>
-</div>
       </div>
       
       <!-- /card -->
@@ -644,7 +625,32 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     
     <!-- /gradePanel -->
   </div>
+
+  <!-- Accordion ประเมินผลรวม -->
+<div class="acc acc-sub mt-3" id="accHolistic">
+  <div class="acc-hd" onclick="toggleAcc('accHolistic')">
+    <div class="acc-title">🌟 ประเมินคุณลักษณะฯ และ อ่านคิดวิเคราะห์(ครูประจำชั้นบันทึก)</div>
+    <span class="acc-arrow">▾</span>
+  </div>
+  <div class="acc-body hidden" id="accHolisticBody">
+    
+    <!-- พื้นที่สำหรับสร้างตาราง 8 ข้อ และ 5 ข้อ -->
+    <div id="assContainer">
+      <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
+    </div>
+    <!-- ใน div id="accHolisticBody" ให้เพิ่มโค้ดนี้ต่อท้ายส่วนเดิม -->
+<div id="skillContainer" class="mt-4">
+  <!-- JavaScript จะมาวาดตารางสมรรถนะ 5 ข้อตรงนี้ -->
 </div>
+
+    <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">💾 บันทึกผลการประเมิน (ทั้งห้อง)</button>
+  </div>
+</div>
+
+  
+</div>
+
+  
 
 <script>
   let IS_SEM_MODE = false; // เพิ่มตัวแปรนี้ไว้ด้านบนสุดของ script
