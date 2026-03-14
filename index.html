@@ -6,7 +6,7 @@
 <title>ระบบบันทึกคะแนน - โรงเรียนบ้านคลอง 14</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
+<style> 
 :root {
   --primary: #6366f1;
   --pl: #e0e7ff;
@@ -457,49 +457,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
   </div>
 </div>
 
-        <!-- แทนที่ Accordion เก่าด้วยอันใหม่นี้ -->
-<div class="acc acc-main" id="accMain">
-  <div class="acc-hd" onclick="toggleAcc('accMain')">
-    <div class="acc-title">⚙️ ตั้งค่าคะแนนและหัวข้อย่อย</div>
-    <span class="acc-arrow">▾</span>
-  </div>
-<div class="acc-body hidden" id="accMainBody">
-    <!-- ส่วนสัดส่วนคะแนน -->
-    <div class="card mb-3" style="background:#f8fafc;">
-      <div class="cfg-row">
-        <div class="cfg-block">
-          <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (เก็บ/สอบ)</div>
-          <div class="cfg-inline">
-            <input type="number" class="cfg-n" id="c_t1a" value="35" onchange="onCfg(); saveConfigOnly();">
-            <input type="number" class="cfg-n" id="c_t1e" value="15" onchange="onCfg()">
-          </div>
-        </div>
-        <div class="cfg-block">
-          <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (เก็บ/สอบ)</div>
-          <div class="cfg-inline">
-            <input type="number" class="cfg-n" id="c_t2a" value="35" onchange="onCfg()">
-            <input type="number" class="cfg-n" id="c_t2e" value="15" onchange="onCfg()">
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- ส่วนหัวข้อย่อย (เดิมคือ acc2) -->
-    <div class="ttabs mb-3">
-      <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
-      <button class="ttab" onclick="switchTerm(2,this)">เทอม 2</button>
-    </div>
-    <div id="subPanel_1">
-      <div class="sub-list" id="subList_1"></div>
-      <button class="btn-add-sub" onclick="addSub(1)">＋ เพิ่มหัวข้อ เทอม 1</button>
-    </div>
-    <div id="subPanel_2" style="display:none;">
-      <div class="sub-list" id="subList_2"></div>
-      <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหัวข้อ เทอม 2</button>
-    </div>
-    <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
-  </div>
-</div>
+      
         
 <!-- Accordion ประเมินผลรวม -->
 <div class="acc acc-sub mt-3" id="accHolistic">
@@ -536,56 +494,117 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       </div>
 
       <!-- Accordion ข้อมูลรายวิชาและเวลาเรียน -->
-<!-- Accordion ข้อมูลรายวิชาและเวลาเรียน -->
 <div class="acc acc-main mb-3" id="accCourseInfo">
   <div class="acc-hd" onclick="toggleAcc('accCourseInfo')" style="background:#f0fdf4; border:1.5px solid #bbf7d0;">
-    <div class="acc-title" style="color:#166534;">📝 ข้อมูลรายวิชา และ เวลาเรียน (ปพ.5)</div>
+    <div class="acc-title" style="color:#166534;">📝 ข้อมูลรายวิชา / เวลาเรียน / ตั้งค่าคะแนน</div>
     <span class="acc-arrow">▾</span>
   </div>
+
   <div class="acc-body hidden" id="accCourseInfoBody" style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-top:none;">
-    
-    <!-- ข้อมูลพื้นฐานรายวิชา -->
-    <div class="cfg-row mb-3">
-      <div class="cfg-block" style="flex:1; min-width:120px;">
-        <label class="cfg-ttl">รหัสวิชา</label>
-        <input type="text" id="ci_code" class="cfg-n" style="width:100%; text-align:left;" placeholder="เช่น ท21101">
-      </div>
-      <div class="cfg-block" style="flex:1; min-width:150px;">
-        <label class="cfg-ttl">ประเภทวิชา</label>
-        <select id="ci_type" class="cfg-n" style="width:100%; text-align:left;">
-          <option value="รายวิชาพื้นฐาน">รายวิชาพื้นฐาน</option>
-          <option value="รายวิชาเพิ่มเติม">รายวิชาเพิ่มเติม</option>
-          <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
-        </select>
-      </div>
-      <div class="cfg-block" style="flex:0.5; min-width:80px;">
-        <label class="cfg-ttl">หน่วยกิต</label>
-        <input type="number" step="0.5" id="ci_credit" class="cfg-n" style="width:100%;" placeholder="1.5">
+
+    <!-- =========================
+         ข้อมูลพื้นฐานรายวิชา
+         ========================= -->
+    <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
+      <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">1) ข้อมูลรายวิชา</div>
+
+      <div class="cfg-row mb-3">
+        <div class="cfg-block" style="flex:1; min-width:120px;">
+          <label class="cfg-ttl">รหัสวิชา</label>
+          <input type="text" id="ci_code" class="cfg-n" style="width:100%; text-align:left;" placeholder="เช่น ท21101">
+        </div>
+        <div class="cfg-block" style="flex:1; min-width:150px;">
+          <label class="cfg-ttl">ประเภทวิชา</label>
+          <select id="ci_type" class="cfg-n" style="width:100%; text-align:left;">
+            <option value="รายวิชาพื้นฐาน">รายวิชาพื้นฐาน</option>
+            <option value="รายวิชาเพิ่มเติม">รายวิชาเพิ่มเติม</option>
+            <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
+          </select>
+        </div>
+        <div class="cfg-block" style="flex:0.5; min-width:80px;">
+          <label class="cfg-ttl">หน่วยกิต</label>
+          <input type="number" step="0.5" id="ci_credit" class="cfg-n" style="width:100%;" placeholder="1.5">
+        </div>
       </div>
     </div>
 
-    <!-- ตารางสอน จ-ศ -->
-    <label class="cfg-ttl d-block mb-2">ตารางเรียน (ระบุจำนวนคาบที่สอนในแต่ละวัน)</label>
-    <div class="d-flex flex-wrap gap-2 mb-3">
-      <div class="text-center"><small class="d-block text-muted">จ.</small><input type="number" id="sch_mon" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
-      <div class="text-center"><small class="d-block text-muted">อ.</small><input type="number" id="sch_tue" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
-      <div class="text-center"><small class="d-block text-muted">พ.</small><input type="number" id="sch_wed" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
-      <div class="text-center"><small class="d-block text-muted">พฤ.</small><input type="number" id="sch_thu" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
-      <div class="text-center"><small class="d-block text-muted">ศ.</small><input type="number" id="sch_fri" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+    <!-- =========================
+         เวลาเรียน
+         ========================= -->
+    <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
+      <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">2) เวลาเรียน (ปพ.5)</div>
+
+      <label class="cfg-ttl d-block mb-2">ตารางเรียน (ระบุจำนวนคาบที่สอนในแต่ละวัน)</label>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <div class="text-center"><small class="d-block text-muted">จ.</small><input type="number" id="sch_mon" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+        <div class="text-center"><small class="d-block text-muted">อ.</small><input type="number" id="sch_tue" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+        <div class="text-center"><small class="d-block text-muted">พ.</small><input type="number" id="sch_wed" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+        <div class="text-center"><small class="d-block text-muted">พฤ.</small><input type="number" id="sch_thu" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+        <div class="text-center"><small class="d-block text-muted">ศ.</small><input type="number" id="sch_fri" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-3 px-2">
+        <label class="cfg-ttl mb-0">ปรับแก้เวลาเรียนด้วยตนเอง:</label>
+        <input type="number" id="ci_manual_adjust" class="cfg-n" style="width:60px;" value="0" oninput="calcTotalHours()">
+        <span style="font-size:0.8rem; color:var(--muted);">คาบ (+ หรือ - ได้)</span>
+      </div>
+
+      <div class="p-2 rounded mb-1" style="background:#dcfce7; color:#14532d; font-size:0.85rem; font-weight:bold;">
+        ⏱️ เวลาเรียนรวมทั้งภาคเรียน: <span id="ci_total_hours" style="font-size:1.1rem; color:#166534;">0</span> คาบ/ชั่วโมง
+        <small class="d-block fw-normal text-muted mt-1">* คำนวณอัตโนมัติจากวันเปิด-ปิดเทอม และตัดวันหยุดเสาร์-อาทิตย์/วันหยุดที่ตั้งไว้</small>
+      </div>
     </div>
 
-    <div class="p-2 rounded mb-3" style="background:#dcfce7; color:#14532d; font-size:0.85rem; font-weight:bold;">
-      ⏱️ เวลาเรียนรวมทั้งภาคเรียน: <span id="ci_total_hours" style="font-size:1.1rem; color:#166534;">0</span> คาบ/ชั่วโมง
-      <small class="d-block fw-normal text-muted mt-1">* คำนวณอัตโนมัติจากวันเปิด-ปิดเทอม (ลบวันหยุดเสาร์-อาทิตย์)</small>
+    <!-- =========================
+         ตั้งค่าคะแนนและหัวข้อย่อย
+         ========================= -->
+    <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
+      <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">3) ตั้งค่าคะแนนและหัวข้อย่อย</div>
+
+      <!-- สัดส่วนคะแนน -->
+      <div class="card mb-3" style="background:#f8fafc;">
+        <div class="cfg-row">
+          <div class="cfg-block">
+            <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (เก็บ/สอบ)</div>
+            <div class="cfg-inline">
+              <input type="number" class="cfg-n" id="c_t1a" value="35" onchange="onCfg(); saveConfigOnly();">
+              <input type="number" class="cfg-n" id="c_t1e" value="15" onchange="onCfg()">
+            </div>
+          </div>
+
+          <div class="cfg-block">
+            <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (เก็บ/สอบ)</div>
+            <div class="cfg-inline">
+              <input type="number" class="cfg-n" id="c_t2a" value="35" onchange="onCfg()">
+              <input type="number" class="cfg-n" id="c_t2e" value="15" onchange="onCfg()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- หัวข้อย่อย -->
+      <div class="ttabs mb-3">
+        <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
+        <button class="ttab" onclick="switchTerm(2,this)">เทอม 2</button>
+      </div>
+
+      <div id="subPanel_1">
+        <div class="sub-list" id="subList_1"></div>
+        <button class="btn-add-sub" onclick="addSub(1)">＋ เพิ่มหัวข้อ เทอม 1</button>
+      </div>
+
+      <div id="subPanel_2" style="display:none;">
+        <div class="sub-list" id="subList_2"></div>
+        <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหัวข้อ เทอม 2</button>
+      </div>
+
+      <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
     </div>
-<!-- เอาโค้ดนี้ไปแทรก เหนือปุ่ม "บันทึกข้อมูลรายวิชา" -->
-    <div class="d-flex align-items-center gap-2 mb-3 px-2">
-      <label class="cfg-ttl mb-0">ปรับแก้เวลาเรียนด้วยตนเอง (กรณีมีชดเชยวันหยุด/กิจกรรม):</label>
-      <input type="number" id="ci_manual_adjust" class="cfg-n" style="width:60px;" value="0" oninput="calcTotalHours()">
-      <span style="font-size:0.8rem; color:var(--muted);">คาบ (+ หรือ - ได้)</span>
-    </div>
-    <!-- ✨ เพิ่มปุ่มบันทึกข้อมูลรายวิชา -->
-    <button class="btn-save w-100" onclick="saveCourseInfo()" style="background: linear-gradient(135deg, #16a34a, #15803d);">💾 บันทึกข้อมูลรายวิชา</button>
+
+    <!-- ปุ่มบันทึก -->
+    <button class="btn-save w-100" onclick="saveCourseInfo()" style="background: linear-gradient(135deg, #16a34a, #15803d);">
+      💾 บันทึกข้อมูลรายวิชา
+    </button>
 
   </div>
 </div>
@@ -904,12 +923,12 @@ async function loadGrades() {
     renderHolisticTable(STUDENTS); 
 
     // 6. ปิดหน้าต่างตั้งค่า (Accordion) อัตโนมัติ
-    const acc = document.getElementById('accMain');
-    const body = document.getElementById('accMainBody');
-    if (acc && body) {
-      acc.classList.remove('open');
-      body.classList.add('hidden');
-    }
+const acc = document.getElementById('accCourseInfo');
+const body = document.getElementById('accCourseInfoBody');
+if (acc && body) {
+  acc.classList.remove('open');
+  body.classList.add('hidden');
+}
 
     toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
 
