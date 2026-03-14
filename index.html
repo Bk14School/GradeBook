@@ -812,22 +812,46 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
             <span class="acc-arrow">▾</span>
           </div>
 
-          <div class="acc-body hidden" id="accHolisticBody">
-            <div id="assContainer">
-              <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
-            </div>
-
-            <div id="skillContainer" class="mt-4"></div>
-
-            <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">
-              💾 บันทึกผลการประเมิน (ทั้งห้อง)
-            </button>
-            <div style="text-align:right;margin-top:10px;">
-  <button class="btn-pri" type="button" onclick="printHolisticReport()">
-    🖨️ พิมพ์รายงานประเมิน
+    <div class="ttabs mb-3" id="holisticTabs">
+  <button class="ttab on" type="button" onclick="switchHolisticTab('subject', this)">
+    รายวิชา
+  </button>
+  <button class="ttab" type="button" onclick="switchHolisticTab('homeroom', this)">
+    ประจำชั้น
   </button>
 </div>
-          </div>
+
+<div id="holisticSubjectPanel">
+  <div id="assContainer">
+    <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
+  </div>
+
+  <div style="text-align:right;margin-top:10px;">
+    <button class="btn-pri" type="button" onclick="printHolisticReport('subject')">
+      🖨️ พิมพ์รายงานรายวิชา
+    </button>
+  </div>
+
+  <button class="btn-save mt-3 w-100" onclick="saveHolisticData('subject')">
+    💾 บันทึกผลการประเมินรายวิชา
+  </button>
+</div>
+
+<div id="holisticHomeroomPanel" style="display:none;">
+  <div id="hrAssContainer">
+    <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
+  </div>
+
+  <div style="text-align:right;margin-top:10px;">
+    <button class="btn-pri" type="button" onclick="printHolisticReport('homeroom')">
+      🖨️ พิมพ์รายงานประจำชั้น
+    </button>
+  </div>
+
+  <button class="btn-save mt-3 w-100" onclick="saveHolisticData('homeroom')">
+    💾 บันทึกผลการประเมินประจำชั้น
+  </button>
+</div>
         </div>
 
       </div>
@@ -1553,8 +1577,8 @@ async function loadGrades() {
 
     document.getElementById('gradePanel').style.display = '';
     buildTable();
-    renderHolisticTable(STUDENTS);
-
+renderHolisticTable(STUDENTS, 'assContainer', 'assBody');
+renderHolisticTable(STUDENTS, 'hrAssContainer', 'hrAssBody');
     const acc = document.getElementById('accCourseInfo');
     const body = document.getElementById('accCourseInfoBody');
     if (acc && body) {
@@ -2475,8 +2499,8 @@ function toggleIgnoreR() {
 /* =====================================================
    HOLISTIC / ASSESSMENT
    ===================================================== */
-function renderHolisticTable(students) {
-  const assContainer = document.getElementById('assContainer');
+function renderHolisticTable(students, containerId = 'assContainer', tableId = 'assBody') {
+  const assContainer = document.getElementById(containerId);
   if (!assContainer) return;
 
   if (!students.length) {
@@ -2539,14 +2563,14 @@ const thItems = `
 
   assContainer.innerHTML = `
     <div class="ass-wrap">
-      <table class="ass-tbl" id="assBody">
-        <thead>${thItems}</thead>
+<table class="ass-tbl" id="${tableId}">
+<thead>${thItems}</thead>
         <tbody>${trs}</tbody>
       </table>
     </div>`;
 
-  document.querySelectorAll('#assBody tr').forEach(tr => {
-    calcAssRow(tr.querySelector('.c-inp'), 'c');
+document.querySelectorAll(`#${tableId} tr`).forEach(tr => {
+  calcAssRow(tr.querySelector('.c-inp'), 'c');
     calcAssRow(tr.querySelector('.r-inp'), 'r');
     calcAssRow(tr.querySelector('.s-inp'), 's');
   });
@@ -2632,9 +2656,11 @@ function calcAssRow(inputEl, type) {
   if (hiddenFinal) hiddenFinal.value = pdfValue;
 }
 
-async function saveHolisticData() {
+async function saveHolisticData(mode = 'subject') {
+  const tableId = mode === 'homeroom' ? '#hrAssBody' : '#assBody';
   const records = [];
-  document.querySelectorAll('#assBody tr[data-hsid]').forEach(tr => {
+
+  document.querySelectorAll(`${tableId} tr[data-hsid]`).forEach(tr => {
     records.push({
       studentId: tr.getAttribute('data-hsid'),
       char_scores: [...tr.querySelectorAll('.c-inp')].map(i => i.value),
@@ -2654,8 +2680,10 @@ async function saveHolisticData() {
   pg('กำลังบันทึกข้อมูล...');
   try {
     const msg = await api('saveHolistic', {
+      mode, // subject หรือ homeroom
       year: document.getElementById('gYear').value,
       classroom: document.getElementById('gClass').value,
+      subject: document.getElementById('gSubj').value,
       records
     });
     toast('✅ ' + msg);
@@ -2834,8 +2862,9 @@ function buildPrintTable(title, headers, rows, scoreKey, totalKey, resultKey, th
   `;
 }
 
-function printHolisticReport() {
-  const rows = getAssPrintRows();
+function printHolisticReport(mode = 'subject') {
+const reportScope = mode === 'homeroom' ? 'ประจำชั้น' : 'รายวิชา';
+  const trs = document.querySelectorAll(`${tableSelector} tr[data-hsid]`);
   if (!rows.length) {
     toast('ไม่พบข้อมูลสำหรับพิมพ์', 'error');
     return;
@@ -3033,6 +3062,17 @@ function printHolisticReport() {
   w.document.open();
   w.document.write(html);
   w.document.close();
+}
+    function switchHolisticTab(mode, btn) {
+  const tabs = document.querySelectorAll('#holisticTabs .ttab');
+  tabs.forEach(t => t.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+
+  document.getElementById('holisticSubjectPanel').style.display =
+    mode === 'subject' ? '' : 'none';
+
+  document.getElementById('holisticHomeroomPanel').style.display =
+    mode === 'homeroom' ? '' : 'none';
 }
 </script>
 
