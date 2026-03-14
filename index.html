@@ -415,6 +415,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 </div>
 
 <!-- GRADE PAGE -->
+  <div style="display:none;">
+  <input type="number" id="c_t1a" value="35">
+  <input type="number" id="c_t1e" value="15">
+  <input type="number" id="c_t2a" value="35">
+  <input type="number" id="c_t2e" value="15">
+</div>
 <div id="gradePage" class="pg">
   <div class="wrap">
 
@@ -558,49 +564,70 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     <!-- =========================
          ตั้งค่าคะแนนและหัวข้อย่อย
          ========================= -->
-    <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
-      <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">3) ตั้งค่าคะแนนและหัวข้อย่อย</div>
+<div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
+  <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">
+    3) ตั้งค่าคะแนนแบบหน่วยการเรียนรู้
+  </div>
 
-      <!-- สัดส่วนคะแนน -->
-      <div class="card mb-3" style="background:#f8fafc;">
-        <div class="cfg-row">
-          <div class="cfg-block">
-            <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (เก็บ/สอบ)</div>
-            <div class="cfg-inline">
-              <input type="number" class="cfg-n" id="c_t1a" value="35" onchange="onCfg(); saveConfigOnly();">
-              <input type="number" class="cfg-n" id="c_t1e" value="15" onchange="onCfg()">
-            </div>
-          </div>
-
-          <div class="cfg-block">
-            <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (เก็บ/สอบ)</div>
-            <div class="cfg-inline">
-              <input type="number" class="cfg-n" id="c_t2a" value="35" onchange="onCfg()">
-              <input type="number" class="cfg-n" id="c_t2e" value="15" onchange="onCfg()">
-            </div>
-          </div>
+  <!-- แสดงผลอัตโนมัติ -->
+  <div class="card mb-3" style="background:#f8fafc;">
+    <div class="cfg-row">
+      <div class="cfg-block">
+        <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (คำนวณอัตโนมัติ)</div>
+        <div class="cfg-inline">
+          <div class="cfg-n" id="show_t1_keep" style="background:#dbeafe;color:#1e3a8a;display:flex;align-items:center;justify-content:center;">0</div>
+          <div class="cfg-n" id="show_t1_exam" style="background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;">0</div>
+        </div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:4px;">
+          เก็บ = รวมคะแนนทุกหน่วย / สอบ = ส่วนที่เหลือจากคะแนนเต็ม
         </div>
       </div>
 
-      <!-- หัวข้อย่อย -->
-      <div class="ttabs mb-3">
-        <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
-        <button class="ttab" onclick="switchTerm(2,this)">เทอม 2</button>
+      <div class="cfg-block" id="t2AutoBlock">
+        <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (คำนวณอัตโนมัติ)</div>
+        <div class="cfg-inline">
+          <div class="cfg-n" id="show_t2_keep" style="background:#cffafe;color:#155e75;display:flex;align-items:center;justify-content:center;">0</div>
+          <div class="cfg-n" id="show_t2_exam" style="background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;">0</div>
+        </div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:4px;">
+          เก็บ = รวมคะแนนทุกหน่วย / สอบ = ส่วนที่เหลือจากคะแนนเต็ม
+        </div>
       </div>
-
-      <div id="subPanel_1">
-        <div class="sub-list" id="subList_1"></div>
-        <button class="btn-add-sub" onclick="addSub(1)">＋ เพิ่มหัวข้อ เทอม 1</button>
-      </div>
-
-      <div id="subPanel_2" style="display:none;">
-        <div class="sub-list" id="subList_2"></div>
-        <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหัวข้อ เทอม 2</button>
-      </div>
-
-      <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
     </div>
+  </div>
 
+  <!-- tab -->
+  <div class="ttabs mb-3">
+    <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
+    <button class="ttab" id="tabTerm2Btn" onclick="switchTerm(2,this)">เทอม 2</button>
+  </div>
+
+  <!-- term 1 -->
+  <div id="subPanel_1">
+    <div class="raw-preview mb-2">
+      <span>คะแนนรวมทุกหน่วย เทอม 1:</span>
+      <strong id="sum_t1_units">0</strong>
+      <span>/</span>
+      <span class="res">คะแนนเต็ม {{50 หรือ 100}}</span>
+    </div>
+    <div class="sub-list" id="subList_1"></div>
+    <button class="btn-add-sub" onclick="addSub(1)">＋ เพิ่มหน่วยการเรียนรู้ เทอม 1</button>
+  </div>
+
+  <!-- term 2 -->
+  <div id="subPanel_2" style="display:none;">
+    <div class="raw-preview mb-2">
+      <span>คะแนนรวมทุกหน่วย เทอม 2:</span>
+      <strong id="sum_t2_units">0</strong>
+      <span>/</span>
+      <span class="res">50</span>
+    </div>
+    <div class="sub-list" id="subList_2"></div>
+    <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหน่วยการเรียนรู้ เทอม 2</button>
+  </div>
+
+  <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
+</div>
     <!-- ปุ่มบันทึก -->
     <button class="btn-save w-100" onclick="saveCourseInfo()" style="background: linear-gradient(135deg, #16a34a, #15803d);">
       💾 บันทึกข้อมูลรายวิชา
@@ -624,8 +651,11 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_-Q4T2dJUX6L7c3EE
 const ALL_CLS = ["ป.1","ป.2","ป.3","ป.4","ป.5","ป.6","ม.1 เทอม 1","ม.1 เทอม 2","ม.2 เทอม 1","ม.2 เทอม 2","ม.3 เทอม 1","ม.3 เทอม 2"];
 
 let CU=null, PIN="", SUBS={}, STUDENTS=[];
-let SI={1:[],2:[]};
-let EXP={1:true,2:true};
+let SI = {
+  1: [], // [{name,max,items:[{name,max}]}]
+  2: []
+};
+  let EXP={1:true,2:true};
 let editTid=null, editAssigned=[];
 
 // ─── UTILS ───────────────────────────────
@@ -902,16 +932,18 @@ async function loadGrades() {
     }
 
 // 3. ซิงค์หัวข้อย่อย 
-    SI[1] = config.subItems?.t1 || []; // เติม [] ต่อท้ายให้ครบ
-    if (!IS_SEM_MODE) {
-      SI[2] = config.subItems?.t2 || []; // เติม [] ต่อท้ายให้ครบ
-    } // ใส่ } ปิด if ให้ถูกต้อง
+SI[1] = config.units?.t1 || config.subItems?.t1 || [];
+if (!IS_SEM_MODE) {
+  SI[2] = config.units?.t2 || config.subItems?.t2 || [];
+} else {
+  SI[2] = [];
+}
 
     // 4. สั่งวาดรายการหัวข้อย่อย และคำนวณ Raw Max ใหม่
-    renderSubList(1);
-    if (!IS_SEM_MODE) renderSubList(2);
-    onCfg(); 
-    calcTotalHours(); // ✨ เรียกคำนวณคาบเรียนทันทีเมื่อโหลดเสร็จ
+renderSubList(1);
+if (!IS_SEM_MODE) renderSubList(2);
+refreshUnitPanelLabels();
+onCfg();
 
     // 5. เตรียมข้อมูลนักเรียนและสร้างตาราง
     STUDENTS = res.students;
@@ -1091,15 +1123,36 @@ function buildBody(){
   document.getElementById('gtBody').innerHTML=rows;
 }
 function applySubConfig(){
-  if(!STUDENTS.length) return toast('โหลดรายชื่อก่อน','error');
-  const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
-  const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
-  const targetTotal = IS_SEM_MODE ? 100 : 50;
-  if(t1a + t1e !== targetTotal) return toast(`คะแนนเก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
-  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) return toast(`เทอม 2: เก็บ + สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`,'error');
+  if (!STUDENTS.length) return toast('โหลดรายชื่อก่อน', 'error');
+
+  const t1Keep = getUnitsMax(1);
+  const t1Target = IS_SEM_MODE ? 100 : 50;
+  if (t1Keep > t1Target) {
+    return toast(`เทอม 1: คะแนนรวมของหน่วยเกิน ${t1Target}`, 'error');
+  }
+
+  if (!IS_SEM_MODE) {
+    const t2Keep = getUnitsMax(2);
+    if (t2Keep > 50) {
+      return toast('เทอม 2: คะแนนรวมของหน่วยเกิน 50', 'error');
+    }
+  }
+
+  refreshUnitPanelLabels();
+  updateAutoScoreDisplay();
+
+  // เฟส 1 ยังไม่แก้ buildTable เชิงโครงสร้างทั้งหมด
+  // จึงให้ rebuild แบบเดิมไปก่อน โดยใช้ค่า t1_acc/t1_exam ที่คำนวณอัตโนมัติ
+  document.getElementById('c_t1a').value = getUnitsMax(1);
+  document.getElementById('c_t1e').value = Math.max(0, (IS_SEM_MODE ? 100 : 50) - getUnitsMax(1));
+
+  document.getElementById('c_t2a').value = IS_SEM_MODE ? 0 : getUnitsMax(2);
+  document.getElementById('c_t2e').value = IS_SEM_MODE ? 0 : Math.max(0, 50 - getUnitsMax(2));
+
   const snap = snapshotInputs();
   buildTable();
   restoreInputs(snap);
+
   toast('อัปเดตตารางแล้ว ✓');
 }
 
@@ -1311,21 +1364,48 @@ async function saveConfigOnly() {
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
 
-  if (!subj || subj === "-- ไม่พบวิชา --") return;
+  if (!subj || subj === "-- ไม่พบวิชา --") return false;
+
+  const t1Keep = getUnitsMax(1);
+  const t1Exam = Math.max(0, getTermTargetScore(1) - t1Keep);
+  const t2Keep = getUnitsMax(2);
+  const t2Exam = Math.max(0, 50 - t2Keep);
+
+  const target = IS_SEM_MODE ? 100 : 50;
+
+  if (t1Keep > target) {
+    toast(`เทอม 1: คะแนนรวมของหน่วยเกิน ${target} คะแนน`, 'warning');
+    return false;
+  }
+
+  if (!IS_SEM_MODE && t2Keep > 50) {
+    toast(`เทอม 2: คะแนนรวมของหน่วยเกิน 50 คะแนน`, 'warning');
+    return false;
+  }
 
   const config = {
-    t1_acc: +document.getElementById('c_t1a').value || 0,
-    t1_exam: +document.getElementById('c_t1e').value || 0,
-    t2_acc: +document.getElementById('c_t2a').value || 0,
-    t2_exam: +document.getElementById('c_t2e').value || 0,
-    subItems: {
+    t1_acc: t1Keep,
+    t1_exam: t1Exam,
+    t2_acc: IS_SEM_MODE ? 0 : t2Keep,
+    t2_exam: IS_SEM_MODE ? 0 : t2Exam,
+
+    // รองรับของใหม่
+    units: {
       t1: SI[1] || [],
       t2: SI[2] || []
     },
-    rawMax: {
-      t1: getRawMax(1),
-      t2: getRawMax(2)
+
+    // กันของเดิมยังมีคนอ้างถึง
+    subItems: {
+      t1: [],
+      t2: []
     },
+
+    rawMax: {
+      t1: 0,
+      t2: 0
+    },
+
     courseInfo: {
       code: document.getElementById('ci_code').value || "",
       type: document.getElementById('ci_type').value || "รายวิชาพื้นฐาน",
@@ -1342,36 +1422,25 @@ async function saveConfigOnly() {
     }
   };
 
-  const targetTotal = IS_SEM_MODE ? 100 : 50;
-  const term1Label = IS_SEM_MODE ? "ภาคเรียนนี้" : "เทอม 1";
-
-  if (config.t1_acc + config.t1_exam !== targetTotal) {
-    return toast(`${term1Label}: เก็บ+สอบ ต้องรวมให้ได้ ${targetTotal} คะแนน`, 'warning');
-  }
-
-  if (!IS_SEM_MODE && (config.t2_acc + config.t2_exam !== 50)) {
-    return toast('เทอม 2: เก็บ+สอบ ต้องรวมให้ได้ 50 คะแนน', 'warning');
-  }
-
   pg('กำลังบันทึกการตั้งค่า...');
   try {
     await api('saveGrades', {
-      year: year,
+      year,
       classroom: cls,
       subject: subj,
-      config: config,
+      config,
       gradeRecords: []
     });
 
-    toast('✅ บันทึกข้อมูลรายวิชา / เวลาเรียน / ตั้งค่าคะแนน เรียบร้อยแล้ว');
-    buildTable();
+    toast('✅ บันทึกการตั้งค่าหน่วยการเรียนรู้เรียบร้อย');
+    return true;
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
+    return false;
   } finally {
     pg_();
   }
-}
-  
+}  
 document.addEventListener('keydown', function(event) {
   // ดักจับปุ่ม Enter, ลูกศรลง (ArrowDown) และ ลูกศรขึ้น (ArrowUp)
   if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -1835,13 +1904,201 @@ function calcTotalHours() {
 
 
 async function saveCourseInfo() {
-  await saveConfigOnly();
+  const ok = await saveConfigOnly();
+  if (!ok) return;
+
   setTimeout(() => {
     document.getElementById('accCourseInfo').classList.remove('open');
     document.getElementById('accCourseInfoBody').classList.add('hidden');
   }, 800);
 }
-  
+
+  function getTermTargetScore(term){
+  return IS_SEM_MODE ? 100 : 50;
+}
+
+function getUnitsMax(term){
+  return (SI[term] || []).reduce((sum, unit) => sum + (Number(unit.max) || 0), 0);
+}
+
+function getUnitItemsRawMax(unit){
+  return (unit.items || []).reduce((sum, item) => sum + (Number(item.max) || 0), 0);
+}
+
+function updateAutoScoreDisplay(){
+  const t1Keep = getUnitsMax(1);
+  const t1Exam = Math.max(0, getTermTargetScore(1) - t1Keep);
+
+  const el1k = document.getElementById('show_t1_keep');
+  const el1e = document.getElementById('show_t1_exam');
+  if (el1k) el1k.textContent = t1Keep;
+  if (el1e) el1e.textContent = t1Exam;
+
+  const sum1 = document.getElementById('sum_t1_units');
+  if (sum1) sum1.textContent = t1Keep;
+
+  if (!IS_SEM_MODE) {
+    const t2Keep = getUnitsMax(2);
+    const t2Exam = Math.max(0, getTermTargetScore(2) - t2Keep);
+
+    const el2k = document.getElementById('show_t2_keep');
+    const el2e = document.getElementById('show_t2_exam');
+    if (el2k) el2k.textContent = t2Keep;
+    if (el2e) el2e.textContent = t2Exam;
+
+    const sum2 = document.getElementById('sum_t2_units');
+    if (sum2) sum2.textContent = t2Keep;
+  }
+}
+
+function onCfg(){
+  updateAutoScoreDisplay();
+}
+
+function switchTerm(t, btn){
+  document.querySelectorAll('.ttab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('subPanel_1').style.display = t === 1 ? '' : 'none';
+  document.getElementById('subPanel_2').style.display = t === 2 ? '' : 'none';
+}
+
+function addSub(term){
+  SI[term].push({
+    name: `หน่วยการเรียนรู้ที่ ${SI[term].length + 1}`,
+    max: 10,
+    items: [
+      { name: "งาน 1", max: 10 }
+    ]
+  });
+  renderSubList(term);
+}
+
+function rmSub(term, unitIndex){
+  if (!confirm(`ยืนยันการลบ "${SI[term][unitIndex].name}" ?`)) return;
+  SI[term].splice(unitIndex, 1);
+  renderSubList(term);
+}
+
+function addSubItem(term, unitIndex){
+  SI[term][unitIndex].items.push({
+    name: `งาน ${SI[term][unitIndex].items.length + 1}`,
+    max: 10
+  });
+  renderSubList(term);
+}
+
+function rmSubItem(term, unitIndex, itemIndex){
+  if (!confirm('ยืนยันการลบงานนี้ใช่หรือไม่?')) return;
+  SI[term][unitIndex].items.splice(itemIndex, 1);
+  renderSubList(term);
+}
+
+function renderSubList(term){
+  const wrap = document.getElementById(`subList_${term}`);
+  if (!wrap) return;
+
+  const units = SI[term] || [];
+
+  if (!units.length) {
+    wrap.innerHTML = `
+      <div class="text-muted text-center py-3" style="background:#fff;border:1px dashed #cbd5e1;border-radius:10px;">
+        ยังไม่มีหน่วยการเรียนรู้
+      </div>
+    `;
+    updateAutoScoreDisplay();
+    return;
+  }
+
+  wrap.innerHTML = units.map((unit, ui) => {
+    const rawMax = getUnitItemsRawMax(unit);
+
+    return `
+      <div class="sub-row" style="display:block; padding:12px; border:1.5px solid #ddd6fe; background:#fff; border-radius:12px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <span class="sub-n">${ui + 1}.</span>
+
+          <input class="sub-name" type="text"
+            value="${unit.name || ''}"
+            placeholder="ชื่อหน่วยการเรียนรู้"
+            onchange="SI[${term}][${ui}].name=this.value">
+
+          <span class="sub-max-lbl">คะแนนหน่วย</span>
+          <input class="sub-max" type="number" min="1"
+            value="${Number(unit.max) || 0}"
+            onchange="SI[${term}][${ui}].max=Number(this.value)||0; updateAutoScoreDisplay(); renderSubList(${term});">
+
+          <button class="btn-rm" onclick="rmSub(${term},${ui})">✕</button>
+        </div>
+
+        <div style="margin-left:24px;display:flex;flex-direction:column;gap:7px;">
+          ${(unit.items || []).map((item, ii) => `
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <input class="sub-name" type="text"
+                value="${item.name || ''}"
+                placeholder="ชื่องาน / กิจกรรม"
+                onchange="SI[${term}][${ui}].items[${ii}].name=this.value">
+
+              <span class="sub-max-lbl">เต็ม</span>
+              <input class="sub-max" type="number" min="1"
+                value="${Number(item.max) || 0}"
+                onchange="SI[${term}][${ui}].items[${ii}].max=Number(this.value)||0; renderSubList(${term});">
+
+              <button class="btn-rm" onclick="rmSubItem(${term},${ui},${ii})">✕</button>
+            </div>
+          `).join('')}
+
+          <button type="button" class="btn-add-sub" onclick="addSubItem(${term},${ui})">
+            ＋ เพิ่มงานในหน่วยนี้
+          </button>
+        </div>
+
+        <div class="raw-preview" style="margin-top:10px;">
+          <span>คะแนนดิบรวมของหน่วย:</span>
+          <strong>${rawMax}</strong>
+          <span>| คะแนนหน่วย:</span>
+          <strong class="res">${Number(unit.max) || 0}</strong>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  updateAutoScoreDisplay();
+}
+  function refreshUnitPanelLabels() {
+  const sum1 = document.getElementById('sum_t1_units');
+  const sum2 = document.getElementById('sum_t2_units');
+  const t2Block = document.getElementById('t2AutoBlock');
+  const t2Tab = document.getElementById('tabTerm2Btn');
+
+  if (sum1 && sum1.parentElement) {
+    const maxTxt = IS_SEM_MODE ? '100' : '50';
+    sum1.parentElement.innerHTML = `
+      <span>คะแนนรวมทุกหน่วย เทอม 1:</span>
+      <strong id="sum_t1_units">${getUnitsMax(1)}</strong>
+      <span>/</span>
+      <span class="res">${maxTxt}</span>
+    `;
+  }
+
+  if (sum2 && sum2.parentElement) {
+    sum2.parentElement.innerHTML = `
+      <span>คะแนนรวมทุกหน่วย เทอม 2:</span>
+      <strong id="sum_t2_units">${getUnitsMax(2)}</strong>
+      <span>/</span>
+      <span class="res">50</span>
+    `;
+  }
+
+  if (IS_SEM_MODE) {
+    if (t2Block) t2Block.style.display = 'none';
+    if (t2Tab) t2Tab.style.display = 'none';
+  } else {
+    if (t2Block) t2Block.style.display = '';
+    if (t2Tab) t2Tab.style.display = '';
+  }
+
+  updateAutoScoreDisplay();
+}
 </script>
 </body>
 </html>
