@@ -466,25 +466,25 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
   <div class="acc-body hidden" id="accMainBody">
     
     <!-- ส่วนสัดส่วนคะแนน -->
-    <div class="card mb-3" style="background:#f8fafc;">
-      <div class="cfg-row">
-        <!-- เทอม 1 -->
-        <div class="cfg-block">
-          <div class="cfg-ttl" style="color:#1d4ed8;">คะแนน เทอม 1 (เก็บ/สอบ)</div>
-  <!-- เทอม 1 -->
-<div class="cfg-inline">
-  <input type="number" class="cfg-n" id="c_t1a" value="35" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
-  <input type="number" class="cfg-n" id="c_t1e" value="15" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
-</div>
-
-<!-- เทอม 2 -->
-<div class="cfg-inline">
-  <input type="number" class="cfg-n" id="c_t2a" value="35" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
-  <input type="number" class="cfg-n" id="c_t2e" value="15" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
-</div>
-        </div>
+<!-- แทนที่บล็อกสัดส่วนคะแนนเดิม -->
+<div class="card mb-3" style="background:#f8fafc;">
+  <div class="cfg-row">
+    <div class="cfg-block">
+      <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (เก็บ/สอบ)</div>
+      <div class="cfg-inline">
+        <input type="number" class="cfg-n" id="c_t1a" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
+        <input type="number" class="cfg-n" id="c_t1e" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
       </div>
     </div>
+    <div class="cfg-block" id="block_t2">
+      <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (เก็บ/สอบ)</div>
+      <div class="cfg-inline">
+        <input type="number" class="cfg-n" id="c_t2a" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
+        <input type="number" class="cfg-n" id="c_t2e" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
+      </div>
+    </div>
+  </div>
+</div>
     
     <!-- สลับเทอม -->
     <div class="ttabs mb-3">
@@ -830,11 +830,21 @@ async function loadGrades() {
     TERM_DATES = res.termDates || {};
     HOLIDAYS = res.holidays ||[];
 
-    // 1. อัปเดตค่าสัดส่วนคะแนน (Config) 
-    document.getElementById('c_t1a').value = config.t1_acc || 35;
-    document.getElementById('c_t1e').value = config.t1_exam || 15;
-    document.getElementById('c_t2a').value = config.t2_acc || 35;
-    document.getElementById('c_t2e').value = config.t2_exam || 15;
+ // 1. อัปเดตค่าสัดส่วนคะแนน (Config) 
+    if (config && config.t1_acc) {
+        // กรณีมีข้อมูลเก่าในฐานข้อมูลแล้ว
+        document.getElementById('c_t1a').value = config.t1_acc;
+        document.getElementById('c_t1e').value = config.t1_exam;
+        document.getElementById('c_t2a').value = config.t2_acc;
+        document.getElementById('c_t2e').value = config.t2_exam;
+    } else {
+        // ✨ กรณีเป็นวิชาใหม่ หรือข้อมูลว่าง: ตั้งค่า Default ตามโหมด
+        const isSem = IS_SEM_MODE;
+        document.getElementById('c_t1a').value = isSem ? 70 : 35;
+        document.getElementById('c_t1e').value = isSem ? 30 : 15;
+        document.getElementById('c_t2a').value = isSem ? 70 : 35;
+        document.getElementById('c_t2e').value = isSem ? 30 : 15;
+    }
 
     // ✨ 1.5 โหลดข้อมูลรายวิชาและเวลาเรียน
     if (config.courseInfo) {
@@ -867,25 +877,24 @@ async function loadGrades() {
     }
 
     // 2. ปรับปรุง UI ส่วนการตั้งค่า (Accordion) ตามโหมดชั้นเรียน
-    const t2Tab = document.querySelector('.ttab[onclick*="switchTerm(2"]');
-    const t2Block = document.querySelector('.cfg-block:nth-child(2)');
+    const t2Tab = document.getElementById('tab_t2'); // ใช้ ID ที่เราตั้งให้ใหม่
+    const t2Block = document.getElementById('block_t2'); // ใช้ ID ที่เราตั้งให้ใหม่
     const t1Title = document.querySelector('.cfg-ttl[style*="color:#1d4ed8"]');
     const btnAddT1 = document.querySelector('.btn-add-sub[onclick="addSub(1)"]');
 
     if (IS_SEM_MODE) {
-      if (t2Tab) t2Tab.style.display = 'none'; 
-      if (t2Block) t2Block.style.display = 'none'; 
-      if (t1Title) t1Title.textContent = "สัดส่วนคะแนน (เก็บ/สอบ)";
-      if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อคะแนนย่อย";
-      
-      const t1TabBtn = document.querySelector('.ttab[onclick*="switchTerm(1"]');
-      if (t1TabBtn) switchTerm(1, t1TabBtn);
-      SI[2] =[]; 
+        if (t2Tab) t2Tab.style.display = 'none'; 
+        if (t2Block) t2Block.style.display = 'none'; 
+        if (t1Title) t1Title.textContent = "สัดส่วนคะแนน (เก็บ/สอบ)";
+        if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อคะแนนย่อย";
+        
+        // บังคับให้หน้าจอแสดงแค่เทอม 1
+        switchTerm(1, document.getElementById('tab_t1')); 
     } else {
-      if (t2Tab) t2Tab.style.display = 'block';
-      if (t2Block) t2Block.style.display = 'flex';
-      if (t1Title) t1Title.textContent = "เทอม 1 (เก็บ/สอบ)";
-      if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อ เทอม 1";
+        if (t2Tab) t2Tab.style.display = 'block';
+        if (t2Block) t2Block.style.display = 'flex';
+        if (t1Title) t1Title.textContent = "คะแนน เทอม 1 (เก็บ/สอบ)";
+        if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 1)";
     }
 
 // 3. ซิงค์หัวข้อย่อย 
@@ -894,11 +903,15 @@ async function loadGrades() {
       SI[2] = config.subItems?.t2 || []; // เติม [] ต่อท้ายให้ครบ
     } // ใส่ } ปิด if ให้ถูกต้อง
 
-    // 4. สั่งวาดรายการหัวข้อย่อย และคำนวณ Raw Max ใหม่
-renderUnits(1);
-if (!IS_SEM_MODE) renderUnits(2);
+ // 4. สั่งวาดรายการหัวข้อย่อย และคำนวณ Raw Max ใหม่
+    renderUnits(1);
+    if (!IS_SEM_MODE) renderUnits(2);
+    
+    // ✨ เพิ่มการเรียกอัปเดตคะแนนรวมอัตโนมัติที่นี่
+    updateAutoScoring(); 
+    
     onCfg(); 
-    calcTotalHours(); // ✨ เรียกคำนวณคาบเรียนทันทีเมื่อโหลดเสร็จ
+    calcTotalHours(); 
 
     // 5. เตรียมข้อมูลนักเรียนและสร้างตาราง
     STUDENTS = res.students;
@@ -1922,29 +1935,18 @@ function calculateUnitScore(t, uIdx) {
 }
   // ฟังก์ชันคำนวณคะแนนเก็บรวม และอัปเดตคะแนนสอบ
 function updateAutoScoring() {
-    // 1. คำนวณคะแนนเก็บจากหน่วยการเรียนรู้ (ใช้ UNITS ของเทอม 1 เป็นหลัก)
-    let totalUnitScore = UNITS[1].reduce((sum, u) => sum + (Number(u.unitMax) || 0), 0);
-    
-    // 2. กำหนดเป้าหมายอัตโนมัติตามโหมด: มัธยม = 100, ประถม = 50
     const TOTAL_TARGET = IS_SEM_MODE ? 100 : 50;
     
-    // 3. อัปเดตช่องคะแนนเก็บ (c_t1a)
-    const t1aInput = document.getElementById('c_t1a');
-    t1aInput.value = totalUnitScore;
+    // เทอม 1
+    let t1Score = UNITS[1].reduce((sum, u) => sum + (Number(u.unitMax) || 0), 0);
+    document.getElementById('c_t1a').value = t1Score;
+    document.getElementById('c_t1e').value = Math.max(0, TOTAL_TARGET - t1Score);
     
-    // 4. อัปเดตช่องคะแนนสอบ (c_t1e)
-    const t1eInput = document.getElementById('c_t1e');
-    let remaining = TOTAL_TARGET - totalUnitScore;
-    t1eInput.value = remaining >= 0 ? remaining : 0;
-    
-    // 5. แจ้งเตือนถ้าคะแนนเกิน
-    if (remaining < 0) {
-        t1aInput.style.borderColor = 'red';
-        t1eInput.style.borderColor = 'red';
-        toast(`⚠️ คะแนนรวมเกิน ${TOTAL_TARGET} แล้ว!`, 'error');
-    } else {
-        t1aInput.style.borderColor = '';
-        t1eInput.style.borderColor = '';
+    // เทอม 2 (ถ้าเป็นประถม)
+    if (!IS_SEM_MODE) {
+        let t2Score = UNITS[2].reduce((sum, u) => sum + (Number(u.unitMax) || 0), 0);
+        document.getElementById('c_t2a').value = t2Score;
+        document.getElementById('c_t2e').value = Math.max(0, 50 - t2Score);
     }
 }
   
