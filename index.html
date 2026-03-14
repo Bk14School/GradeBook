@@ -336,13 +336,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 .res-1 { background: #fef3c7; color: #92400e; }
 .res-0 { background: #fee2e2; color: #991b1b; }
 /* =====================================================
-   MOBILE: ซ่อนคอลัมน์ ที่ / รหัส และตรึงชื่อ-นามสกุล
-   ใช้ทั้งตารางคะแนน และตารางประเมิน
+   MOBILE TABLE FIX
+   - ตารางคะแนนหลัก: ซ่อน "ที่/รหัส" + ตรึงชื่อ
+   - ตารางประเมิน: ซ่อน "ที่" + ตรึงชื่อ
    ===================================================== */
 @media (max-width: 768px) {
-  /* -----------------------------
-     1) ตารางคะแนนหลัก
-     ----------------------------- */
+  /* =========================================
+     1) ตารางคะแนนหลัก (.gtbl)
+     ========================================= */
   .gtbl thead th.s-c0,
   .gtbl thead th.s-c1,
   .gtbl tbody td.s-c0,
@@ -367,6 +368,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
   .gtbl tbody td.s-c2 {
     z-index: 20 !important;
     background: #fff !important;
+    text-align: left !important;
   }
 
   .gtbl tbody tr:hover td.s-c2 {
@@ -382,56 +384,29 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     white-space: nowrap !important;
   }
 
-  /* -----------------------------
-     2) ตารางประเมินคุณลักษณะ
-     ----------------------------- */
-  .ass-tbl th:first-child,
-  .ass-tbl td:first-child {
-    display: none !important; /* ซ่อนคอลัมน์ ที่ */
-  }
-
-  .ass-tbl th:nth-child(2),
-  .ass-tbl td:nth-child(2) {
-    position: sticky;
-    left: 0;
-    z-index: 25;
-    white-space: nowrap !important;
-    min-width: 170px;
-    max-width: none;
-  }
-
-  .ass-tbl thead th:nth-child(2) {
-    background: #f8fafc !important;
-    z-index: 35;
-  }
-
-  .ass-tbl tbody td:nth-child(2) {
-    background: #fff !important;
-    text-align: left !important;
-    font-weight: 600;
-  }
-
-  .ass-tbl tbody tr:hover td:nth-child(2) {
-    background: #f8fafc !important;
-  }
-
-  /* ให้ input และ cell กระชับขึ้นบนมือถือ */
-  .gtbl th,
-  .gtbl td,
-  .ass-tbl th,
-  .ass-tbl td {
-    padding: 4px 5px;
-  }
-
-  .inp-ass {
-    width: 30px;
-    min-width: 30px;
-  }
-}
-  @media (max-width: 768px) {
+  /* =========================================
+     2) ตารางประเมิน (.ass-tbl)
+     หมายเหตุ: ต้องมี class ass-no / ass-name ใน JS
+     ========================================= */
   .ass-wrap {
     max-height: 70vh;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ass-tbl .ass-no {
+    display: none !important;
+  }
+
+  .ass-tbl .ass-name {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 35 !important;
+    min-width: 170px !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    text-align: left !important;
+    box-shadow: 3px 0 8px rgba(99,102,241,.12);
   }
 
   .ass-tbl thead th {
@@ -440,10 +415,43 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     z-index: 20;
   }
 
-  .ass-tbl thead th:nth-child(2) {
-    z-index: 40;
+  .ass-tbl thead .ass-name {
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    z-index: 50 !important;
+  }
+
+  .ass-tbl tbody .ass-name {
+    background: #fff !important;
+    font-weight: 600;
+  }
+
+  .ass-tbl tbody tr:hover .ass-name {
+    background: #f8fafc !important;
+  }
+
+  /* =========================================
+     3) ปรับขนาดให้เหมาะกับมือถือ
+     ========================================= */
+  .gtbl th,
+  .gtbl td,
+  .ass-tbl th,
+  .ass-tbl td {
+    padding: 4px 5px !important;
+  }
+
+  .inp-ass {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+  }
+
+  .v-text {
+    font-size: 0.7rem;
+    padding: 6px 3px;
   }
 }
+  
 </style>
 </head>
 <body>
@@ -2341,25 +2349,25 @@ function renderHolisticTable(students) {
   const rwItems = ["สามารถอ่านฯ", "สามารถจับประเด็นฯ", "สามารถวิเคราะห์ฯ", "สามารถประเมินฯ", "สามารถเขียนฯ"];
   const skItems = ["สื่อสาร", "คิด", "แก้ปัญหา", "ทักษะชีวิต", "เทคโนโลยี"];
 
-  const thItems = `
-    <tr>
-      <th rowspan="2" style="width:40px;">ที่</th>
-      <th rowspan="2" style="min-width:140px;">ชื่อ-นามสกุล</th>
-      <th colspan="10" class="bg-char">คุณลักษณะอันพึงประสงค์</th>
-      <th colspan="7" class="bg-rw">อ่าน คิด วิเคราะห์ เขียน</th>
-      <th colspan="7" style="background:#d1d5db;">สมรรถนะสำคัญ</th>
-    </tr>
-    <tr>
-      ${charItems.map((c, i) => `<th class="bg-char v-text">${i + 1}.${c}</th>`).join('')}
-      <th class="bg-sum v-text">รวม</th>
-      <th class="bg-sum">ผล</th>
-      ${rwItems.map((r, i) => `<th class="bg-rw v-text">${i + 1}.${r}</th>`).join('')}
-      <th class="bg-sum v-text">รวม</th>
-      <th class="bg-sum">ผล</th>
-      ${skItems.map((s, i) => `<th class="v-text" style="background:#e5e7eb;">${i + 1}.${s}</th>`).join('')}
-      <th class="bg-sum v-text">รวม</th>
-      <th class="bg-sum">ผล</th>
-    </tr>`;
+const thItems = `
+  <tr>
+<th rowspan="2" class="ass-no" style="width:40px;">ที่</th>
+<th rowspan="2" class="ass-name" style="min-width:140px;">ชื่อ-นามสกุล</th>
+    <th colspan="10" class="bg-char">คุณลักษณะอันพึงประสงค์</th>
+    <th colspan="7" class="bg-rw">อ่าน คิด วิเคราะห์ เขียน</th>
+    <th colspan="7" style="background:#d1d5db;">สมรรถนะสำคัญ</th>
+  </tr>
+  <tr>
+    ${charItems.map((c, i) => `<th class="bg-char v-text">${i + 1}.${c}</th>`).join('')}
+    <th class="bg-sum v-text">รวม</th>
+    <th class="bg-sum">ผล</th>
+    ${rwItems.map((r, i) => `<th class="bg-rw v-text">${i + 1}.${r}</th>`).join('')}
+    <th class="bg-sum v-text">รวม</th>
+    <th class="bg-sum">ผล</th>
+    ${skItems.map((s, i) => `<th class="v-text" style="background:#e5e7eb;">${i + 1}.${s}</th>`).join('')}
+    <th class="bg-sum v-text">รวม</th>
+    <th class="bg-sum">ผล</th>
+  </tr>`;
 
   const trs = students.map((s, idx) => {
     const h = s.holistic || {};
@@ -2372,9 +2380,9 @@ function renderHolisticTable(students) {
     const sHtml = sVals.map(v => `<td><input type="number" class="inp-ass s-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 's')"></td>`).join('');
 
     return `
-      <tr data-hsid="${s.studentId}">
-        <td>${idx + 1}</td>
-        <td style="text-align:left;font-weight:600;background:#fff;">${s.name}</td>
+<tr data-hsid="${s.studentId}">
+<td class="ass-no">${idx + 1}</td>
+<td class="ass-name" style="text-align:left;font-weight:600;background:#fff;">${s.name}</td>
 
         ${cHtml}
         <td class="bg-sum c-total">-</td>
