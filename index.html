@@ -810,11 +810,16 @@ async function loadGrades() {
     return toast('กรุณาเลือกวิชาที่ถูกต้อง', 'error');
   }
 
-// ในฟังก์ชัน loadGrades() เมื่อตรวจพบว่าเป็นมัธยมif (IS_SEM_MODE) {
-    // 1. ซ่อนส่วนประกอบของเทอม 2 ทันที
+  // ✨ 1. ตรวจสอบโหมดมัธยม จากชื่อชั้นเรียนว่ามีคำว่า "ม." หรือไม่
+  IS_SEM_MODE = cls.includes('ม.');
+
+  if (IS_SEM_MODE) {
+    // ซ่อนส่วนประกอบของเทอม 2 ทันที ถ้าเป็นมัธยม
     document.getElementById('block_t2').style.display = 'none';
     document.getElementById('tab_t2').style.display = 'none';
     document.getElementById('subPanel_2').style.display = 'none';
+  }
+
   pg('กำลังโหลดข้อมูลและสถิติมาเรียน...');
   
   document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
