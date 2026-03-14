@@ -494,28 +494,34 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     <!-- =========================
          ข้อมูลพื้นฐานรายวิชา
          ========================= -->
-    <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
-      <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">1) ข้อมูลรายวิชา</div>
+<div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
+  <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">1) ข้อมูลรายวิชา</div>
 
-      <div class="cfg-row mb-3">
-        <div class="cfg-block" style="flex:1; min-width:120px;">
-          <label class="cfg-ttl">รหัสวิชา</label>
-          <input type="text" id="ci_code" class="cfg-n" style="width:100%; text-align:left;" placeholder="เช่น ท21101">
-        </div>
-        <div class="cfg-block" style="flex:1; min-width:150px;">
-          <label class="cfg-ttl">ประเภทวิชา</label>
-          <select id="ci_type" class="cfg-n" style="width:100%; text-align:left;">
-            <option value="รายวิชาพื้นฐาน">รายวิชาพื้นฐาน</option>
-            <option value="รายวิชาเพิ่มเติม">รายวิชาเพิ่มเติม</option>
-            <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
-          </select>
-        </div>
-        <div class="cfg-block" style="flex:0.5; min-width:80px;">
-          <label class="cfg-ttl">หน่วยกิต</label>
-          <input type="number" step="0.5" id="ci_credit" class="cfg-n" style="width:100%;" placeholder="1.5">
-        </div>
-      </div>
+  <div class="cfg-row mb-3">
+    <div class="cfg-block" style="flex:1; min-width:120px;">
+      <label class="cfg-ttl">รหัสวิชา</label>
+      <input type="text" id="ci_code" class="cfg-n" style="width:100%; text-align:left;" placeholder="เช่น ท21101">
     </div>
+    <div class="cfg-block" style="flex:1; min-width:150px;">
+      <label class="cfg-ttl">ประเภทวิชา</label>
+      <select id="ci_type" class="cfg-n" style="width:100%; text-align:left;">
+        <option value="รายวิชาพื้นฐาน">รายวิชาพื้นฐาน</option>
+        <option value="รายวิชาเพิ่มเติม">รายวิชาเพิ่มเติม</option>
+        <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
+      </select>
+    </div>
+    <div class="cfg-block" style="flex:0.5; min-width:80px;">
+      <label class="cfg-ttl">หน่วยกิต</label>
+      <input type="number" step="0.5" id="ci_credit" class="cfg-n" style="width:100%;" placeholder="1.5">
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;">
+    <button class="btn-save" onclick="saveCourseInfo()" style="background: linear-gradient(135deg, #16a34a, #15803d); min-width:220px;">
+      💾 บันทึกข้อมูลรายวิชา
+    </button>
+  </div>
+</div>
 
     <!-- =========================
          เวลาเรียน
@@ -609,12 +615,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหน่วยการเรียนรู้ เทอม 2</button>
   </div>
 
-  <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
+  <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตารางคะแนน</button>
 </div>
-    <!-- ปุ่มบันทึก -->
-    <button class="btn-save w-100" onclick="saveCourseInfo()" style="background: linear-gradient(135deg, #16a34a, #15803d);">
-      💾 บันทึกข้อมูลรายวิชา
-    </button>
+   
 
   </div>
 
