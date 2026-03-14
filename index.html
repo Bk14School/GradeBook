@@ -1738,10 +1738,13 @@ let HOLIDAYS =[];
 
 function calcTotalHours() {
   // หากยังโหลดวันที่ไม่สำเร็จ ให้เป็น 0 ไปก่อน
-  if (!TERM_DATES || Object.keys(TERM_DATES).length === 0) {
+// แก้จากเดิมที่บรรทัด 1741 ให้เป็นแบบนี้ครับ
+if (!TERM_DATES || Object.keys(TERM_DATES).length === 0 || !Array.isArray(HOLIDAYS)) {
+    // ถ้าข้อมูลยังโหลดไม่เสร็จ ให้คืนค่าเป็น 0 แต่ไม่ต้อง return ทันที 
+    // เพื่อให้ตัวเลขในหน้าจอไม่อ้างอิงค่าเก่าที่ผิดพลาด
     document.getElementById('ci_total_hours').textContent = 0;
-    return;
-  }
+    // ไม่ต้อง return เพราะเราจะให้มันทำงานต่อถ้าโหลดเสร็จแล้ว
+}
 
   const cls = document.getElementById('gClass').value;
   let startDateStr, endDateStr;
@@ -1795,11 +1798,11 @@ function calcTotalHours() {
 
   // สร้างเซ็ตของวันหยุด (เก็บเฉพาะที่ type = 'holiday')
   const holidaySet = new Set();
-  HOLIDAYS.forEach(h => {
+(HOLIDAYS || []).forEach(h => {
     if (h.type === 'holiday') {
-      holidaySet.add(h.date); // format "DD/MM/YYYY" ตรงกับฝั่งเซิร์ฟเวอร์
+        holidaySet.add(h.date);
     }
-  });
+});
 
   let totalHours = 0;
   let current = new Date(start);
