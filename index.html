@@ -1855,20 +1855,19 @@ function addTask(t, unitIdx) {
 }
 
 function renderUnits(t) {
- const container = document.getElementById(`subList_${t}`);
+  const container = document.getElementById(`subList_${t}`);
   if (!container) {
     console.error("หา id subList_" + t + " ไม่พบ");
     return;
-  }  container.innerHTML = UNITS[t].map((u, uIdx) => `
+  }
+  
+  container.innerHTML = UNITS[t].map((u, uIdx) => `
     <div class="card p-3" style="background:#f8fafc; border:1px solid #c7d2fe;">
       <div class="d-flex gap-2 mb-2 align-items-center">
         <input class="form-control fw-bold" value="${u.name}" onchange="UNITS[${t}][${uIdx}].name=this.value">
         <div style="width:120px;">
-// ในส่วนของ renderUnits (ที่สร้าง input unitMax)
-<input class="form-control text-center" type="number" 
-       placeholder="คะแนนเต็มหน่วย" value="${u.unitMax}" 
-       onchange="UNITS[${t}][${uIdx}].unitMax=+this.value; updateAutoScoring();">       
-       </div>
+          <input class="form-control text-center" type="number" placeholder="คะแนนเต็มหน่วย" value="${u.unitMax}" onchange="UNITS[${t}][${uIdx}].unitMax=+this.value; updateAutoScoring();">
+        </div>
         <button class="btn btn-sm btn-outline-danger" onclick="removeUnit(${t}, ${uIdx})">✕</button>
       </div>
       <div class="ms-3 border-start ps-2">
@@ -1883,6 +1882,9 @@ function renderUnits(t) {
       </div>
     </div>
   `).join('');
+  
+  // เรียกคำนวณคะแนนรวมเมื่อมีการ render ใหม่
+  updateAutoScoring();
 }
 
 function removeUnit(t, idx) { UNITS[t].splice(idx, 1); renderUnits(t); }
