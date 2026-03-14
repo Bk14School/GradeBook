@@ -471,18 +471,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
         <!-- เทอม 1 -->
         <div class="cfg-block">
           <div class="cfg-ttl" style="color:#1d4ed8;">คะแนน เทอม 1 (เก็บ/สอบ)</div>
-          <div class="cfg-inline">
-            <input type="number" class="cfg-n" id="c_t1a" value="35">
-            <input type="number" class="cfg-n" id="c_t1e" value="15">
-          </div>
-        </div>
-        <!-- เทอม 2 -->
-        <div class="cfg-block" id="block_t2">
-          <div class="cfg-ttl" style="color:#0e7490;">คะแนน เทอม 2 (เก็บ/สอบ)</div>
-          <div class="cfg-inline">
-            <input type="number" class="cfg-n" id="c_t2a" value="35">
-            <input type="number" class="cfg-n" id="c_t2e" value="15">
-          </div>
+  <!-- เทอม 1 -->
+<div class="cfg-inline">
+  <input type="number" class="cfg-n" id="c_t1a" value="35" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
+  <input type="number" class="cfg-n" id="c_t1e" value="15" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
+</div>
+
+<!-- เทอม 2 -->
+<div class="cfg-inline">
+  <input type="number" class="cfg-n" id="c_t2a" value="35" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
+  <input type="number" class="cfg-n" id="c_t2e" value="15" readonly style="background:#f1f5f9; color:#64748b; cursor:default;">
+</div>
         </div>
       </div>
     </div>
@@ -1923,26 +1922,26 @@ function calculateUnitScore(t, uIdx) {
 }
   // ฟังก์ชันคำนวณคะแนนเก็บรวม และอัปเดตคะแนนสอบ
 function updateAutoScoring() {
-    // รวมคะแนนเต็มจากทุกหน่วย (Units)
+    // 1. คำนวณคะแนนเก็บจากหน่วยการเรียนรู้ (ใช้ UNITS ของเทอม 1 เป็นหลัก)
     let totalUnitScore = UNITS[1].reduce((sum, u) => sum + (Number(u.unitMax) || 0), 0);
     
-    // ตั้งค่าเป้าหมายคือ 100
-    const TOTAL_TARGET = 100;
+    // 2. กำหนดเป้าหมายอัตโนมัติตามโหมด: มัธยม = 100, ประถม = 50
+    const TOTAL_TARGET = IS_SEM_MODE ? 100 : 50;
     
-    // อัปเดตช่องคะแนนเก็บ (c_t1a)
+    // 3. อัปเดตช่องคะแนนเก็บ (c_t1a)
     const t1aInput = document.getElementById('c_t1a');
     t1aInput.value = totalUnitScore;
     
-    // อัปเดตช่องคะแนนสอบ (c_t1e) = 100 - คะแนนเก็บ
+    // 4. อัปเดตช่องคะแนนสอบ (c_t1e)
     const t1eInput = document.getElementById('c_t1e');
     let remaining = TOTAL_TARGET - totalUnitScore;
     t1eInput.value = remaining >= 0 ? remaining : 0;
     
-    // Highlight แจ้งเตือนถ้าคะแนนเกิน
+    // 5. แจ้งเตือนถ้าคะแนนเกิน
     if (remaining < 0) {
         t1aInput.style.borderColor = 'red';
         t1eInput.style.borderColor = 'red';
-        toast('⚠️ คะแนนรวมเกิน 100 แล้ว!', 'error');
+        toast(`⚠️ คะแนนรวมเกิน ${TOTAL_TARGET} แล้ว!`, 'error');
     } else {
         t1aInput.style.borderColor = '';
         t1eInput.style.borderColor = '';
