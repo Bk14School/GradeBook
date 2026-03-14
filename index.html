@@ -720,12 +720,25 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
         </div>
       </div>
 
-      <div class="cfg-row mb-3">
-        <div class="cfg-block" style="flex:1;min-width:220px;">
-          <label class="cfg-ttl">ชื่อครูผู้สอน</label>
-          <input type="text" id="ci_teacher_name" class="cfg-n" style="width:100%;text-align:left;" placeholder="เช่น นางสาว...">
-        </div>
-      </div>
+<div class="cfg-row mb-3">
+
+  <div class="cfg-block" style="flex:1;min-width:220px;">
+    <label class="cfg-ttl">ชื่อครูผู้สอน</label>
+    <input type="text" id="ci_teacher_name"
+      class="cfg-n"
+      style="width:100%;text-align:left;"
+      placeholder="เช่น นางสาว...">
+  </div>
+
+  <div class="cfg-block" style="flex:1;min-width:220px;">
+    <label class="cfg-ttl">หัวหน้ากลุ่มสาระการเรียนรู้</label>
+    <input type="text" id="ci_group_head_name"
+      class="cfg-n"
+      style="width:100%;text-align:left;"
+      placeholder="เช่น นาย...">
+  </div>
+
+</div>
 
       <div style="display:flex;justify-content:flex-end;">
         <button class="btn-save" onclick="saveCourseMetaOnly()" style="background:linear-gradient(135deg,#16a34a,#15803d);min-width:210px;">
@@ -1580,6 +1593,7 @@ function setCourseInfoForm(courseInfo = {}, currentSubject = '') {
   document.getElementById('ci_type').value = courseInfo.type || 'รายวิชาพื้นฐาน';
   document.getElementById('ci_credit').value = courseInfo.credit || '';
   document.getElementById('ci_teacher_name').value = courseInfo.teacherName || '';
+  document.getElementById('ci_group_head_name').value = courseInfo.groupHeadName || '';
 
   const sch = courseInfo.schedule || {};
   document.getElementById('sch_mon').value = sch.mon || 0;
@@ -1594,11 +1608,12 @@ function setCourseInfoForm(courseInfo = {}, currentSubject = '') {
 function getCourseInfoForm() {
   return {
     learningArea: document.getElementById('ci_learning_area').value || '',
-    name: document.getElementById('ci_name').value || document.getElementById('gSubj').value || '',
+    name: document.getElementById('ci_name').value || '',
     code: document.getElementById('ci_code').value || '',
     type: document.getElementById('ci_type').value || 'รายวิชาพื้นฐาน',
     credit: document.getElementById('ci_credit').value || '',
     teacherName: document.getElementById('ci_teacher_name').value || '',
+    groupHeadName: document.getElementById('ci_group_head_name').value || '', 
     schedule: {
       mon: +document.getElementById('sch_mon').value || 0,
       tue: +document.getElementById('sch_tue').value || 0,
