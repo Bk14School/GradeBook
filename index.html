@@ -2445,6 +2445,26 @@ function renderSubList(term){
 
   updateAutoScoreDisplay();
 }
+  async function saveCourseMetaOnly() {
+  const ok = await saveConfigOnly();
+  if (ok) {
+    toast('✅ บันทึกข้อมูลวิชาเรียบร้อย');
+  }
+}
+
+async function saveScheduleOnly() {
+  const ok = await saveConfigOnly();
+  if (ok) {
+    toast('✅ บันทึกเวลาเรียนเรียบร้อย');
+  }
+}
+
+async function saveScoreConfigOnly() {
+  const ok = await saveConfigOnly();
+  if (ok) {
+    toast('✅ บันทึกการตั้งค่าคะแนนเรียบร้อย');
+  }
+}
 </script>
 </body>
 </html>
