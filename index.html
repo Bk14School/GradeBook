@@ -2481,8 +2481,8 @@ async function printSummaryPDF() {
       ignoreR: IGNORE_R
     });
 
-    openBase64PdfInPrintWindow(pdfData, `สรุปผลการเรียน_${classroom}_ปี${year}.pdf`);
-    toast('เปิดหน้าพิมพ์สรุปผลการเรียนแล้ว');
+const rModeLabel = IGNORE_R ? 'ซ่อนร' : 'แสดงร';
+openBase64PdfInPrintWindow(pdfData, `สรุปผลการเรียน_${classroom}_ปี${year}_${rModeLabel}.pdf`);    toast('เปิดหน้าพิมพ์สรุปผลการเรียนแล้ว');
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
@@ -2515,8 +2515,8 @@ async function exportSummaryCSV() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `สรุปผลการเรียน_${classroom}_ปี${year}.csv`);
-    link.style.visibility = 'hidden';
+const rModeLabel = IGNORE_R ? 'ซ่อนร' : 'แสดงร';
+link.setAttribute('download', `สรุปผลการเรียน_${classroom}_ปี${year}_${rModeLabel}.csv`);    link.style.visibility = 'hidden';
 
     document.body.appendChild(link);
     link.click();
