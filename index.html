@@ -938,6 +938,28 @@ if (!IS_SEM_MODE) {
 } else {
   SI[2] = [];
 }
+    function normalizeUnits(term){
+  if (!Array.isArray(SI[term])) SI[term] = [];
+
+  // ถ้าเป็นโครงเก่า [{name,max}] ให้แปลงเป็นหน่วยที่มี 1 งาน
+  SI[term] = SI[term].map((u, idx) => {
+    if (u && Array.isArray(u.items)) return u;
+
+    return {
+      name: u?.name || `หน่วยการเรียนรู้ที่ ${idx + 1}`,
+      max: Number(u?.max) || 10,
+      items: [
+        {
+          name: u?.name || 'งาน 1',
+          max: Number(u?.max) || 10
+        }
+      ]
+    };
+  });
+}
+
+normalizeUnits(1);
+normalizeUnits(2);
 
     // 4. สั่งวาดรายการหัวข้อย่อย และคำนวณ Raw Max ใหม่
 renderSubList(1);
@@ -972,182 +994,388 @@ if (acc && body) {
   pg_();
 }
         
-        
+        function getTermTargetScore(term){
+  return IS_SEM_MODE ? 100 : 50;
+}
+
+function getUnits(term){
+  return SI[term] || [];
+}
+
+function getUnitsMax(term){
+  return getUnits(term).reduce((sum, unit) => sum + (Number(unit.max) || 0), 0);
+}
+
+function getExamMax(term){
+  const target = getTermTargetScore(term);
+  return Math.max(0, target - getUnitsMax(term));
+}
+
+function getFlatItems(term){
+  const out = [];
+  getUnits(term).forEach((unit, unitIndex) => {
+    (unit.items || []).forEach((item, itemIndex) => {
+      out.push({
+        term,
+        unitIndex,
+        itemIndex,
+        unitName: unit.name || `หน่วย ${unitIndex + 1}`,
+        unitMax: Number(unit.max) || 0,
+        itemName: item.name || `งาน ${itemIndex + 1}`,
+        itemMax: Number(item.max) || 0
+      });
+    });
+  });
+  return out;
+}
+
+function getUnitRawMax(term, unitIndex){
+  const unit = (getUnits(term)[unitIndex] || {});
+  return (unit.items || []).reduce((sum, item) => sum + (Number(item.max) || 0), 0);
+}
+
+function calcScaledScore(raw, rawMax, scaledMax){
+  raw = Number(raw) || 0;
+  rawMax = Number(rawMax) || 0;
+  scaledMax = Number(scaledMax) || 0;
+  if (rawMax <= 0 || scaledMax <= 0) return 0;
+  return Math.round((raw / rawMax) * scaledMax * 100) / 100;
+}
+
+function sumFlatValuesByUnit(flatValues, term){
+  const units = getUnits(term);
+  return units.map((unit, unitIndex) => {
+    const unitItems = unit.items || [];
+    let offset = 0;
+
+    for (let i = 0; i < unitIndex; i++) {
+      offset += ((units[i].items || []).length);
+    }
+
+    let raw = 0;
+    unitItems.forEach((_, itemIndex) => {
+      raw += Number(flatValues[offset + itemIndex]) || 0;
+    });
+
+    return raw;
+  });
+}
+
+function flattenStudentUnitScores(term, tr){
+  const inputs = [...tr.querySelectorAll(`.sub${term}`)];
+  return inputs.map(inp => inp.value);
+}
+
+function getUnitOffsets(term){
+  const units = getUnits(term);
+  let offset = 0;
+  return units.map((unit, unitIndex) => {
+    const count = (unit.items || []).length;
+    const obj = {
+      unitIndex,
+      start: offset,
+      count
+    };
+    offset += count;
+    return obj;
+  });
+}
+
+function calcKeepScoreFromFlat(term, flatValues){
+  const units = getUnits(term);
+  const offsets = getUnitOffsets(term);
+  let total = 0;
+
+  offsets.forEach(({ unitIndex, start, count }) => {
+    const unit = units[unitIndex];
+    const rawMax = getUnitRawMax(term, unitIndex);
+    let raw = 0;
+
+    for (let i = 0; i < count; i++) {
+      raw += Number(flatValues[start + i]) || 0;
+    }
+
+    total += calcScaledScore(raw, rawMax, Number(unit.max) || 0);
+  });
+
+  return Math.round(total * 100) / 100;
+}
+
+function ensureHiddenScoreInputs(){
+  const ids = ['c_t1a','c_t1e','c_t2a','c_t2e'];
+  ids.forEach(id => {
+    if (!document.getElementById(id)) {
+      const inp = document.createElement('input');
+      inp.type = 'hidden';
+      inp.id = id;
+      inp.value = 0;
+      document.body.appendChild(inp);
+    }
+  });
+}
+
+function syncAutoScoreToHiddenInputs(){
+  ensureHiddenScoreInputs();
+
+  document.getElementById('c_t1a').value = getUnitsMax(1);
+  document.getElementById('c_t1e').value = getExamMax(1);
+
+  document.getElementById('c_t2a').value = IS_SEM_MODE ? 0 : getUnitsMax(2);
+  document.getElementById('c_t2e').value = IS_SEM_MODE ? 0 : getExamMax(2);
+}
         // ─── BUILD TABLE ─────────────────────────
+
+  
 function buildTable(){ buildHead(); buildBody(); document.getElementById('gtbl').classList.remove('t1-collapsed','t2-collapsed'); EXP={1:true,2:true}; }
 
 // ==========================================
 // 🏗️ ฟังก์ชันสร้างหัวตาราง (นำปุ่มยุบเทอม 2 กลับมาแล้ว)
 // ==========================================
 function buildHead(){
-  const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
-  const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
-  const n1=SI[1].length, n2=SI[2].length, rm1=getRawMax(1), rm2=getRawMax(2);
+  syncAutoScoreToHiddenInputs();
+
+  const t1Keep = getUnitsMax(1);
+  const t1Exam = getExamMax(1);
+
+  const t2Keep = getUnitsMax(2);
+  const t2Exam = getExamMax(2);
+
+  const t1Flat = getFlatItems(1);
+  const t2Flat = getFlatItems(2);
 
   let r1 = `
-    <th rowspan="2" class="th-base s-c0" style="width:36px;">ที่</th>
-    <th rowspan="2" class="th-base s-c1" style="width:72px;">รหัส</th>
-    <th rowspan="2" class="th-base s-c2" style="text-align:left;min-width:145px;">ชื่อ-นามสกุล</th>
-    <th rowspan="2" class="th-att" style="width:115px;">มาเรียน</th>`;
+    <th rowspan="3" class="th-base s-c0" style="width:36px;">ที่</th>
+    <th rowspan="3" class="th-base s-c1" style="width:72px;">รหัส</th>
+    <th rowspan="3" class="th-base s-c2" style="text-align:left;min-width:145px;">ชื่อ-นามสกุล</th>
+    <th rowspan="3" class="th-att" style="width:115px;">มาเรียน</th>`;
 
-  if(n1>0) r1+=`<th colspan="${n1+1}" class="th-t1s sc1">📝 คะแนนย่อย</th>`;
-  r1+=`<th rowspan="2" class="th-t1sc" style="width:88px;">
-    <div style="margin-bottom:3px;">${IS_SEM_MODE ? 'คะแนนเก็บ' : 'เก็บ ท.1'}<br><small>(${t1a})</small></div>
-    ${n1>0?`<button class="tbtn" id="tbtn1" onclick="toggleCols(1)"><span class="arr">▼</span> ยุบ</button>`:''}
-  </th>
-  <th rowspan="2" class="th-t1e" style="width:72px;">${IS_SEM_MODE ? 'สอบ' : 'สอบ ท.1'}<br><small>(${t1e})</small></th>
-  <th rowspan="2" class="th-t1t" style="width:72px;">รวม<br><small>(${IS_SEM_MODE ? '100' : '50'})</small></th>`;
-
-  // --- เพิ่มหัวตาราง สถานะ ร (เฉพาะมัธยม) ---
-  if (IS_SEM_MODE) {
-    r1 += `<th rowspan="2" class="th-base" style="width:65px; background:#475569; color:#fff;">สถานะ</th>`;
+  // เทอม 1
+  if (t1Flat.length > 0) {
+    r1 += `<th colspan="${t1Flat.length + getUnits(1).length}" class="th-t1s sc1">📝 หน่วย / งาน เทอม 1</th>`;
   }
 
-  // --- ของประถม (มีเทอม 2) ---
-  if (!IS_SEM_MODE) {
-    if(n2>0) r1+=`<th colspan="${n2+1}" class="th-t2s sc2">📝 คะแนนย่อย เทอม 2</th>`;
-    
-    // ✨ คืนชีพปุ่มยุบคะแนนย่อยเทอม 2 ตรงนี้ครับ
-    r1+=`<th rowspan="2" class="th-t2sc" style="width:88px;">
-      <div style="margin-bottom:3px;">เก็บ ท.2<br><small>(${t2a})</small></div>
-      ${n2>0?`<button class="tbtn" id="tbtn2" onclick="toggleCols(2)"><span class="arr">▼</span> ยุบ</button>`:''}
+  r1 += `
+    <th rowspan="3" class="th-t1sc" style="width:88px;">
+      <div style="margin-bottom:3px;">${IS_SEM_MODE ? 'คะแนนเก็บ' : 'เก็บ ท.1'}<br><small>(${t1Keep})</small></div>
+      ${t1Flat.length > 0 ? `<button class="tbtn" id="tbtn1" onclick="toggleCols(1)"><span class="arr">▼</span> ยุบ</button>` : ''}
     </th>
-    <th rowspan="2" class="th-t2e" style="width:72px;">สอบ ท.2<br><small>(${t2e})</small></th>
-    <th rowspan="2" class="th-t2t" style="width:72px;">รวม ท.2<br><small>(50)</small></th>
-    <th rowspan="2" class="th-grand" style="width:74px;">รวม<br>ทั้งปี</th>`;
+    <th rowspan="3" class="th-t1e" style="width:72px;">${IS_SEM_MODE ? 'สอบ' : 'สอบ ท.1'}<br><small>(${t1Exam})</small></th>
+    <th rowspan="3" class="th-t1t" style="width:72px;">รวม<br><small>(${IS_SEM_MODE ? '100' : '50'})</small></th>`;
+
+  if (IS_SEM_MODE) {
+    r1 += `<th rowspan="3" class="th-base" style="width:65px; background:#475569; color:#fff;">สถานะ</th>`;
   }
 
-  r1 += `<th rowspan="2" style="width:65px; background:#4f46e5; color:#fff; font-size:15px; border-right: 1px solid rgba(255,255,255,.12); vertical-align:middle;">เกรด</th>`;
-
-  let r2='';
-  SI[1].forEach(x=>r2+=`<th class="th-t1si sc1">${x.name}<br><small>(${x.max})</small></th>`);
-  if(n1>0) r2+=`<th class="th-t1raw sc1">raw รวม</th>`;
-  
   if (!IS_SEM_MODE) {
-    SI[2].forEach(x=>r2+=`<th class="th-t2si sc2">${x.name}<br><small>(${x.max})</small></th>`);
-    if(n2>0) r2+=`<th class="th-t2raw sc2">raw รวม</th>`;
+    if (t2Flat.length > 0) {
+      r1 += `<th colspan="${t2Flat.length + getUnits(2).length}" class="th-t2s sc2">📝 หน่วย / งาน เทอม 2</th>`;
+    }
+
+    r1 += `
+      <th rowspan="3" class="th-t2sc" style="width:88px;">
+        <div style="margin-bottom:3px;">เก็บ ท.2<br><small>(${t2Keep})</small></div>
+        ${t2Flat.length > 0 ? `<button class="tbtn" id="tbtn2" onclick="toggleCols(2)"><span class="arr">▼</span> ยุบ</button>` : ''}
+      </th>
+      <th rowspan="3" class="th-t2e" style="width:72px;">สอบ ท.2<br><small>(${t2Exam})</small></th>
+      <th rowspan="3" class="th-t2t" style="width:72px;">รวม ท.2<br><small>(50)</small></th>
+      <th rowspan="3" class="th-grand" style="width:74px;">รวม<br>ทั้งปี</th>`;
   }
 
-  document.getElementById('gtHead').innerHTML=`<tr>${r1}</tr><tr>${r2}</tr>`;
+  r1 += `<th rowspan="3" style="width:65px; background:#4f46e5; color:#fff; font-size:15px; border-right:1px solid rgba(255,255,255,.12); vertical-align:middle;">เกรด</th>`;
+
+  let r2 = '';
+  let r3 = '';
+
+  // เทอม 1
+  getUnits(1).forEach((unit, ui) => {
+    const itemCount = (unit.items || []).length;
+    if (itemCount > 0) {
+      r2 += `<th colspan="${itemCount + 1}" class="th-t1si sc1">${unit.name}<br><small>หน่วย ${Number(unit.max) || 0} คะแนน</small></th>`;
+      (unit.items || []).forEach(item => {
+        r3 += `<th class="th-t1raw sc1">${item.name}<br><small>(${Number(item.max) || 0})</small></th>`;
+      });
+      r3 += `<th class="th-t1sc sc1">รวมหน่วย</th>`;
+    }
+  });
+
+  if (!IS_SEM_MODE) {
+    getUnits(2).forEach((unit, ui) => {
+      const itemCount = (unit.items || []).length;
+      if (itemCount > 0) {
+        r2 += `<th colspan="${itemCount + 1}" class="th-t2si sc2">${unit.name}<br><small>หน่วย ${Number(unit.max) || 0} คะแนน</small></th>`;
+        (unit.items || []).forEach(item => {
+          r3 += `<th class="th-t2raw sc2">${item.name}<br><small>(${Number(item.max) || 0})</small></th>`;
+        });
+        r3 += `<th class="th-t2sc sc2">รวมหน่วย</th>`;
+      }
+    });
+  }
+
+  document.getElementById('gtHead').innerHTML = `<tr>${r1}</tr><tr>${r2}</tr><tr>${r3}</tr>`;
 }
 function buildBody(){
-  const t1a=+document.getElementById('c_t1a').value, t1eM=+document.getElementById('c_t1e').value;
-  const n1=SI[1].length, rm1=getRawMax(1);
-  const n2=SI[2].length, rm2=getRawMax(2);
-  const t2a=+document.getElementById('c_t2a').value, t2eM=+document.getElementById('c_t2e').value;
+  syncAutoScoreToHiddenInputs();
 
-  if(!STUDENTS.length){
-    document.getElementById('gtBody').innerHTML=`<tr><td colspan="20" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้เรียน</td></tr>`;
+  const t1ExamMax = getExamMax(1);
+  const t2ExamMax = getExamMax(2);
+
+  if (!STUDENTS.length) {
+    document.getElementById('gtBody').innerHTML = `<tr><td colspan="50" class="text-center py-4 text-muted">ไม่พบข้อมูลผู้เรียน</td></tr>`;
     return;
   }
 
-  const rows=STUDENTS.map((s,idx)=>{
-    const g=s.grades||{}, st=s.stats||{};
+  const rows = STUDENTS.map((s, idx) => {
+    const g = s.grades || {};
+    const st = s.stats || {};
 
-    let t1rs=0;
-    const t1sc=SI[1].map((x,i)=>{
-      const v=(g.t1_sub||[])[i]??''; t1rs+=Number(v)||0;
-      return`<td class="td-sub1 sc1"><input type="number" class="sinput sub1" min="0" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,1)"></td>`;
-    }).join('');
-    const t1rC=n1>0?`<td class="td-raw1 sc1 t1raw">${t1rs||'-'}</td>`:'';
-    const t1sc_v=rm1>0?scl(t1rs,rm1,t1a):(g.t1_acc??'');
-    const t1e_v=g.t1_exam??'', t1t=(Number(t1sc_v)||0)+(Number(t1e_v)||0);
-    const tc=v=>v===0?'nil':v<50?'fail':'ok';
+    const t1FlatVals = Array.isArray(g.t1_sub) ? g.t1_sub : [];
+    const t2FlatVals = Array.isArray(g.t2_sub) ? g.t2_sub : [];
+
+    const t1Offsets = getUnitOffsets(1);
+    const t2Offsets = getUnitOffsets(2);
+
+    let t1Cells = '';
+    t1Offsets.forEach(({ unitIndex, start, count }) => {
+      const unit = getUnits(1)[unitIndex];
+      const rawMax = getUnitRawMax(1, unitIndex);
+      let raw = 0;
+
+      for (let i = 0; i < count; i++) {
+        const item = (unit.items || [])[i];
+        const val = t1FlatVals[start + i] ?? '';
+        raw += Number(val) || 0;
+
+        t1Cells += `
+          <td class="td-sub1 sc1">
+            <input type="number"
+              class="sinput sub1"
+              min="0"
+              max="${Number(item.max) || 0}"
+              value="${val}"
+              data-term="1"
+              data-unit="${unitIndex}"
+              data-item="${i}"
+              oninput="calcSub(this,1)">
+          </td>`;
+      }
+
+      const scaled = calcScaledScore(raw, rawMax, Number(unit.max) || 0);
+      t1Cells += `<td class="td-sc1 sc1 unit-total-1" data-unit="${unitIndex}">${scaled || '-'}</td>`;
+    });
+
+    const t1Keep = calcKeepScoreFromFlat(1, t1FlatVals);
+    const t1Exam = Number(g.t1_exam) || 0;
+    const t1Total = t1Keep + t1Exam;
 
     let rowHtml = `
       <tr data-sid="${s.studentId}">
-        <td class="s-c0">${idx+1}</td>
+        <td class="s-c0">${idx + 1}</td>
         <td class="s-c1">${s.studentId}</td>
-<td class="s-c2">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <span>${s.name}</span>
-    <button class="btn-sm" style="padding: 2px 8px; font-size: 0.75rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; margin-left: 5px;" onclick="printRowPDF('${s.studentId}')" title="พิมพ์ ปพ.6 ของ ${s.name}">🖨️</button>
-  </div>
-</td>
-<td><span class="sp p">ม ${st.present||0}</span> <span class="sp a">ข ${st.absent||0}</span> <span class="sp l">ล ${st.leave||0}</span></td>
-        ${t1sc}${t1rC}
-        <td class="td-sc1"><span class="t1sc">${t1sc_v!==''?t1sc_v:'-'}</span></td>
-        <td><input type="number" class="sinput s-t1e" min="0" max="${t1eM}" value="${t1e_v}" oninput="calcExam(this)"></td>
-        <td><span class="tbadge ${IS_SEM_MODE ? (t1t>=50?'ok':'fail') : tc(t1t)} t1tot">${t1t||'-'}</span></td>`;
+        <td class="s-c2">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>${s.name}</span>
+            <button class="btn-sm" style="padding:2px 8px; font-size:0.75rem; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; margin-left:5px;" onclick="printRowPDF('${s.studentId}')" title="พิมพ์ ปพ.6 ของ ${s.name}">🖨️</button>
+          </div>
+        </td>
+        <td><span class="sp p">ม ${st.present || 0}</span> <span class="sp a">ข ${st.absent || 0}</span> <span class="sp l">ล ${st.leave || 0}</span></td>
+        ${t1Cells}
+        <td class="td-sc1"><span class="t1sc">${t1Keep || '-'}</span></td>
+        <td><input type="number" class="sinput s-t1e" min="0" max="${t1ExamMax}" value="${g.t1_exam ?? ''}" oninput="calcExam(this)"></td>
+        <td><span class="tbadge ${IS_SEM_MODE ? (t1Total >= 50 ? 'ok' : 'fail') : (t1Total === 0 ? 'nil' : 'ok')} t1tot">${t1Total || '-'}</span></td>`;
 
-    // --- ส่วนตาราง dropdown สถานะ ร (เฉพาะมัธยม) ---
     if (IS_SEM_MODE) {
-      // ดึงสถานะ ร จากฐานข้อมูล (ถ้าไม่มีให้เป็น ปกติ)
-      let rStatus = String(g.t2_acc || 'ปกติ').trim(); 
+      let rStatus = String(g.t2_acc || 'ปกติ').trim();
       if (rStatus !== 'ติด ร' && rStatus !== 'แก้ ร') rStatus = 'ปกติ';
 
-      rowHtml += `<td style="background:#f8fafc;">
-         <select class="sinput r-status" style="width: 55px; font-size: 0.75rem; padding: 2px; text-align:center; cursor:pointer;" onchange="recalcTots(this.closest('tr'))">
-           <option value="ปกติ" ${rStatus==='ปกติ'?'selected':''}>-</option>
-           <option value="ติด ร" ${rStatus==='ติด ร'?'selected':''}>ติด ร</option>
-           <option value="แก้ ร" ${rStatus==='แก้ ร'?'selected':''}>แก้ ร</option>
-         </select>
-      </td>`;
+      rowHtml += `
+        <td style="background:#f8fafc;">
+          <select class="sinput r-status" style="width:55px; font-size:0.75rem; padding:2px; text-align:center; cursor:pointer;" onchange="recalcTots(this.closest('tr'))">
+            <option value="ปกติ" ${rStatus === 'ปกติ' ? 'selected' : ''}>-</option>
+            <option value="ติด ร" ${rStatus === 'ติด ร' ? 'selected' : ''}>ติด ร</option>
+            <option value="แก้ ร" ${rStatus === 'แก้ ร' ? 'selected' : ''}>แก้ ร</option>
+          </select>
+        </td>`;
     }
 
     let finalScore = 0;
+
     if (!IS_SEM_MODE) {
-      let t2rs=0;
-      const t2sc=SI[2].map((x,i)=>{const v=(g.t2_sub||[])[i]??'';t2rs+=Number(v)||0;
-        return`<td class="td-sub2 sc2"><input type="number" class="sinput t2 sub2" min="0" max="${x.max}" value="${v}" data-si="${i}" oninput="calcSub(this,2)"></td>`;}).join('');
-      const t2rC=n2>0?`<td class="td-raw2 sc2 t2raw">${t2rs||'-'}</td>`:'';
-      const t2sc_v=rm2>0?scl(t2rs,rm2,t2a):(g.t2_acc??'');
-      const t2e_v=g.t2_exam??'', t2t=(Number(t2sc_v)||0)+(Number(t2e_v)||0);
-      const g2=t1t+t2t;
-      finalScore = g2;
-      const gc=g2===0?'nil':g2<50?'fail':'ok';
+      let t2Cells = '';
+      t2Offsets.forEach(({ unitIndex, start, count }) => {
+        const unit = getUnits(2)[unitIndex];
+        const rawMax = getUnitRawMax(2, unitIndex);
+        let raw = 0;
+
+        for (let i = 0; i < count; i++) {
+          const item = (unit.items || [])[i];
+          const val = t2FlatVals[start + i] ?? '';
+          raw += Number(val) || 0;
+
+          t2Cells += `
+            <td class="td-sub2 sc2">
+              <input type="number"
+                class="sinput t2 sub2"
+                min="0"
+                max="${Number(item.max) || 0}"
+                value="${val}"
+                data-term="2"
+                data-unit="${unitIndex}"
+                data-item="${i}"
+                oninput="calcSub(this,2)">
+            </td>`;
+        }
+
+        const scaled = calcScaledScore(raw, rawMax, Number(unit.max) || 0);
+        t2Cells += `<td class="td-sc2 sc2 unit-total-2" data-unit="${unitIndex}">${scaled || '-'}</td>`;
+      });
+
+      const t2Keep = calcKeepScoreFromFlat(2, t2FlatVals);
+      const t2Exam = Number(g.t2_exam) || 0;
+      const t2Total = t2Keep + t2Exam;
+      const grand = t1Total + t2Total;
+      finalScore = grand;
 
       rowHtml += `
-        ${t2sc}${t2rC}
-        <td class="td-sc2"><span class="t2sc">${t2sc_v!==''?t2sc_v:'-'}</span></td>
-        <td><input type="number" class="sinput t2 s-t2e" min="0" max="${t2eM}" value="${t2e_v}" oninput="calcExam(this)"></td>
-        <td><span class="tbadge ${tc(t2t)} t2tot">${t2t||'-'}</span></td>
-        <td><span class="gbadge ${gc} gtot">${g2||'-'}</span></td>`;
+        ${t2Cells}
+        <td class="td-sc2"><span class="t2sc">${t2Keep || '-'}</span></td>
+        <td><input type="number" class="sinput t2 s-t2e" min="0" max="${t2ExamMax}" value="${g.t2_exam ?? ''}" oninput="calcExam(this)"></td>
+        <td><span class="tbadge ${t2Total === 0 ? 'nil' : 'ok'} t2tot">${t2Total || '-'}</span></td>
+        <td><span class="gbadge ${grand === 0 ? 'nil' : grand < 50 ? 'fail' : 'ok'} gtot">${grand || '-'}</span></td>`;
     } else {
-      finalScore = t1t;
+      finalScore = t1Total;
     }
 
-    // คำนวณเกรดแสดงผล และสลับเป็น "ร" ถ้าติด ร
     let gradeVal = finalScore === 0 ? '-' : calcGradeFrontend(finalScore);
     let gradeClass = finalScore === 0 ? 'nil' : (finalScore < 50 ? 'fail' : 'ok');
 
-// ถ้าระบบเป็นโหมดเทอม + ไม่ได้เปิดสวิตช์ซ่อน ร + เด็กติด ร จริงๆ
     if (IS_SEM_MODE && !IGNORE_R && (g.t2_acc === 'ติด ร')) {
-       gradeVal = 'ร';
-       gradeClass = 'fail';
+      gradeVal = 'ร';
+      gradeClass = 'fail';
     }
 
-    rowHtml += `<td style="background: #f8fafc;"><span class="gbadge ${gradeClass} final-grade" style="font-size: 1.05rem; border: 2px solid #c7d2fe; min-width: 48px;">${gradeVal}</span></td></tr>`;
+    rowHtml += `<td style="background:#f8fafc;"><span class="gbadge ${gradeClass} final-grade" style="font-size:1.05rem; border:2px solid #c7d2fe; min-width:48px;">${gradeVal}</span></td></tr>`;
+
     return rowHtml;
   }).join('');
-  document.getElementById('gtBody').innerHTML=rows;
+
+  document.getElementById('gtBody').innerHTML = rows;
 }
+    
 function applySubConfig(){
   if (!STUDENTS.length) return toast('โหลดรายชื่อก่อน', 'error');
 
-  const t1Keep = getUnitsMax(1);
   const t1Target = IS_SEM_MODE ? 100 : 50;
-  if (t1Keep > t1Target) {
+  if (getUnitsMax(1) > t1Target) {
     return toast(`เทอม 1: คะแนนรวมของหน่วยเกิน ${t1Target}`, 'error');
   }
 
-  if (!IS_SEM_MODE) {
-    const t2Keep = getUnitsMax(2);
-    if (t2Keep > 50) {
-      return toast('เทอม 2: คะแนนรวมของหน่วยเกิน 50', 'error');
-    }
+  if (!IS_SEM_MODE && getUnitsMax(2) > 50) {
+    return toast('เทอม 2: คะแนนรวมของหน่วยเกิน 50', 'error');
   }
 
+  syncAutoScoreToHiddenInputs();
   refreshUnitPanelLabels();
   updateAutoScoreDisplay();
-
-  // เฟส 1 ยังไม่แก้ buildTable เชิงโครงสร้างทั้งหมด
-  // จึงให้ rebuild แบบเดิมไปก่อน โดยใช้ค่า t1_acc/t1_exam ที่คำนวณอัตโนมัติ
-  document.getElementById('c_t1a').value = getUnitsMax(1);
-  document.getElementById('c_t1e').value = Math.max(0, (IS_SEM_MODE ? 100 : 50) - getUnitsMax(1));
-
-  document.getElementById('c_t2a').value = IS_SEM_MODE ? 0 : getUnitsMax(2);
-  document.getElementById('c_t2e').value = IS_SEM_MODE ? 0 : Math.max(0, 50 - getUnitsMax(2));
 
   const snap = snapshotInputs();
   buildTable();
@@ -1156,44 +1384,65 @@ function applySubConfig(){
   toast('อัปเดตตารางแล้ว ✓');
 }
 
+
+
 function snapshotInputs(){
-  const d={};
-  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
-    const sid=tr.getAttribute('data-sid');
-    d[sid]={
-      t1s:[...tr.querySelectorAll('.sub1')].map(i=>i.value),
-      t2s:[...tr.querySelectorAll('.sub2')].map(i=>i.value),
-      t1e:tr.querySelector('.s-t1e')?.value||'',
-      t2e:tr.querySelector('.s-t2e')?.value||'',
-      rStat:tr.querySelector('.r-status')?.value||''
+  const d = {};
+  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr => {
+    const sid = tr.getAttribute('data-sid');
+    d[sid] = {
+      t1s: [...tr.querySelectorAll('.sub1')].map(i => i.value),
+      t2s: [...tr.querySelectorAll('.sub2')].map(i => i.value),
+      t1e: tr.querySelector('.s-t1e')?.value || '',
+      t2e: tr.querySelector('.s-t2e')?.value || '',
+      rStat: tr.querySelector('.r-status')?.value || ''
     };
   });
   return d;
 }
 
 function restoreInputs(snap){
-  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
-    const sid=tr.getAttribute('data-sid'), d=snap[sid]; if(!d)return;
-    tr.querySelectorAll('.sub1').forEach((inp,i)=>{if(d.t1s[i]!==undefined)inp.value=d.t1s[i];});
-    tr.querySelectorAll('.sub2').forEach((inp,i)=>{if(d.t2s[i]!==undefined)inp.value=d.t2s[i];});
-    const e1=tr.querySelector('.s-t1e'),e2=tr.querySelector('.s-t2e');
-    if(e1)e1.value=d.t1e; if(e2)e2.value=d.t2e;
+  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr => {
+    const sid = tr.getAttribute('data-sid');
+    const d = snap[sid];
+    if (!d) return;
+
+    tr.querySelectorAll('.sub1').forEach((inp, i) => {
+      if (d.t1s[i] !== undefined) inp.value = d.t1s[i];
+    });
+
+    tr.querySelectorAll('.sub2').forEach((inp, i) => {
+      if (d.t2s[i] !== undefined) inp.value = d.t2s[i];
+    });
+
+    const e1 = tr.querySelector('.s-t1e');
+    const e2 = tr.querySelector('.s-t2e');
+    if (e1) e1.value = d.t1e;
+    if (e2) e2.value = d.t2e;
+
     const rSel = tr.querySelector('.r-status');
-    if(rSel && d.rStat) rSel.value = d.rStat;
-    const d1=tr.querySelector('.sub1'),d2=tr.querySelector('.sub2');
-    if(d1)calcSub(d1,1); if(d2)calcSub(d2,2);
+    if (rSel && d.rStat) rSel.value = d.rStat;
+
+    const any1 = tr.querySelector('.sub1');
+    const any2 = tr.querySelector('.sub2');
+    if (any1) calcSub(any1, 1);
+    if (any2) calcSub(any2, 2);
+    if (!any1 && !any2) recalcTots(tr);
   });
 }
 
 // ==========================================
 // ✏️ ฟังก์ชันคำนวณคะแนนย่อย (พิมพ์ครบแล้วกระโดดลงล่าง)
 // ==========================================
-function calcSub(el,t){
-  const mx=+el.getAttribute('max');
-  if(+el.value>mx){el.value=mx;toast(`เต็ม ${mx} คะแนน`,'warning');}
-  if(+el.value<0)el.value=0;
-  
-  // ✨ เลื่อนเคอร์เซอร์ลงล่างอัตโนมัติเมื่อพิมพ์ครบจำนวนหลัก
+function calcSub(el, t){
+  const mx = +el.getAttribute('max');
+  if (+el.value > mx) {
+    el.value = mx;
+    toast(`เต็ม ${mx} คะแนน`, 'warning');
+  }
+  if (+el.value < 0) el.value = 0;
+
+  // กระโดดลงล่าง
   if (el.value.length >= String(mx).length) {
     const td = el.closest('td');
     const tr = el.closest('tr');
@@ -1201,27 +1450,41 @@ function calcSub(el,t){
     const colIndex = td.cellIndex;
     const rows = Array.from(tbody.querySelectorAll('tr'));
     const currentRowIndex = rows.indexOf(tr);
-    
+
     if (currentRowIndex > -1 && currentRowIndex + 1 < rows.length) {
       const nextCell = rows[currentRowIndex + 1].cells[colIndex];
       if (nextCell) {
         const nextInput = nextCell.querySelector('.sinput');
-        if (nextInput) { 
-           nextInput.focus(); 
-           nextInput.select(); 
+        if (nextInput) {
+          nextInput.focus();
+          nextInput.select();
         }
       }
     }
   }
-  
-  const tr=el.closest('tr');
-  let rs=0; tr.querySelectorAll(t===1?'.sub1':'.sub2').forEach(i=>rs+=+i.value||0);
-  const rm=getRawMax(t), sm=+document.getElementById(`c_t${t}a`).value;
-  const sc=scl(rs,rm,sm);
-  const rC=tr.querySelector(t===1?'.t1raw':'.t2raw');
-  if(rC)rC.textContent=rs;
-  const scEl=tr.querySelector(t===1?'.t1sc':'.t2sc');
-  if(scEl)scEl.textContent=sc;
+
+  const tr = el.closest('tr');
+  const flatVals = [...tr.querySelectorAll(t === 1 ? '.sub1' : '.sub2')].map(inp => inp.value);
+  const offsets = getUnitOffsets(t);
+
+  offsets.forEach(({ unitIndex, start, count }) => {
+    const unit = getUnits(t)[unitIndex];
+    const rawMax = getUnitRawMax(t, unitIndex);
+    let raw = 0;
+
+    for (let i = 0; i < count; i++) {
+      raw += Number(flatVals[start + i]) || 0;
+    }
+
+    const scaled = calcScaledScore(raw, rawMax, Number(unit.max) || 0);
+    const unitCell = tr.querySelector(`.unit-total-${t}[data-unit="${unitIndex}"]`);
+    if (unitCell) unitCell.textContent = scaled || '-';
+  });
+
+  const keepScore = calcKeepScoreFromFlat(t, flatVals);
+  const scEl = tr.querySelector(t === 1 ? '.t1sc' : '.t2sc');
+  if (scEl) scEl.textContent = keepScore || '-';
+
   recalcTots(tr);
 }
 
@@ -1229,11 +1492,13 @@ function calcSub(el,t){
 // ✏️ ฟังก์ชันคำนวณคะแนนสอบ (พิมพ์ครบแล้วกระโดดลงล่าง)
 // ==========================================
 function calcExam(el){
-  const mx=+el.getAttribute('max');
-  if(+el.value>mx){el.value=mx;toast(`เต็ม ${mx} คะแนน`,'warning');}
-  if(+el.value<0)el.value=0;
-  
-  // ✨ เลื่อนเคอร์เซอร์ลงล่างอัตโนมัติเมื่อพิมพ์ครบจำนวนหลัก
+  const mx = +el.getAttribute('max');
+  if (+el.value > mx) {
+    el.value = mx;
+    toast(`เต็ม ${mx} คะแนน`, 'warning');
+  }
+  if (+el.value < 0) el.value = 0;
+
   if (el.value.length >= String(mx).length) {
     const td = el.closest('td');
     const tr = el.closest('tr');
@@ -1241,52 +1506,70 @@ function calcExam(el){
     const colIndex = td.cellIndex;
     const rows = Array.from(tbody.querySelectorAll('tr'));
     const currentRowIndex = rows.indexOf(tr);
-    
+
     if (currentRowIndex > -1 && currentRowIndex + 1 < rows.length) {
       const nextCell = rows[currentRowIndex + 1].cells[colIndex];
       if (nextCell) {
         const nextInput = nextCell.querySelector('.sinput');
-        if (nextInput) { 
-           nextInput.focus(); 
-           nextInput.select(); 
+        if (nextInput) {
+          nextInput.focus();
+          nextInput.select();
         }
       }
     }
   }
-  
+
   recalcTots(el.closest('tr'));
 }
 
 function recalcTots(tr){
-  const t1s=+tr.querySelector('.t1sc')?.textContent||0, t2s=+tr.querySelector('.t2sc')?.textContent||0;
-  const t1e=+tr.querySelector('.s-t1e')?.value||0, t2e=+tr.querySelector('.s-t2e')?.value||0;
-  const t1t=t1s+t1e, t2t=t2s+t2e, g=t1t+t2t;
-  const tc=v=>v===0?'nil':'ok', gc=g===0?'nil':g<50?'fail':'ok';
-  
-  const e1=tr.querySelector('.t1tot'),e2=tr.querySelector('.t2tot'),eG=tr.querySelector('.gtot');
-  if(e1){e1.textContent=t1t||'-';e1.className=`tbadge ${tc(t1t)} t1tot`;}
-  if(e2){e2.textContent=t2t||'-';e2.className=`tbadge ${tc(t2t)} t2tot`;}
-  if(eG){eG.textContent=g||'-';eG.className=`gbadge ${gc} gtot`;}
+  const t1s = +tr.querySelector('.t1sc')?.textContent || 0;
+  const t2s = +tr.querySelector('.t2sc')?.textContent || 0;
+  const t1e = +tr.querySelector('.s-t1e')?.value || 0;
+  const t2e = +tr.querySelector('.s-t2e')?.value || 0;
 
-  // อัปเดตคอลัมน์เกรดอัตโนมัติ
+  const t1t = t1s + t1e;
+  const t2t = t2s + t2e;
+  const g = t1t + t2t;
+
+  const tc = v => v === 0 ? 'nil' : 'ok';
+  const gc = g === 0 ? 'nil' : g < 50 ? 'fail' : 'ok';
+
+  const e1 = tr.querySelector('.t1tot');
+  const e2 = tr.querySelector('.t2tot');
+  const eG = tr.querySelector('.gtot');
+
+  if (e1) {
+    e1.textContent = t1t || '-';
+    e1.className = `tbadge ${tc(t1t)} t1tot`;
+  }
+  if (e2) {
+    e2.textContent = t2t || '-';
+    e2.className = `tbadge ${tc(t2t)} t2tot`;
+  }
+  if (eG) {
+    eG.textContent = g || '-';
+    eG.className = `gbadge ${gc} gtot`;
+  }
+
   const finalScore = IS_SEM_MODE ? t1t : g;
   const eGrade = tr.querySelector('.final-grade');
-  
+
   let isR = false;
-  if (IS_SEM_MODE && !IGNORE_R) { // <-- เพิ่ม && !IGNORE_R ตรงนี้
-     const rSel = tr.querySelector('.r-status');
-     if (rSel && rSel.value === 'ติด ร') isR = true;
+  if (IS_SEM_MODE && !IGNORE_R) {
+    const rSel = tr.querySelector('.r-status');
+    if (rSel && rSel.value === 'ติด ร') isR = true;
   }
 
   if (eGrade) {
     if (isR) {
-        eGrade.textContent = 'ร';
-        eGrade.className = `gbadge fail final-grade`;
+      eGrade.textContent = 'ร';
+      eGrade.className = `gbadge fail final-grade`;
     } else {
-        const gradeVal = finalScore === 0 ? '-' : calcGradeFrontend(finalScore);
-        const gradeClass = finalScore === 0 ? 'nil' : (finalScore < 50 ? 'fail' : 'ok');
-        eGrade.textContent = gradeVal;
-        eGrade.className = `gbadge ${gradeClass} final-grade`;
+      const gradeVal = finalScore === 0 ? '-' : calcGradeFrontend(finalScore);
+      const gradeClass = finalScore === 0 ? 'nil' : (finalScore < 50 ? 'fail' : 'ok');
+      eGrade.textContent = gradeVal;
+      eGrade.className = `gbadge ${gradeClass} final-grade`;
     }
   }
 }
@@ -1294,55 +1577,94 @@ function recalcTots(tr){
 
 // ─── SAVE ─────────────────────────────────
 async function saveGrades(){
-  const t1a=+document.getElementById('c_t1a').value, t1e=+document.getElementById('c_t1e').value;
-  const t2a=+document.getElementById('c_t2a').value, t2e=+document.getElementById('c_t2e').value;
-  const targetTotal = IS_SEM_MODE ? 100 : 50;
-  
-  if(t1a + t1e !== targetTotal) return toast(`คะแนนรวมต้องเท่ากับ ${targetTotal}`,'error');
-  if(!IS_SEM_MODE && (t2a + t2e !== targetTotal)) return toast(`คะแนนรวมเทอม 2 ต้องเท่ากับ ${targetTotal}`,'error');
+  syncAutoScoreToHiddenInputs();
 
-  const rm1=getRawMax(1), rm2=getRawMax(2), records=[];
-  
-  // กวาดข้อมูลทุกแถวเพื่อส่งไปบันทึก (ป้องกันการตกหล่น)
-  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr=>{
-    const sid=tr.getAttribute('data-sid');
-    const t1sv=[...tr.querySelectorAll('.sub1')].map(i=>i.value);
-    const t2sv=[...tr.querySelectorAll('.sub2')].map(i=>i.value);
-    const t1r=t1sv.reduce((s,v)=>s+(+v||0),0), t2r=t2sv.reduce((s,v)=>s+(+v||0),0);
-    const t1acc=rm1>0?scl(t1r,rm1,t1a):(+tr.querySelector('.t1sc')?.textContent||0);
-    
-    // ดึงสถานะ ร จากหน้าเว็บ (ถ้าเป็นมัธยมจะเก็บใส่ t2_acc)
+  const t1Keep = getUnitsMax(1);
+  const t1ExamMax = getExamMax(1);
+  const t2Keep = getUnitsMax(2);
+  const t2ExamMax = getExamMax(2);
+
+  if (t1Keep > (IS_SEM_MODE ? 100 : 50)) {
+    return toast(`เทอม 1: คะแนนรวมหน่วยเกิน ${IS_SEM_MODE ? 100 : 50}`, 'error');
+  }
+  if (!IS_SEM_MODE && t2Keep > 50) {
+    return toast('เทอม 2: คะแนนรวมหน่วยเกิน 50', 'error');
+  }
+
+  const records = [];
+
+  document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr => {
+    const sid = tr.getAttribute('data-sid');
+
+    const t1sv = [...tr.querySelectorAll('.sub1')].map(i => i.value);
+    const t2sv = [...tr.querySelectorAll('.sub2')].map(i => i.value);
+
+    const t1acc = calcKeepScoreFromFlat(1, t1sv);
     let t2acc = 0;
+
     if (IS_SEM_MODE) {
-        const rSel = tr.querySelector('.r-status');
-        t2acc = rSel ? rSel.value : 'ปกติ';
+      const rSel = tr.querySelector('.r-status');
+      t2acc = rSel ? rSel.value : 'ปกติ';
     } else {
-        t2acc = rm2>0 ? scl(t2r,rm2,t2a) : (+tr.querySelector('.t2sc')?.textContent||0);
+      t2acc = calcKeepScoreFromFlat(2, t2sv);
     }
 
-    const t1ex=tr.querySelector('.s-t1e')?.value||'', t2ex=tr.querySelector('.s-t2e')?.value||'';
-    
-    // บันทึกข้อมูลของนักเรียนทุกคนในตาราง ไม่ว่าจะกรอกคะแนนแล้วหรือไม่
+    const t1ex = tr.querySelector('.s-t1e')?.value || '';
+    const t2ex = tr.querySelector('.s-t2e')?.value || '';
+
     records.push({
-      studentId:sid,
-      t1_sub:t1sv, t1_acc:t1acc, t1_exam:t1ex,
-      t2_sub:t2sv, t2_acc:t2acc, t2_exam:t2ex
+      studentId: sid,
+      t1_sub: t1sv,
+      t1_acc: t1acc,
+      t1_exam: t1ex,
+      t2_sub: t2sv,
+      t2_acc: t2acc,
+      t2_exam: t2ex
     });
   });
 
-  if(!records.length) return toast('ยังไม่มีข้อมูล','warning');
-  
+  if (!records.length) return toast('ยังไม่มีข้อมูล', 'warning');
+
+  const config = {
+    t1_acc: getUnitsMax(1),
+    t1_exam: getExamMax(1),
+    t2_acc: IS_SEM_MODE ? 0 : getUnitsMax(2),
+    t2_exam: IS_SEM_MODE ? 0 : getExamMax(2),
+    units: {
+      t1: SI[1] || [],
+      t2: SI[2] || []
+    },
+    subItems: { t1: [], t2: [] },
+    rawMax: { t1: 0, t2: 0 },
+    courseInfo: {
+      code: document.getElementById('ci_code').value || "",
+      type: document.getElementById('ci_type').value || "รายวิชาพื้นฐาน",
+      credit: document.getElementById('ci_credit').value || "",
+      schedule: {
+        mon: +document.getElementById('sch_mon').value || 0,
+        tue: +document.getElementById('sch_tue').value || 0,
+        wed: +document.getElementById('sch_wed').value || 0,
+        thu: +document.getElementById('sch_thu').value || 0,
+        fri: +document.getElementById('sch_fri').value || 0,
+        manualAdjust: +document.getElementById('ci_manual_adjust').value || 0,
+        totalHours: +document.getElementById('ci_total_hours').textContent || 0
+      }
+    }
+  };
+
   pg('กำลังบันทึกคะแนน...');
-  try{
-    const msg=await api('saveGrades',{
-      year:document.getElementById('gYear').value,
-      classroom:document.getElementById('gClass').value,
-      subject:document.getElementById('gSubj').value,
-      config:{t1_acc:t1a,t1_exam:t1e,t2_acc:t2a,t2_exam:t2e,subItems:{t1:SI[1],t2:SI[2]},rawMax:{t1:rm1,t2:rm2}},
-      gradeRecords:records
+  try {
+    const msg = await api('saveGrades', {
+      year: document.getElementById('gYear').value,
+      classroom: document.getElementById('gClass').value,
+      subject: document.getElementById('gSubj').value,
+      config,
+      gradeRecords: records
     });
-    toast('✅ '+msg);
-  }catch(e){toast(e.message,'error');}
+    toast('✅ ' + msg);
+  } catch (e) {
+    toast(e.message, 'error');
+  }
   pg_();
 }
 
