@@ -763,13 +763,15 @@ async function loadGrades() {
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
 
+  // ตรวจสอบความถูกต้องเบื้องต้น
   if (!subj || subj === "-- ไม่พบวิชา --") {
     return toast('กรุณาเลือกวิชาที่ถูกต้อง', 'error');
   }
 
+  // 1. ตรวจสอบโหมด (มัธยมใช้รวม 100, ประถมใช้รวม 50)
   IS_SEM_MODE = cls.includes('ม.');
 
-  // แก้ไขจุดที่ทำให้เกิด Error: เช็คว่ามี element นั้นอยู่จริงก่อนสั่ง style
+  // 2. ปรับ UI ตามโหมด
   const t2Block = document.getElementById('block_t2');
   const t2Tab = document.getElementById('tab_t2');
   const t2Panel = document.getElementById('subPanel_2');
@@ -779,68 +781,83 @@ async function loadGrades() {
     if (t2Tab) t2Tab.style.display = 'none';
     if (t2Panel) t2Panel.style.display = 'none';
   } else {
-    // กรณีเป็นประถม ต้องแสดงคืน
     if (t2Block) t2Block.style.display = 'flex';
     if (t2Tab) t2Tab.style.display = 'block';
     if (t2Panel) t2Panel.style.display = 'block';
   }
 
   pg('กำลังโหลดข้อมูล...');
-  
-  // ลบหรือคอมเมนต์ส่วน toggleRWrapper ทิ้ง เพราะไม่มีใน HTML แล้ว
   IGNORE_R = false;
 
   try {
     const res = await api('getGrades', { year, classroom: cls, subject: subj });
-    const config = res.config;
+    const config = res.config || {};
     
+    // ตั้งค่าตัวแปร Global จาก Server
     TERM_DATES = res.termDates || {};
-    HOLIDAYS = res.holidays ||[];
+    HOLIDAYS = res.holidays || [];
+    STUDENTS = res.students || [];
 
-    // 1. อัปเดตค่าสัดส่วนคะแนน (เช็คว่า element มีอยู่จริงก่อน set value)
-    const c_t1a = document.getElementById('c_t1a');
-    const c_t1e = document.getElementById('c_t1e');
-    const c_t2a = document.getElementById('c_t2a');
-    const c_t2e = document.getElementById('c_t2e');
+    // 3. โหลด UNITS (หน่วยการเรียนรู้) จาก Config เข้าตัวแปร Global
+    UNITS[1] = config.units?.["1"] || [];
+    UNITS[2] = (!IS_SEM_MODE && config.units?.["2"]) ? config.units["2"] : [];
 
-    if (config && config.t1_acc) {
-        if(c_t1a) c_t1a.value = config.t1_acc;
-        if(c_t1e) c_t1e.value = config.t1_exam;
-        if(c_t2a) c_t2a.value = config.t2_acc;
-        if(c_t2e) c_t2e.value = config.t2_exam;
+    // 4. อัปเดตค่าสัดส่วนคะแนนใน UI
+    if (config.t1_acc !== undefined) {
+        document.getElementById('c_t1a').value = config.t1_acc;
+        document.getElementById('c_t1e').value = config.t1_exam;
+        if (!IS_SEM_MODE) {
+            document.getElementById('c_t2a').value = config.t2_acc;
+            document.getElementById('c_t2e').value = config.t2_exam;
+        }
     } else {
-        const isSem = IS_SEM_MODE;
-        if(c_t1a) c_t1a.value = isSem ? 70 : 35;
-        if(c_t1e) c_t1e.value = isSem ? 30 : 15;
-        if(c_t2a) c_t2a.value = isSem ? 70 : 35;
-        if(c_t2e) c_t2e.value = isSem ? 30 : 15;
+        // ค่าเริ่มต้นถ้ายังไม่เคยบันทึก
+        const target = IS_SEM_MODE ? 100 : 50;
+        document.getElementById('c_t1a').value = IS_SEM_MODE ? 70 : 35;
+        document.getElementById('c_t1e').value = IS_SEM_MODE ? 30 : 15;
     }
 
-    // 2. โหลดข้อมูลรายวิชา (เช็ค null ทุกจุด)
+    // 5. โหลดข้อมูลรายวิชา (ปพ.5)
     if (config.courseInfo) {
       if(document.getElementById('ci_code')) document.getElementById('ci_code').value = config.courseInfo.code || "";
       if(document.getElementById('ci_type')) document.getElementById('ci_type').value = config.courseInfo.type || "รายวิชาพื้นฐาน";
       if(document.getElementById('ci_credit')) document.getElementById('ci_credit').value = config.courseInfo.credit || "";
       
       if (config.courseInfo.schedule) {
-        if(document.getElementById('sch_mon')) document.getElementById('sch_mon').value = config.courseInfo.schedule.mon || 0;
-        if(document.getElementById('sch_tue')) document.getElementById('sch_tue').value = config.courseInfo.schedule.tue || 0;
-        if(document.getElementById('sch_wed')) document.getElementById('sch_wed').value = config.courseInfo.schedule.wed || 0;
-        if(document.getElementById('sch_thu')) document.getElementById('sch_thu').value = config.courseInfo.schedule.thu || 0;
-        if(document.getElementById('sch_fri')) document.getElementById('sch_fri').value = config.courseInfo.schedule.fri || 0;
-        if(document.getElementById('ci_manual_adjust')) document.getElementById('ci_manual_adjust').value = config.courseInfo.schedule.manualAdjust || 0;
-        if(document.getElementById('ci_total_hours')) document.getElementById('ci_total_hours').textContent = config.courseInfo.schedule.totalHours || 0;
+        document.getElementById('sch_mon').value = config.courseInfo.schedule.mon || 0;
+        document.getElementById('sch_tue').value = config.courseInfo.schedule.tue || 0;
+        document.getElementById('sch_wed').value = config.courseInfo.schedule.wed || 0;
+        document.getElementById('sch_thu').value = config.courseInfo.schedule.thu || 0;
+        document.getElementById('sch_fri').value = config.courseInfo.schedule.fri || 0;
+        document.getElementById('ci_manual_adjust').value = config.courseInfo.schedule.manualAdjust || 0;
+        document.getElementById('ci_total_hours').textContent = config.courseInfo.schedule.totalHours || 0;
       }
     }
 
-    // ... ส่วนที่เหลือของฟังก์ชัน (renderUnits, buildTable) ให้คงไว้ตามเดิมครับ ...
+    // 6. สั่ง Render หน้าจอ
+    renderUnits(1);
+    if (!IS_SEM_MODE) renderUnits(2);
+    updateAutoScoring(); // คำนวณคะแนนย่อยรวมให้ตรง
+    calcTotalHours();    // คำนวณเวลาเรียน
     
-    // จบการทำงาน
-    pg_();
+    // 7. สร้างตารางและแสดงข้อมูล
+    document.getElementById('gradePanel').style.display = 'block';
+    buildTable();
+    renderHolisticTable(STUDENTS);
+
+    // ปิด Accordion ตั้งค่าให้อัตโนมัติเมื่อโหลดเสร็จ
+    const acc = document.getElementById('accMain');
+    const body = document.getElementById('accMainBody');
+    if (acc) acc.classList.remove('open');
+    if (body) body.classList.add('hidden');
+
+    toast('โหลดข้อมูลสำเร็จ');
+
   } catch (e) {
     console.error(e);
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
     document.getElementById('gradePanel').style.display = 'none';
+  } finally {
     pg_();
   }
 }        
