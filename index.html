@@ -489,14 +489,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
       <button class="ttab" onclick="switchTerm(2,this)">เทอม 2</button>
     </div>
-    <div id="subPanel_1">
-      <div class="sub-list" id="subList_1"></div>
-      <button class="btn-add-sub" onclick="addSub(1)">＋ เพิ่มหัวข้อ เทอม 1</button>
-    </div>
-    <div id="subPanel_2" style="display:none;">
-      <div class="sub-list" id="subList_2"></div>
-      <button class="btn-add-sub" onclick="addSub(2)">＋ เพิ่มหัวข้อ เทอม 2</button>
-    </div>
+ <!-- ฝั่งเทอม 1 -->
+<div id="subPanel_1">
+  <div id="unitList_1" class="d-flex flex-column gap-3"></div>
+  <button class="btn-add-sub mt-3" onclick="addUnit(1)">＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 1)</button>
+</div>
+
+<!-- ฝั่งเทอม 2 -->
+<div id="subPanel_2" style="display:none;">
+  <div id="unitList_2" class="d-flex flex-column gap-3"></div>
+  <button class="btn-add-sub mt-3" onclick="addUnit(2)">＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 2)</button>
+</div>
     <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
   </div>
 </div>
@@ -1832,7 +1835,59 @@ function saveCourseInfo() {
     document.getElementById('accCourseInfoBody').classList.add('hidden');
   }, 1000);
 }
-  
+  // โครงสร้างหน่วยการเรียนรู้: { name, unitMax, tasks: [{name, taskMax}] }
+let UNITS = { 1: [], 2: [] }; 
+
+function addUnit(t) {
+  UNITS[t].push({ name: `หน่วยที่ ${UNITS[t].length + 1}`, unitMax: 10, tasks: [] });
+  renderUnits(t);
+}
+
+function addTask(t, unitIdx) {
+  UNITS[t][unitIdx].tasks.push({ name: `งานที่ ${UNITS[t][unitIdx].tasks.length + 1}`, taskMax: 10 });
+  renderUnits(t);
+}
+
+function renderUnits(t) {
+  const container = document.getElementById(`unitList_${t}`);
+  container.innerHTML = UNITS[t].map((u, uIdx) => `
+    <div class="card p-3" style="background:#f8fafc; border:1px solid #c7d2fe;">
+      <div class="d-flex gap-2 mb-2 align-items-center">
+        <input class="form-control fw-bold" value="${u.name}" onchange="UNITS[${t}][${uIdx}].name=this.value">
+        <div style="width:120px;"><input class="form-control text-center" type="number" placeholder="คะแนนเต็มหน่วย" value="${u.unitMax}" onchange="UNITS[${t}][${uIdx}].unitMax=+this.value"></div>
+        <button class="btn btn-sm btn-outline-danger" onclick="removeUnit(${t}, ${uIdx})">✕</button>
+      </div>
+      <div class="ms-3 border-start ps-2">
+        ${u.tasks.map((task, tIdx) => `
+          <div class="d-flex gap-2 mb-1">
+            <input class="form-control form-control-sm" value="${task.name}" onchange="UNITS[${t}][${uIdx}].tasks[${tIdx}].name=this.value">
+            <input class="form-control form-control-sm text-center" style="width:80px" type="number" placeholder="เต็ม" value="${task.taskMax}" onchange="UNITS[${t}][${uIdx}].tasks[${tIdx}].taskMax=+this.value">
+            <button class="btn btn-sm text-danger" onclick="removeTask(${t}, ${uIdx}, ${tIdx})">✕</button>
+          </div>
+        `).join('')}
+        <button class="btn btn-sm btn-link text-primary p-0" onclick="addTask(${t}, ${uIdx})">+ เพิ่มงานย่อย</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function removeUnit(t, idx) { UNITS[t].splice(idx, 1); renderUnits(t); }
+function removeTask(t, uIdx, tIdx) { UNITS[t][uIdx].tasks.splice(tIdx, 1); renderUnits(t); }
+  // ฟังก์ชันนี้จะถูกใช้ตอนครูกรอกคะแนนงานย่อย
+function calculateUnitScore(t, uIdx) {
+  const unit = UNITS[t][uIdx];
+  let totalEarned = 0;
+  let totalPossible = 0;
+
+  unit.tasks.forEach(task => {
+    totalEarned += Number(task.earned); // คะแนนที่เด็กได้จริง
+    totalPossible += Number(task.taskMax); // คะแนนเต็มของงานนั้น
+  });
+
+  // สูตรเทียบสัดส่วน: (เด็กได้/เต็มรวม) * คะแนนเต็มหน่วย
+  const finalUnitScore = (totalPossible > 0) ? (totalEarned / totalPossible) * unit.unitMax : 0;
+  return finalUnitScore.toFixed(2);
+}
 </script>
 </body>
 </html>
