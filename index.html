@@ -1579,8 +1579,8 @@ async function loadGrades() {
 
     document.getElementById('gradePanel').style.display = '';
     buildTable();
-renderHolisticTable(STUDENTS, 'assContainer', 'assBody');
-renderHolisticTable(STUDENTS, 'hrAssContainer', 'hrAssBody');
+renderHolisticTable(STUDENTS, 'assContainer', 'assBody', 'subject');
+renderHolisticTable(STUDENTS, 'hrAssContainer', 'hrAssBody', 'homeroom');
     const acc = document.getElementById('accCourseInfo');
     const body = document.getElementById('accCourseInfoBody');
     if (acc && body) {
@@ -2501,7 +2501,12 @@ function toggleIgnoreR() {
 /* =====================================================
    HOLISTIC / ASSESSMENT
    ===================================================== */
-function renderHolisticTable(students, containerId = 'assContainer', tableId = 'assBody') {
+function renderHolisticTable(
+  students,
+  containerId = 'assContainer',
+  tableId = 'assBody',
+  mode = 'subject'
+) {
   const assContainer = document.getElementById(containerId);
   if (!assContainer) return;
 
@@ -2511,31 +2516,35 @@ function renderHolisticTable(students, containerId = 'assContainer', tableId = '
   }
 
   const charItems = ["รักชาติฯ", "ซื่อสัตย์ฯ", "มีวินัย", "ใฝ่เรียนรู้", "อยู่อย่างพอเพียง", "มุ่งมั่นทำงาน", "รักความเป็นไทย", "มีจิตสาธารณะ"];
-  const rwItems = ["สามารถอ่านฯ", "สามารถจับประเด็นฯ", "สามารถวิเคราะห์ฯ", "สามารถประเมินฯ", "สามารถเขียนฯ"];
-  const skItems = ["สื่อสาร", "คิด", "แก้ปัญหา", "ทักษะชีวิต", "เทคโนโลยี"];
+  const rwItems   = ["สามารถอ่านฯ", "สามารถจับประเด็นฯ", "สามารถวิเคราะห์ฯ", "สามารถประเมินฯ", "สามารถเขียนฯ"];
+  const skItems   = ["สื่อสาร", "คิด", "แก้ปัญหา", "ทักษะชีวิต", "เทคโนโลยี"];
 
-const thItems = `
-  <tr>
-<th rowspan="2" class="ass-no" style="width:40px;">ที่</th>
-<th rowspan="2" class="ass-name" style="min-width:140px;">ชื่อ-นามสกุล</th>
-    <th colspan="10" class="bg-char">คุณลักษณะอันพึงประสงค์</th>
-    <th colspan="7" class="bg-rw">อ่าน คิด วิเคราะห์ เขียน</th>
-    <th colspan="7" style="background:#d1d5db;">สมรรถนะสำคัญ</th>
-  </tr>
-  <tr>
-    ${charItems.map((c, i) => `<th class="bg-char v-text">${i + 1}.${c}</th>`).join('')}
-    <th class="bg-sum v-text">รวม</th>
-    <th class="bg-sum">ผล</th>
-    ${rwItems.map((r, i) => `<th class="bg-rw v-text">${i + 1}.${r}</th>`).join('')}
-    <th class="bg-sum v-text">รวม</th>
-    <th class="bg-sum">ผล</th>
-    ${skItems.map((s, i) => `<th class="v-text" style="background:#e5e7eb;">${i + 1}.${s}</th>`).join('')}
-    <th class="bg-sum v-text">รวม</th>
-    <th class="bg-sum">ผล</th>
-  </tr>`;
+  const thItems = `
+    <tr>
+      <th rowspan="2" class="ass-no" style="width:40px;">ที่</th>
+      <th rowspan="2" class="ass-name" style="min-width:140px;">ชื่อ-นามสกุล</th>
+      <th colspan="10" class="bg-char">คุณลักษณะอันพึงประสงค์</th>
+      <th colspan="7" class="bg-rw">อ่าน คิด วิเคราะห์ เขียน</th>
+      <th colspan="7" style="background:#d1d5db;">สมรรถนะสำคัญ</th>
+    </tr>
+    <tr>
+      ${charItems.map((c, i) => `<th class="bg-char v-text">${i + 1}.${c}</th>`).join('')}
+      <th class="bg-sum v-text">รวม</th>
+      <th class="bg-sum">ผล</th>
+      ${rwItems.map((r, i) => `<th class="bg-rw v-text">${i + 1}.${r}</th>`).join('')}
+      <th class="bg-sum v-text">รวม</th>
+      <th class="bg-sum">ผล</th>
+      ${skItems.map((s, i) => `<th class="v-text" style="background:#e5e7eb;">${i + 1}.${s}</th>`).join('')}
+      <th class="bg-sum v-text">รวม</th>
+      <th class="bg-sum">ผล</th>
+    </tr>
+  `;
 
   const trs = students.map((s, idx) => {
-    const h = s.holistic || {};
+    const h = mode === 'homeroom'
+      ? (s.holistic_homeroom || {})
+      : (s.holistic_subject || {});
+
     const cVals = (h.char_scores && h.char_scores.length === 8) ? h.char_scores : Array(8).fill("");
     const rVals = (h.read_scores && h.read_scores.length === 5) ? h.read_scores : Array(5).fill("");
     const sVals = (h.skill_scores && h.skill_scores.length === 5) ? h.skill_scores : Array(5).fill("");
@@ -2545,9 +2554,9 @@ const thItems = `
     const sHtml = sVals.map(v => `<td><input type="number" class="inp-ass s-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 's')"></td>`).join('');
 
     return `
-<tr data-hsid="${s.studentId}">
-<td class="ass-no">${idx + 1}</td>
-<td class="ass-name" style="text-align:left;font-weight:600;background:#fff;">${s.name}</td>
+      <tr data-hsid="${s.studentId}">
+        <td class="ass-no">${idx + 1}</td>
+        <td class="ass-name" style="text-align:left;font-weight:600;background:#fff;">${s.name}</td>
 
         ${cHtml}
         <td class="bg-sum c-total">-</td>
@@ -2560,24 +2569,25 @@ const thItems = `
         ${sHtml}
         <td class="bg-sum s-total">-</td>
         <td><span class="res-badge s-result">-</span><input type="hidden" class="s-final-val" value="${h.skill || ''}"></td>
-      </tr>`;
+      </tr>
+    `;
   }).join('');
 
   assContainer.innerHTML = `
     <div class="ass-wrap">
-<table class="ass-tbl" id="${tableId}">
-<thead>${thItems}</thead>
+      <table class="ass-tbl" id="${tableId}">
+        <thead>${thItems}</thead>
         <tbody>${trs}</tbody>
       </table>
-    </div>`;
+    </div>
+  `;
 
-document.querySelectorAll(`#${tableId} tr`).forEach(tr => {
-  calcAssRow(tr.querySelector('.c-inp'), 'c');
+  document.querySelectorAll(`#${tableId} tr[data-hsid]`).forEach(tr => {
+    calcAssRow(tr.querySelector('.c-inp'), 'c');
     calcAssRow(tr.querySelector('.r-inp'), 'r');
     calcAssRow(tr.querySelector('.s-inp'), 's');
   });
 }
-
 function calcAssRow(inputEl, type) {
   if (!inputEl) return;
   const tr = inputEl.closest('tr');
@@ -2677,12 +2687,12 @@ async function saveHolisticData(mode = 'subject') {
     });
   });
 
-  if (records.length === 0) return toast('ไม่พบรายชื่อนักเรียน', 'error');
+  if (!records.length) return toast('ไม่พบรายชื่อนักเรียน', 'error');
 
   pg('กำลังบันทึกข้อมูล...');
   try {
     const msg = await api('saveHolistic', {
-      mode, // subject หรือ homeroom
+      mode, // subject | homeroom
       year: document.getElementById('gYear').value,
       classroom: document.getElementById('gClass').value,
       subject: document.getElementById('gSubj').value,
@@ -2694,7 +2704,6 @@ async function saveHolisticData(mode = 'subject') {
   }
   pg_();
 }
-
 /* =====================================================
    TOTAL HOURS
    ===================================================== */
@@ -2791,20 +2800,16 @@ function getAssPrintRows(mode = 'subject') {
   trs.forEach((tr, idx) => {
     const name = tr.querySelector('.ass-name')?.textContent?.trim() || '';
 
-    const charScores = [...tr.querySelectorAll('.c-inp')].map(i => i.value || '');
-    const readScores = [...tr.querySelectorAll('.r-inp')].map(i => i.value || '');
-    const skillScores = [...tr.querySelectorAll('.s-inp')].map(i => i.value || '');
-
     rows.push({
       no: idx + 1,
       name,
-      charScores,
+      charScores: [...tr.querySelectorAll('.c-inp')].map(i => i.value || ''),
       charTotal: tr.querySelector('.c-total')?.textContent?.trim() || '-',
       charResult: tr.querySelector('.c-result')?.textContent?.trim() || '-',
-      readScores,
+      readScores: [...tr.querySelectorAll('.r-inp')].map(i => i.value || ''),
       readTotal: tr.querySelector('.r-total')?.textContent?.trim() || '-',
       readResult: tr.querySelector('.r-result')?.textContent?.trim() || '-',
-      skillScores,
+      skillScores: [...tr.querySelectorAll('.s-inp')].map(i => i.value || ''),
       skillTotal: tr.querySelector('.s-total')?.textContent?.trim() || '-',
       skillResult: tr.querySelector('.s-result')?.textContent?.trim() || '-'
     });
@@ -2812,7 +2817,6 @@ function getAssPrintRows(mode = 'subject') {
 
   return rows;
 }
-
 function buildPrintTable(title, headers, rows, scoreKey, totalKey, resultKey, themeClass) {
   const headCols = headers.map(h => `<th class="v">${escHtml(h)}</th>`).join('');
 
@@ -2930,94 +2934,31 @@ function printHolisticReport(mode = 'subject') {
       <meta charset="utf-8">
       <title>รายงานประเมินผู้เรียน</title>
       <style>
-        @page {
-          size: A4 landscape;
-          margin: 10mm;
-        }
+        @page { size: A4 landscape; margin: 10mm; }
         * { box-sizing: border-box; }
-        body {
-          font-family: "Sarabun", sans-serif;
-          margin: 0;
-          color: #111827;
-          background: #fff;
-        }
-        .print-page {
-          width: 100%;
-          min-height: 100vh;
-          page-break-after: always;
-          padding: 4mm 2mm;
-        }
-        .print-page:last-child {
-          page-break-after: auto;
-        }
-        .report-head {
-          text-align: center;
-          margin-bottom: 10px;
-        }
-        .report-school {
-          font-size: 18px;
-          font-weight: 700;
-        }
-        .report-title {
-          font-size: 20px;
-          font-weight: 800;
-          margin-top: 2px;
-        }
-        .report-meta {
-          font-size: 12px;
-          margin-top: 4px;
-          color: #374151;
-        }
-        .print-tbl {
-          width: 100%;
-          border-collapse: collapse;
-          table-layout: fixed;
-          font-size: 12px;
-        }
-        .print-tbl th,
-        .print-tbl td {
+        body { font-family: "Sarabun", sans-serif; margin: 0; color: #111827; background: #fff; }
+        .print-page { width: 100%; min-height: 100vh; page-break-after: always; padding: 4mm 2mm; }
+        .print-page:last-child { page-break-after: auto; }
+        .report-head { text-align: center; margin-bottom: 10px; }
+        .report-school { font-size: 18px; font-weight: 700; }
+        .report-title { font-size: 20px; font-weight: 800; margin-top: 2px; }
+        .report-meta { font-size: 12px; margin-top: 4px; color: #374151; }
+        .print-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
+        .print-tbl th, .print-tbl td {
           border: 1px solid #9ca3af;
           padding: 6px 4px;
           text-align: center;
           vertical-align: middle;
           word-wrap: break-word;
         }
-        .print-tbl th {
-          font-weight: 700;
-        }
-        .print-tbl .col-no {
-          width: 36px;
-        }
-        .print-tbl .col-name {
-          width: 230px;
-          text-align: left;
-          font-weight: 600;
-        }
-        .print-tbl .col-total {
-          width: 55px;
-          font-weight: 700;
-          background: #f3f4f6;
-        }
-        .print-tbl .col-result {
-          width: 78px;
-          font-weight: 700;
-          background: #f9fafb;
-        }
-        .theme-char thead th {
-          background: #fef08a;
-        }
-        .theme-read thead th {
-          background: #fdba74;
-        }
-        .theme-skill thead th {
-          background: #d1d5db;
-        }
-        @media print {
-          html, body {
-            width: 100%;
-            height: auto;
-          }
-        }
+        .print-tbl th { font-weight: 700; }
+        .print-tbl .col-no { width: 36px; }
+        .print-tbl .col-name { width: 230px; text-align: left; font-weight: 600; }
+        .print-tbl .col-total { width: 55px; font-weight: 700; background: #f3f4f6; }
+        .print-tbl .col-result { width: 78px; font-weight: 700; background: #f9fafb; }
+        .theme-char thead th { background: #fef08a; }
+        .theme-read thead th { background: #fdba74; }
+        .theme-skill thead th { background: #d1d5db; }
       </style>
     </head>
     <body>
@@ -3026,9 +2967,7 @@ function printHolisticReport(mode = 'subject') {
       ${page3}
       <script>
         window.onload = function () {
-          setTimeout(function () {
-            window.print();
-          }, 150);
+          setTimeout(function () { window.print(); }, 150);
         };
       <\/script>
     </body>
