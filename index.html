@@ -2212,11 +2212,10 @@ document.addEventListener('keydown', function(event) {
     }
   }
 });
-
 /* =====================================================
    PDF / EXPORT
    ===================================================== */
-function openBase64Pdf(dataUri, fileName = 'report.pdf') {
+function openBase64PdfInPrintWindow(dataUri, fileName = 'report.pdf') {
   try {
     const base64Str = dataUri.split(',')[1];
     const binaryStr = atob(base64Str);
@@ -2229,11 +2228,133 @@ function openBase64Pdf(dataUri, fileName = 'report.pdf') {
 
     const blob = new Blob([bytes], { type: 'application/pdf' });
     const blobUrl = URL.createObjectURL(blob);
-    const newTab = window.open(blobUrl, '_blank');
 
-    if (!newTab) {
-      alert('เบราว์เซอร์ของคุณบล็อกหน้าต่างป๊อปอัป (Pop-up)\nกรุณาอนุญาตให้เว็บไซต์นี้เปิด Pop-up ได้ที่แถบ URL ด้านบน');
+    const w = window.open('', '_blank');
+    if (!w) {
+      alert('เบราว์เซอร์บล็อก Pop-up กรุณาอนุญาตก่อน');
+      return;
     }
+
+    w.document.open();
+    w.document.write(`
+      <!DOCTYPE html>
+      <html lang="th">
+      <head>
+        <meta charset="utf-8">
+        <title>${fileName}</title>
+        <style>
+          html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #f1f5f9;
+            overflow: hidden;
+            font-family: 'Sarabun', sans-serif;
+          }
+
+          .toolbar {
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0 12px;
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+          }
+
+          .title {
+            font-weight: 700;
+            font-size: 14px;
+            color: #334155;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+          }
+
+          .btns {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+          }
+
+          button {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+          }
+
+          .btn-print {
+            background: #4f46e5;
+            color: #fff;
+          }
+
+          .btn-close {
+            background: #e2e8f0;
+            color: #334155;
+          }
+
+          iframe {
+            width: 100%;
+            height: calc(100vh - 53px);
+            border: none;
+            display: block;
+            background: #fff;
+          }
+
+          @media (max-width: 640px) {
+            .title {
+              font-size: 12px;
+            }
+
+            button {
+              padding: 7px 10px;
+              font-size: 12px;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="toolbar">
+          <div class="title">${fileName}</div>
+          <div class="btns">
+            <button class="btn-print" onclick="printPdf()">🖨️ พิมพ์</button>
+            <button class="btn-close" onclick="window.close()">ปิด</button>
+          </div>
+        </div>
+
+        <iframe id="pdfFrame" src="${blobUrl}"></iframe>
+
+        <script>
+          function printPdf() {
+            const frame = document.getElementById('pdfFrame');
+            try {
+              frame.contentWindow.focus();
+              frame.contentWindow.print();
+            } catch (e) {}
+          }
+
+          const frame = document.getElementById('pdfFrame');
+          frame.onload = function () {
+            setTimeout(function () {
+              printPdf();
+            }, 500);
+          };
+
+          window.addEventListener('beforeunload', function () {
+            try {
+              URL.revokeObjectURL('${blobUrl}');
+            } catch (e) {}
+          });
+        <\/script>
+      </body>
+      </html>
+    `);
+    w.document.close();
   } catch (err) {
     console.error(err);
     toast('เกิดข้อผิดพลาดในการเปิด PDF', 'error');
@@ -2244,13 +2365,17 @@ async function printRowPDF(studentId) {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
 
-  pg('กำลังสร้าง PDF...');
+  pg('กำลังสร้างเอกสาร...');
   try {
     const pdfData = await api('generateStudentPDF', {
-      year, classroom, studentId, ignoreR: IGNORE_R
+      year,
+      classroom,
+      studentId,
+      ignoreR: IGNORE_R
     });
-    openBase64Pdf(pdfData, `ปพ6_${studentId}_${classroom}.pdf`);
-    toast('สร้าง PDF รายบุคคลสำเร็จ');
+
+    openBase64PdfInPrintWindow(pdfData, `ปพ6_${studentId}_${classroom}.pdf`);
+    toast('เปิดหน้าพิมพ์รายบุคคลแล้ว');
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
@@ -2263,13 +2388,16 @@ async function printClassPDF() {
 
   if (!confirm(`พิมพ์รายงานทั้งห้อง ${classroom} ปี ${year} ?`)) return;
 
-  pg('กำลังสร้าง PDF ทั้งห้อง...');
+  pg('กำลังสร้างเอกสารทั้งห้อง...');
   try {
     const pdfData = await api('generateClassPDF', {
-      year, classroom, ignoreR: IGNORE_R
+      year,
+      classroom,
+      ignoreR: IGNORE_R
     });
-    openBase64Pdf(pdfData, `ปพ6_ทั้งห้อง_${classroom}_ปี${year}.pdf`);
-    toast('สร้าง PDF ทั้งห้องสำเร็จ');
+
+    openBase64PdfInPrintWindow(pdfData, `ปพ6_ทั้งห้อง_${classroom}_ปี${year}.pdf`);
+    toast('เปิดหน้าพิมพ์ทั้งห้องแล้ว');
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
@@ -2282,13 +2410,16 @@ async function printSummaryPDF() {
 
   if (!confirm(`ต้องการสร้างตารางสรุปเกรดรวมของห้อง ${classroom} ใช่หรือไม่?`)) return;
 
-  pg('กำลังรวบรวมข้อมูลทุกวิชาและสร้าง PDF (อาจใช้เวลาสักครู่)...');
+  pg('กำลังรวบรวมข้อมูลทุกวิชาและสร้าง PDF...');
   try {
     const pdfData = await api('generateSummaryPDF', {
-      year, classroom, ignoreR: IGNORE_R
+      year,
+      classroom,
+      ignoreR: IGNORE_R
     });
-    openBase64Pdf(pdfData, `สรุปผลการเรียน_${classroom}_ปี${year}.pdf`);
-    toast('สร้าง PDF สรุปสำเร็จ');
+
+    openBase64PdfInPrintWindow(pdfData, `สรุปผลการเรียน_${classroom}_ปี${year}.pdf`);
+    toast('เปิดหน้าพิมพ์สรุปผลการเรียนแล้ว');
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
@@ -2301,10 +2432,12 @@ async function exportSummaryCSV() {
 
   if (!confirm(`ต้องการดาวน์โหลดไฟล์ Excel (CSV) ของห้อง ${classroom} ใช่หรือไม่?`)) return;
 
-  pg('กำลังเตรียมไฟล์ (อาจใช้เวลาสักครู่)...');
+  pg('กำลังเตรียมไฟล์...');
   try {
     const base64Data = await api('generateSummaryCSV', {
-      year, classroom, ignoreR: IGNORE_R
+      year,
+      classroom,
+      ignoreR: IGNORE_R
     });
 
     const byteCharacters = atob(base64Data);
@@ -2316,10 +2449,10 @@ async function exportSummaryCSV() {
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: 'text/csv;charset=utf-8;' });
 
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `สรุปผลการเรียน_${classroom}_ปี${year}.csv`);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `สรุปผลการเรียน_${classroom}_ปี${year}.csv`);
     link.style.visibility = 'hidden';
 
     document.body.appendChild(link);
@@ -2337,6 +2470,7 @@ function toggleIgnoreR() {
   IGNORE_R = document.getElementById('toggleR').checked;
   document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr => recalcTots(tr));
 }
+
 
 /* =====================================================
    HOLISTIC / ASSESSMENT
