@@ -314,6 +314,27 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
   .acc-hd{padding:12px 14px;}
   .cfg-row{gap:12px;}
 }
+  /* =====================================================
+   CSS ตารางประเมินคุณลักษณะ & อ่านคิดวิเคราะห์
+   ===================================================== */
+.ass-wrap { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 10px; }
+.ass-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 900px; }
+.ass-tbl th, .ass-tbl td { border: 1px solid #cbd5e1; padding: 5px; text-align: center; vertical-align: middle; }
+.ass-tbl thead th { background: #f8fafc; font-weight: 700; color: #1e293b; }
+
+.v-text { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 140px; padding: 8px 4px; font-weight: 500; font-size: 0.75rem; text-align: left; }
+.bg-char { background-color: #fef08a !important; color: #854d0e; }
+.bg-rw { background-color: #fed7aa !important; color: #9a3412; }
+.bg-sum { background-color: #f1f5f9 !important; font-weight: bold; }
+
+.inp-ass { width: 28px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 0; font-family: inherit; font-weight: bold; background: #fff;}
+.inp-ass:focus { border-color: #6366f1; outline: none; background: #e0e7ff; }
+
+.res-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; }
+.res-3 { background: #dcfce7; color: #166534; }
+.res-2 { background: #e0f2fe; color: #075985; }
+.res-1 { background: #fef3c7; color: #92400e; }
+.res-0 { background: #fee2e2; color: #991b1b; }
 </style>
 </head>
 <body>
@@ -487,22 +508,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     <span class="acc-arrow">▾</span>
   </div>
   <div class="acc-body hidden" id="accHolisticBody">
-    <div style="overflow-x:auto; border-radius:8px; border:1px solid var(--border);">
-      <table class="gtbl" style="min-width: 500px;">
-        <thead>
-          <tr>
-            <!-- เติม style="top: 0 !important;" ลงไปตรงนี้ครับ -->
-            <th class="th-base" style="top: 0 !important;">รหัส</th>
-            <th class="th-base" style="text-align:left; top: 0 !important;">ชื่อ-นามสกุล</th>
-            <th style="background:#f59e0b; color:#fff; top: 0 !important;">คุณลักษณะอันพึงประสงค์</th>
-            <th style="background:#d97706; color:#fff; top: 0 !important;">การอ่าน คิดวิเคราะห์ เขียน</th>
-          </tr>
-        </thead>
-        <tbody id="holisticBody">
-          <!-- จะใช้ JS สร้างแถวตรงนี้ -->
-        </tbody>
-      </table>
+    
+    <!-- พื้นที่สำหรับสร้างตาราง 8 ข้อ และ 5 ข้อ -->
+    <div id="assContainer">
+      <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
     </div>
+    <!-- ใน div id="accHolisticBody" ให้เพิ่มโค้ดนี้ต่อท้ายส่วนเดิม -->
+<div id="skillContainer" class="mt-4">
+  <!-- JavaScript จะมาวาดตารางสมรรถนะ 5 ข้อตรงนี้ -->
+</div>
+
     <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">💾 บันทึกผลการประเมิน (ทั้งห้อง)</button>
   </div>
 </div>
@@ -520,7 +535,66 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
         </div>
       </div>
 
-    </div><!-- /gradePanel -->
+      <!-- Accordion ข้อมูลรายวิชาและเวลาเรียน -->
+<!-- Accordion ข้อมูลรายวิชาและเวลาเรียน -->
+<div class="acc acc-main mb-3" id="accCourseInfo">
+  <div class="acc-hd" onclick="toggleAcc('accCourseInfo')" style="background:#f0fdf4; border:1.5px solid #bbf7d0;">
+    <div class="acc-title" style="color:#166534;">📝 ข้อมูลรายวิชา และ เวลาเรียน (ปพ.5)</div>
+    <span class="acc-arrow">▾</span>
+  </div>
+  <div class="acc-body hidden" id="accCourseInfoBody" style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-top:none;">
+    
+    <!-- ข้อมูลพื้นฐานรายวิชา -->
+    <div class="cfg-row mb-3">
+      <div class="cfg-block" style="flex:1; min-width:120px;">
+        <label class="cfg-ttl">รหัสวิชา</label>
+        <input type="text" id="ci_code" class="cfg-n" style="width:100%; text-align:left;" placeholder="เช่น ท21101">
+      </div>
+      <div class="cfg-block" style="flex:1; min-width:150px;">
+        <label class="cfg-ttl">ประเภทวิชา</label>
+        <select id="ci_type" class="cfg-n" style="width:100%; text-align:left;">
+          <option value="รายวิชาพื้นฐาน">รายวิชาพื้นฐาน</option>
+          <option value="รายวิชาเพิ่มเติม">รายวิชาเพิ่มเติม</option>
+          <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
+        </select>
+      </div>
+      <div class="cfg-block" style="flex:0.5; min-width:80px;">
+        <label class="cfg-ttl">หน่วยกิต</label>
+        <input type="number" step="0.5" id="ci_credit" class="cfg-n" style="width:100%;" placeholder="1.5">
+      </div>
+    </div>
+
+    <!-- ตารางสอน จ-ศ -->
+    <label class="cfg-ttl d-block mb-2">ตารางเรียน (ระบุจำนวนคาบที่สอนในแต่ละวัน)</label>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <div class="text-center"><small class="d-block text-muted">จ.</small><input type="number" id="sch_mon" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+      <div class="text-center"><small class="d-block text-muted">อ.</small><input type="number" id="sch_tue" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+      <div class="text-center"><small class="d-block text-muted">พ.</small><input type="number" id="sch_wed" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+      <div class="text-center"><small class="d-block text-muted">พฤ.</small><input type="number" id="sch_thu" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+      <div class="text-center"><small class="d-block text-muted">ศ.</small><input type="number" id="sch_fri" class="cfg-n" style="width:50px;" value="0" min="0" oninput="calcTotalHours()"></div>
+    </div>
+
+    <div class="p-2 rounded mb-3" style="background:#dcfce7; color:#14532d; font-size:0.85rem; font-weight:bold;">
+      ⏱️ เวลาเรียนรวมทั้งภาคเรียน: <span id="ci_total_hours" style="font-size:1.1rem; color:#166534;">0</span> คาบ/ชั่วโมง
+      <small class="d-block fw-normal text-muted mt-1">* คำนวณอัตโนมัติจากวันเปิด-ปิดเทอม (ลบวันหยุดเสาร์-อาทิตย์)</small>
+    </div>
+<!-- เอาโค้ดนี้ไปแทรก เหนือปุ่ม "บันทึกข้อมูลรายวิชา" -->
+    <div class="d-flex align-items-center gap-2 mb-3 px-2">
+      <label class="cfg-ttl mb-0">ปรับแก้เวลาเรียนด้วยตนเอง (กรณีมีชดเชยวันหยุด/กิจกรรม):</label>
+      <input type="number" id="ci_manual_adjust" class="cfg-n" style="width:60px;" value="0" oninput="calcTotalHours()">
+      <span style="font-size:0.8rem; color:var(--muted);">คาบ (+ หรือ - ได้)</span>
+    </div>
+    <!-- ✨ เพิ่มปุ่มบันทึกข้อมูลรายวิชา -->
+    <button class="btn-save w-100" onclick="saveCourseInfo()" style="background: linear-gradient(135deg, #16a34a, #15803d);">💾 บันทึกข้อมูลรายวิชา</button>
+
+  </div>
+</div>
+
+    </div>
+    
+    
+    
+    <!-- /gradePanel -->
   </div>
 </div>
 
@@ -736,21 +810,55 @@ async function loadGrades() {
   document.getElementById('lblClass').textContent = cls;
   document.getElementById('lblSubj').textContent = subj;
   pg('กำลังโหลดข้อมูลและสถิติมาเรียน...');
-  // ค้นหาใน loadGrades() แถวๆ IS_SEM_MODE = cls.includes("เทอม"); แล้วเพิ่ม:
-document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
-document.getElementById('toggleR').checked = false;
-IGNORE_R = false;
+  
+  document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
+  document.getElementById('toggleR').checked = false;
+  IGNORE_R = false;
 
   try {
-    // เรียก API ดึงข้อมูลเกรดและสถิติมาเรียน (Backend จะกรองวันมาเรียนตามเทอมให้แล้ว)
+    // ⬇️ เรียก API ดึงข้อมูลเกรดและสถิติมาเรียน อยู่ตรงนี้ครับถึงจะถูกต้อง
     const res = await api('getGrades', { year, classroom: cls, subject: subj });
     const config = res.config;
+    
+    // ✨ รับค่าวันที่และวันหยุดจาก Backend มาเก็บไว้ในตัวแปร Global
+    TERM_DATES = res.termDates || {};
+    HOLIDAYS = res.holidays ||[];
 
-    // 1. อัปเดตค่าสัดส่วนคะแนน (Config) ลงใน Input ของหน้าตั้งค่า
-    document.getElementById('c_t1a').value = config.t1_acc;
-    document.getElementById('c_t1e').value = config.t1_exam;
-    document.getElementById('c_t2a').value = config.t2_acc;
-    document.getElementById('c_t2e').value = config.t2_exam;
+    // 1. อัปเดตค่าสัดส่วนคะแนน (Config) 
+    document.getElementById('c_t1a').value = config.t1_acc || 35;
+    document.getElementById('c_t1e').value = config.t1_exam || 15;
+    document.getElementById('c_t2a').value = config.t2_acc || 35;
+    document.getElementById('c_t2e').value = config.t2_exam || 15;
+
+    // ✨ 1.5 โหลดข้อมูลรายวิชาและเวลาเรียน
+    if (config.courseInfo) {
+      document.getElementById('ci_code').value = config.courseInfo.code || "";
+      document.getElementById('ci_type').value = config.courseInfo.type || "รายวิชาพื้นฐาน";
+      document.getElementById('ci_credit').value = config.courseInfo.credit || "";
+      
+      if (config.courseInfo.schedule) {
+        document.getElementById('sch_mon').value = config.courseInfo.schedule.mon || 0;
+        document.getElementById('sch_tue').value = config.courseInfo.schedule.tue || 0;
+        document.getElementById('sch_wed').value = config.courseInfo.schedule.wed || 0;
+        document.getElementById('sch_thu').value = config.courseInfo.schedule.thu || 0;
+        document.getElementById('sch_fri').value = config.courseInfo.schedule.fri || 0;
+        // โหลดค่าช่องปรับแก้ด้วยตนเอง
+        document.getElementById('ci_manual_adjust').value = config.courseInfo.schedule.manualAdjust || 0;
+        document.getElementById('ci_total_hours').textContent = config.courseInfo.schedule.totalHours || 0;
+      }
+    } else {
+      // กรณีวิชาใหม่ เคลียร์ค่าเป็นค่าเริ่มต้น
+      document.getElementById('ci_code').value = "";
+      document.getElementById('ci_type').value = "รายวิชาพื้นฐาน";
+      document.getElementById('ci_credit').value = "";
+      document.getElementById('sch_mon').value = 0;
+      document.getElementById('sch_tue').value = 0;
+      document.getElementById('sch_wed').value = 0;
+      document.getElementById('sch_thu').value = 0;
+      document.getElementById('sch_fri').value = 0;
+      document.getElementById('ci_manual_adjust').value = 0;
+      document.getElementById('ci_total_hours').textContent = 0;
+    }
 
     // 2. ปรับปรุง UI ส่วนการตั้งค่า (Accordion) ตามโหมดชั้นเรียน
     const t2Tab = document.querySelector('.ttab[onclick*="switchTerm(2"]');
@@ -759,35 +867,32 @@ IGNORE_R = false;
     const btnAddT1 = document.querySelector('.btn-add-sub[onclick="addSub(1)"]');
 
     if (IS_SEM_MODE) {
-      // --- โหมดมัธยม ---
-      if (t2Tab) t2Tab.style.display = 'none'; // ซ่อน Tab เทอม 2
-      if (t2Block) t2Block.style.display = 'none'; // ซ่อนช่องกรอกคะแนนเทอม 2
+      if (t2Tab) t2Tab.style.display = 'none'; 
+      if (t2Block) t2Block.style.display = 'none'; 
       if (t1Title) t1Title.textContent = "สัดส่วนคะแนน (เก็บ/สอบ)";
       if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อคะแนนย่อย";
       
-      // บังคับ Tab ตั้งค่าให้กลับมาอยู่ที่เทอม 1 เสมอ
       const t1TabBtn = document.querySelector('.ttab[onclick*="switchTerm(1"]');
       if (t1TabBtn) switchTerm(1, t1TabBtn);
-      
-      SI[2] = []; // มัธยมจะไม่ใช้หัวข้อย่อยเทอม 2
+      SI[2] =[]; 
     } else {
-      // --- โหมดประถม ---
       if (t2Tab) t2Tab.style.display = 'block';
       if (t2Block) t2Block.style.display = 'flex';
       if (t1Title) t1Title.textContent = "เทอม 1 (เก็บ/สอบ)";
       if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อ เทอม 1";
     }
 
-    // 3. ซิงค์หัวข้อย่อย (Sub-items) จากฐานข้อมูลเข้าสู่ตัวแปร SI
-    SI[1] = config.subItems?.t1 || [];
+// 3. ซิงค์หัวข้อย่อย 
+    SI[1] = config.subItems?.t1 || []; // เติม [] ต่อท้ายให้ครบ
     if (!IS_SEM_MODE) {
-      SI[2] = config.subItems?.t2 || [];
-    }
+      SI[2] = config.subItems?.t2 || []; // เติม [] ต่อท้ายให้ครบ
+    } // ใส่ } ปิด if ให้ถูกต้อง
 
-    // 4. สั่งวาดรายการหัวข้อย่อยในหน้าตั้งค่า และคำนวณ Raw Max ใหม่
+    // 4. สั่งวาดรายการหัวข้อย่อย และคำนวณ Raw Max ใหม่
     renderSubList(1);
     if (!IS_SEM_MODE) renderSubList(2);
     onCfg(); 
+    calcTotalHours(); // ✨ เรียกคำนวณคาบเรียนทันทีเมื่อโหลดเสร็จ
 
     // 5. เตรียมข้อมูลนักเรียนและสร้างตาราง
     STUDENTS = res.students;
@@ -795,12 +900,10 @@ IGNORE_R = false;
 
     document.getElementById('gradePanel').style.display = '';
     
-    // เรียกใช้ buildTable (ที่ปรับปรุงแล้วให้ซ่อนคอลัมน์เทอม 2 หาก IS_SEM_MODE = true)
     buildTable();
-        renderHolisticTable(STUDENTS); // <--- เพิ่มบรรทัดนี้เข้าไป
+    renderHolisticTable(STUDENTS); 
 
-
-    // 6. ปิดหน้าต่างตั้งค่า (Accordion) อัตโนมัติเพื่อให้เห็นตารางข้อมูล
+    // 6. ปิดหน้าต่างตั้งค่า (Accordion) อัตโนมัติ
     const acc = document.getElementById('accMain');
     const body = document.getElementById('accMainBody');
     if (acc && body) {
@@ -816,8 +919,10 @@ IGNORE_R = false;
     document.getElementById('gradePanel').style.display = 'none';
   }
   pg_();
-}  
-// ─── BUILD TABLE ─────────────────────────
+}
+        
+        
+        // ─── BUILD TABLE ─────────────────────────
 function buildTable(){ buildHead(); buildBody(); document.getElementById('gtbl').classList.remove('t1-collapsed','t2-collapsed'); EXP={1:true,2:true}; }
 
 // ==========================================
@@ -1189,19 +1294,28 @@ async function saveConfigOnly() {
 
   if (!subj || subj === "-- ไม่พบวิชา --") return;
 
-  // 1. เตรียมค่า Config ปัจจุบันจากหน้าจอ
+// 1. เตรียมค่า Config ปัจจุบันจากหน้าจอ
   const config = {
     t1_acc: +document.getElementById('c_t1a').value,
     t1_exam: +document.getElementById('c_t1e').value,
     t2_acc: +document.getElementById('c_t2a').value,
     t2_exam: +document.getElementById('c_t2e').value,
-    subItems: { 
-      t1: SI[1], 
-      t2: SI[2] 
-    },
-    rawMax: { 
-      t1: getRawMax(1), 
-      t2: getRawMax(2) 
+    subItems: { t1: SI[1], t2: SI[2] },
+    rawMax: { t1: getRawMax(1), t2: getRawMax(2) },
+    
+    // ✨ เพิ่มส่วนนี้เข้าไปใน Config JSON 
+    courseInfo: {
+      code: document.getElementById('ci_code').value,
+      type: document.getElementById('ci_type').value,
+      credit: document.getElementById('ci_credit').value,
+      schedule: {
+        mon: document.getElementById('sch_mon').value,
+        tue: document.getElementById('sch_tue').value,
+        wed: document.getElementById('sch_wed').value,
+        thu: document.getElementById('sch_thu').value,
+        fri: document.getElementById('sch_fri').value,
+        totalHours: document.getElementById('ci_total_hours').textContent
+      }
     }
   };
 
@@ -1356,48 +1470,161 @@ async function printClassPDF() {
   }
   pg_();
 }
-// ฟังก์ชันวาดตารางประเมินคุณลักษณะฯ
 function renderHolisticTable(students) {
   if (!students.length) {
-    document.getElementById('holisticBody').innerHTML = `<tr><td colspan="4" class="text-center text-muted">ไม่พบข้อมูลผู้เรียน</td></tr>`;
+    document.getElementById('assContainer').innerHTML = `<div class="text-center text-muted py-3">ไม่พบข้อมูลผู้เรียน</div>`;
     return;
   }
 
-  const options =["ดีเยี่ยม (3)", "ดี (2)", "ผ่าน (1)", "ไม่ผ่าน (0)"];
-  
-  const html = students.map(s => {
-    const h = s.holistic || { char: 'ดีเยี่ยม (3)', read: 'ดีเยี่ยม (3)' };
-    
-    const charOpts = options.map(opt => `<option value="${opt}" ${h.char === opt ? 'selected' : ''}>${opt}</option>`).join('');
-    const readOpts = options.map(opt => `<option value="${opt}" ${h.read === opt ? 'selected' : ''}>${opt}</option>`).join('');
+  const charItems = ["รักชาติฯ", "ซื่อสัตย์ฯ", "มีวินัย", "ใฝ่เรียนรู้", "อยู่อย่างพอเพียง", "มุ่งมั่นทำงาน", "รักความเป็นไทย", "มีจิตสาธารณะ"];
+  const rwItems = ["สามารถอ่านฯ", "สามารถจับประเด็นฯ", "สามารถวิเคราะห์ฯ", "สามารถประเมินฯ", "สามารถเขียนฯ"];
+  const skItems = ["สื่อสาร", "คิด", "แก้ปัญหา", "ทักษะชีวิต", "เทคโนโลยี"];
 
-    return `
-      <tr data-hsid="${s.studentId}">
-        <td class="text-center">${s.studentId}</td>
-        <td class="text-start font-weight-bold" style="background:#fff;">${s.name}</td>
-        <td class="text-center"><select class="sinput h-char" style="width:140px;">${charOpts}</select></td>
-        <td class="text-center"><select class="sinput h-read" style="width:140px;">${readOpts}</select></td>
-      </tr>
-    `;
+  // 1. สร้างหัวตาราง (Thead)
+  let thItems = `
+    <tr>
+      <th rowspan="2" style="width:40px;">ที่</th><th rowspan="2" style="min-width:140px;">ชื่อ-นามสกุล</th>
+      <th colspan="10" class="bg-char">คุณลักษณะอันพึงประสงค์</th>
+      <th colspan="7" class="bg-rw">อ่าน คิด วิเคราะห์ เขียน</th>
+      <th colspan="7" style="background:#d1d5db;">สมรรถนะสำคัญ</th>
+    </tr>
+    <tr>
+      ${charItems.map((c, i) => `<th class="bg-char v-text">${i+1}.${c}</th>`).join('')}
+      <th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>
+      ${rwItems.map((r, i) => `<th class="bg-rw v-text">${i+1}.${r}</th>`).join('')}
+      <th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>
+      ${skItems.map((s, i) => `<th class="v-text" style="background:#e5e7eb;">${i+1}.${s}</th>`).join('')}
+      <th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>
+    </tr>`;
+
+  // 2. สร้างแถวข้อมูล (Tbody)
+  let trs = students.map((s, idx) => {
+    const h = s.holistic || {};
+    const cVals = (h.char_scores && h.char_scores.length === 8) ? h.char_scores : Array(8).fill("");
+    const rVals = (h.read_scores && h.read_scores.length === 5) ? h.read_scores : Array(5).fill("");
+    const sVals = (h.skill_scores && h.skill_scores.length === 5) ? h.skill_scores : Array(5).fill("");
+
+    let cHtml = cVals.map(v => `<td><input type="number" class="inp-ass c-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'c')"></td>`).join('');
+    let rHtml = rVals.map(v => `<td><input type="number" class="inp-ass r-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'r')"></td>`).join('');
+    let sHtml = sVals.map(v => `<td><input type="number" class="inp-ass s-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 's')"></td>`).join('');
+
+    return `<tr data-hsid="${s.studentId}">
+              <td>${idx+1}</td>
+              <td style="text-align:left; font-weight:600; background:#fff;">${s.name}</td>
+              ${cHtml}<td class="bg-sum c-total">-</td><td><span class="res-badge c-result">-</span><input type="hidden" class="c-final-val" value="${h.char || ''}"></td>
+              ${rHtml}<td class="bg-sum r-total">-</td><td><span class="res-badge r-result">-</span><input type="hidden" class="r-final-val" value="${h.read || ''}"></td>
+              ${sHtml}<td class="bg-sum s-total">-</td><td><span class="res-badge s-result">-</span><input type="hidden" class="s-final-val" value="${h.skill || ''}"></td>
+            </tr>`;
   }).join('');
-  
-  document.getElementById('holisticBody').innerHTML = html;
-}
 
-// ฟังก์ชันบันทึกข้อมูลประเมินลง Spreadsheet
+  // 3. รวมทุกอย่างเข้าตารางเดียว
+  document.getElementById('assContainer').innerHTML = `
+    <div class="ass-wrap">
+      <table class="ass-tbl" id="assBody">
+        <thead>${thItems}</thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>`;
+
+  // 4. สั่งคำนวณเริ่มต้น
+  document.querySelectorAll('#assBody tr').forEach(tr => {
+    calcAssRow(tr.querySelector('.c-inp'), 'c');
+    calcAssRow(tr.querySelector('.r-inp'), 'r');
+    calcAssRow(tr.querySelector('.s-inp'), 's');
+  });
+}
+// คำนวณค่าเฉลี่ยแบบเรียลไทม์เมื่อพิมพ์คะแนน 0-3
+function calcAssRow(inputEl, type) {
+  if (!inputEl) return;
+  const tr = inputEl.closest('tr');
+  if (!tr) return;
+  
+  const inputs = tr.querySelectorAll(`.${type}-inp`);
+  let sum = 0, count = 0;
+
+  // 1. คำนวณผลรวม
+  inputs.forEach(inp => {
+    let val = parseFloat(inp.value);
+    if (!isNaN(val)) {
+      if (val > 3) { inp.value = 3; val = 3; }
+      if (val < 0) { inp.value = 0; val = 0; }
+      sum += val;
+      count++;
+    }
+  });
+
+  // 2. เลื่อนเคอร์เซอร์อัตโนมัติ
+  if (document.activeElement === inputEl && inputEl.value.length >= 1) {
+    let nextTd = inputEl.closest('td').nextElementSibling;
+    let nextInput = null;
+    
+    while (nextTd) {
+      nextInput = nextTd.querySelector('.inp-ass');
+      if (nextInput) break;
+      nextTd = nextTd.nextElementSibling;
+    }
+    
+    if (nextInput) {
+      nextInput.focus();
+      nextInput.select();
+    }
+  }
+
+  // 3. ดึง Element มาอัปเดต
+  const totalEl = tr.querySelector(`.${type}-total`);
+  const resultBadge = tr.querySelector(`.${type}-result`);
+  const hiddenFinal = tr.querySelector(`.${type}-final-val`);
+
+  if (count === 0) {
+    if (totalEl) totalEl.textContent = "-";
+    if (resultBadge) {
+       resultBadge.textContent = "-";
+       // ✨ แก้ไข: ต้องคงชื่อคลาส ${type}-result ไว้เสมอ
+       resultBadge.className = `res-badge ${type}-result`;
+    }
+    if (hiddenFinal) hiddenFinal.value = "";
+    return;
+  }
+
+  // 4. สรุปผลการประเมิน
+  const avg = sum / count;
+  let resText = "", resClass = "", pdfValue = "";
+
+  if (avg >= 2.5) { resText = "ดีเยี่ยม"; resClass = "res-3"; pdfValue = "ดีเยี่ยม (3)"; } 
+  else if (avg >= 1.5) { resText = "ดี"; resClass = "res-2"; pdfValue = "ดี (2)"; } 
+  else if (avg >= 1.0) { resText = "ผ่าน"; resClass = "res-1"; pdfValue = "ผ่าน (1)"; } 
+  else { resText = "ไม่ผ่าน"; resClass = "res-0"; pdfValue = "ไม่ผ่าน (0)"; }
+
+  // 5. แสดงผลหน้าจอ
+  if (totalEl) totalEl.textContent = sum;
+  if (resultBadge) {
+     resultBadge.textContent = resText;
+     // ✨ แก้ไข: นำ ${type}-result กลับมาต่อท้าย เพื่อให้ระบบหาตัวป้ายเจอในการพิมพ์ครั้งถัดไป
+     resultBadge.className = `res-badge ${type}-result ${resClass}`;
+  }
+  if (hiddenFinal) hiddenFinal.value = pdfValue;
+}
+  
 async function saveHolisticData() {
-  const records =[];
-  document.querySelectorAll('#holisticBody tr[data-hsid]').forEach(tr => {
+  const records = [];
+  document.querySelectorAll('#assBody tr[data-hsid]').forEach(tr => {
     records.push({
       studentId: tr.getAttribute('data-hsid'),
-      char: tr.querySelector('.h-char').value,
-      read: tr.querySelector('.h-read').value
+      char_scores: [...tr.querySelectorAll('.c-inp')].map(i => i.value),
+      char_total: tr.querySelector('.c-total').textContent,
+      char: tr.querySelector('.c-final-val').value,
+      read_scores: [...tr.querySelectorAll('.r-inp')].map(i => i.value),
+      read_total: tr.querySelector('.r-total').textContent,
+      read: tr.querySelector('.r-final-val').value,
+      skill_scores: [...tr.querySelectorAll('.s-inp')].map(i => i.value),
+      skill_total: tr.querySelector('.s-total').textContent,
+      skill: tr.querySelector('.s-final-val').value
     });
   });
 
-  if (!records.length) return toast('ไม่มีข้อมูลให้บันทึก', 'warning');
+  if (records.length === 0) return toast('ไม่พบรายชื่อนักเรียน', 'error');
 
-  pg('กำลังบันทึกผลการประเมิน...');
+  pg('กำลังบันทึกข้อมูล...');
   try {
     const msg = await api('saveHolistic', {
       year: document.getElementById('gYear').value,
@@ -1410,7 +1637,7 @@ async function saveHolisticData() {
   }
   pg_();
 }
-
+  
   // ==========================================
 // 🖨️ ฟังก์ชันสั่งพิมพ์ PDF สรุปผลการเรียนรวมทุกวิชา
 // ==========================================
@@ -1485,8 +1712,127 @@ async function exportSummaryCSV() {
   }
   pg_();
 }
+  // ฟังก์ชันอ่านและบันทึกข้อมูลรายวิชาเข้า Config
+
+
+// ==========================================
+// 🕒 ฟังก์ชันคำนวณเวลาเรียน & บันทึกข้อมูลวิชา
+// ==========================================
+
+// ประกาศตัวแปรเก็บวันที่และวันหยุด (ไว้บนสุด หรือในส่วนประกาศตัวแปร)
+let TERM_DATES = {};
+let HOLIDAYS =[];
+
+// ==========================================
+// 🕒 ฟังก์ชันคำนวณเวลาเรียนหักวันหยุด & บันทึกข้อมูล
+// ==========================================
+
+function calcTotalHours() {
+  // หากยังโหลดวันที่ไม่สำเร็จ ให้เป็น 0 ไปก่อน
+  if (!TERM_DATES || Object.keys(TERM_DATES).length === 0) {
+    document.getElementById('ci_total_hours').textContent = 0;
+    return;
+  }
+
+  const cls = document.getElementById('gClass').value;
+  let startDateStr, endDateStr;
+
+  if (cls.includes("เทอม 2")) {
+    startDateStr = TERM_DATES['t2_start'];
+    endDateStr = TERM_DATES['t2_end'];
+  } else if (cls.includes("เทอม 1")) {
+    startDateStr = TERM_DATES['t1_start'];
+    endDateStr = TERM_DATES['t1_end'];
+  } else {
+    startDateStr = TERM_DATES['t1_start'];
+    endDateStr = TERM_DATES['t2_end'];
+  }
+
+  if (!startDateStr || !endDateStr) return;
+
+  // ฟังก์ชันแปลงวันที่กลับไปกลับมา
+  const parseDateAD = (dStr) => {
+    const parts = String(dStr).split(/[\/\-]/);
+    if (parts.length === 3) {
+      let d = parseInt(parts[0]);
+      let m = parseInt(parts[1]) - 1;
+      let y = parseInt(parts[2]);
+      if (y > 2500) y -= 543; // แปลง พ.ศ. เป็น ค.ศ.
+      return new Date(y, m, d);
+    }
+    return new Date();
+  };
+
+  const formatDateBE = (dateObj) => {
+    let dd = String(dateObj.getDate()).padStart(2, '0');
+    let mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    let yyyy = dateObj.getFullYear() + 543; // แปลงกลับเป็น พ.ศ.
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
+  const start = parseDateAD(startDateStr);
+  const end = parseDateAD(endDateStr);
+  start.setHours(0,0,0,0);
+  end.setHours(0,0,0,0);
+
+  const schedule = {
+    1: Number(document.getElementById('sch_mon').value) || 0,
+    2: Number(document.getElementById('sch_tue').value) || 0,
+    3: Number(document.getElementById('sch_wed').value) || 0,
+    4: Number(document.getElementById('sch_thu').value) || 0,
+    5: Number(document.getElementById('sch_fri').value) || 0,
+    0: 0, 6: 0 // เสาร์อาทิตย์เป็น 0
+  };
+
+  // สร้างเซ็ตของวันหยุด (เก็บเฉพาะที่ type = 'holiday')
+  const holidaySet = new Set();
+  HOLIDAYS.forEach(h => {
+    if (h.type === 'holiday') {
+      holidaySet.add(h.date); // format "DD/MM/YYYY" ตรงกับฝั่งเซิร์ฟเวอร์
+    }
+  });
+
+  let totalHours = 0;
+  let current = new Date(start);
+
+  // วนลูปนับวันตั้งแต่วันเปิดเทอม ถึง ปิดเทอม
+  while (current <= end) {
+    let currentBEStr = formatDateBE(current);
+    
+    // ถัาวันนี้ไม่ใช่วันหยุด ให้บวกจำนวนคาบเรียนของวันนั้นๆ เข้าไป
+    if (!holidaySet.has(currentBEStr)) {
+      let dayOfWeek = current.getDay();
+      totalHours += schedule[dayOfWeek];
+    }
+    
+    // ขยับไปวันถัดไป
+    current.setDate(current.getDate() + 1);
+  }
+
+  // นำไปบวก/ลบ กับช่องปรับแก้ด้วยตนเอง (สำหรับชดเชยเสาร์-อาทิตย์ หรือ กิจกรรมพิเศษ)
+  const manualAdjust = Number(document.getElementById('ci_manual_adjust').value) || 0;
+  totalHours += manualAdjust;
+
+  document.getElementById('ci_total_hours').textContent = totalHours;
+}
+
+
+
+function saveCourseInfo() {
+  // เมื่อกดปุ่ม "บันทึกข้อมูลรายวิชา" จะมาเรียกใช้ฟังก์ชันนี้
+  // ซึ่งจะไปสั่งให้ saveConfigOnly() กวาดข้อมูลทั้งหมดบันทึกลง Google Sheet
+  saveConfigOnly();
+  
+  // แจ้งเตือนย้ำให้ครูทราบ
+  toast('✅ บันทึกข้อมูลรายวิชาสำเร็จ');
+  
+  // (ทางเลือก) ปิด Accordion อัตโนมัติหลังบันทึกเสร็จ
+  setTimeout(() => {
+    document.getElementById('accCourseInfo').classList.remove('open');
+    document.getElementById('accCourseInfoBody').classList.add('hidden');
+  }, 1000);
+}
   
 </script>
 </body>
 </html>
-
