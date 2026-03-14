@@ -822,6 +822,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
             <button class="btn-save mt-3 w-100" onclick="saveHolisticData()">
               💾 บันทึกผลการประเมิน (ทั้งห้อง)
             </button>
+            <div style="text-align:right;margin-top:10px;">
+  <button class="btn-pri" type="button" onclick="printHolisticReport()">
+    🖨️ พิมพ์รายงานประเมิน
+  </button>
+</div>
           </div>
         </div>
 
@@ -2603,6 +2608,297 @@ function calcTotalHours() {
 
   totalHours += Number(document.getElementById('ci_manual_adjust').value) || 0;
   document.getElementById('ci_total_hours').textContent = totalHours;
+}
+
+    function escHtml(v) {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getAssPrintRows() {
+  const rows = [];
+  const trs = document.querySelectorAll('#assBody tr[data-hsid]');
+
+  trs.forEach((tr, idx) => {
+    const name = tr.querySelector('.ass-name')?.textContent?.trim()
+      || tr.children[1]?.textContent?.trim()
+      || '';
+
+    const charScores = [...tr.querySelectorAll('.c-inp')].map(i => i.value || '');
+    const readScores = [...tr.querySelectorAll('.r-inp')].map(i => i.value || '');
+    const skillScores = [...tr.querySelectorAll('.s-inp')].map(i => i.value || '');
+
+    rows.push({
+      no: idx + 1,
+      name,
+      charScores,
+      charTotal: tr.querySelector('.c-total')?.textContent?.trim() || '-',
+      charResult: tr.querySelector('.c-result')?.textContent?.trim() || '-',
+      readScores,
+      readTotal: tr.querySelector('.r-total')?.textContent?.trim() || '-',
+      readResult: tr.querySelector('.r-result')?.textContent?.trim() || '-',
+      skillScores,
+      skillTotal: tr.querySelector('.s-total')?.textContent?.trim() || '-',
+      skillResult: tr.querySelector('.s-result')?.textContent?.trim() || '-'
+    });
+  });
+
+  return rows;
+}
+
+function buildPrintTable(title, headers, rows, scoreKey, totalKey, resultKey, themeClass) {
+  const headCols = headers.map(h => `<th class="v">${escHtml(h)}</th>`).join('');
+
+  const bodyRows = rows.map(r => {
+    const vals = r[scoreKey] || [];
+    const scoreTds = vals.map(v => `<td>${escHtml(v || '-')}</td>`).join('');
+
+    return `
+      <tr>
+        <td class="col-no">${r.no}</td>
+        <td class="col-name">${escHtml(r.name)}</td>
+        ${scoreTds}
+        <td class="col-total">${escHtml(r[totalKey] || '-')}</td>
+        <td class="col-result">${escHtml(r[resultKey] || '-')}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <section class="print-page">
+      <div class="report-head">
+        <div class="report-school">โรงเรียนบ้านคลอง 14</div>
+        <div class="report-title">${escHtml(title)}</div>
+        <div class="report-meta">
+          ชั้น ${escHtml(document.getElementById('gClass')?.value || '-')}
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          ปีการศึกษา ${escHtml(document.getElementById('gYear')?.value || '-')}
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          รายวิชา ${escHtml(document.getElementById('gSubj')?.value || '-')}
+        </div>
+      </div>
+
+      <table class="print-tbl ${themeClass}">
+        <thead>
+          <tr>
+            <th class="col-no">ที่</th>
+            <th class="col-name">ชื่อ-นามสกุล</th>
+            ${headCols}
+            <th class="col-total">รวม</th>
+            <th class="col-result">ผล</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${bodyRows}
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
+function printHolisticReport() {
+  const rows = getAssPrintRows();
+  if (!rows.length) {
+    toast('ไม่พบข้อมูลสำหรับพิมพ์', 'error');
+    return;
+  }
+
+  const page1 = buildPrintTable(
+    'รายงานประเมินคุณลักษณะอันพึงประสงค์',
+    [
+      '1.รักชาติฯ',
+      '2.ซื่อสัตย์ฯ',
+      '3.มีวินัย',
+      '4.ใฝ่เรียนรู้',
+      '5.อยู่อย่างพอเพียง',
+      '6.มุ่งมั่นทำงาน',
+      '7.รักความเป็นไทย',
+      '8.มีจิตสาธารณะ'
+    ],
+    rows,
+    'charScores',
+    'charTotal',
+    'charResult',
+    'theme-char'
+  );
+
+  const page2 = buildPrintTable(
+    'รายงานประเมินการอ่าน คิดวิเคราะห์ และเขียน',
+    [
+      '1.สามารถอ่านฯ',
+      '2.สามารถจับประเด็นฯ',
+      '3.สามารถวิเคราะห์ฯ',
+      '4.สามารถประเมินฯ',
+      '5.สามารถเขียนฯ'
+    ],
+    rows,
+    'readScores',
+    'readTotal',
+    'readResult',
+    'theme-read'
+  );
+
+  const page3 = buildPrintTable(
+    'รายงานประเมินสมรรถนะสำคัญของผู้เรียน',
+    [
+      '1.สื่อสาร',
+      '2.คิด',
+      '3.แก้ปัญหา',
+      '4.ทักษะชีวิต',
+      '5.เทคโนโลยี'
+    ],
+    rows,
+    'skillScores',
+    'skillTotal',
+    'skillResult',
+    'theme-skill'
+  );
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="th">
+    <head>
+      <meta charset="utf-8">
+      <title>รายงานประเมินผู้เรียน</title>
+      <style>
+        @page {
+          size: A4 landscape;
+          margin: 10mm;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+          font-family: "Sarabun", sans-serif;
+          margin: 0;
+          color: #111827;
+          background: #fff;
+        }
+
+        .print-page {
+          width: 100%;
+          min-height: 100vh;
+          page-break-after: always;
+          padding: 4mm 2mm;
+        }
+
+        .print-page:last-child {
+          page-break-after: auto;
+        }
+
+        .report-head {
+          text-align: center;
+          margin-bottom: 10px;
+        }
+
+        .report-school {
+          font-size: 18px;
+          font-weight: 700;
+        }
+
+        .report-title {
+          font-size: 20px;
+          font-weight: 800;
+          margin-top: 2px;
+        }
+
+        .report-meta {
+          font-size: 12px;
+          margin-top: 4px;
+          color: #374151;
+        }
+
+        .print-tbl {
+          width: 100%;
+          border-collapse: collapse;
+          table-layout: fixed;
+          font-size: 12px;
+        }
+
+        .print-tbl th,
+        .print-tbl td {
+          border: 1px solid #9ca3af;
+          padding: 6px 4px;
+          text-align: center;
+          vertical-align: middle;
+          word-wrap: break-word;
+        }
+
+        .print-tbl th {
+          font-weight: 700;
+        }
+
+        .print-tbl .col-no {
+          width: 36px;
+        }
+
+        .print-tbl .col-name {
+          width: 230px;
+          text-align: left;
+          font-weight: 600;
+        }
+
+        .print-tbl .col-total {
+          width: 55px;
+          font-weight: 700;
+          background: #f3f4f6;
+        }
+
+        .print-tbl .col-result {
+          width: 78px;
+          font-weight: 700;
+          background: #f9fafb;
+        }
+
+        .theme-char thead th {
+          background: #fef08a;
+        }
+
+        .theme-read thead th {
+          background: #fdba74;
+        }
+
+        .theme-skill thead th {
+          background: #d1d5db;
+        }
+
+        @media print {
+          html, body {
+            width: 100%;
+            height: auto;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      ${page1}
+      ${page2}
+      ${page3}
+
+      <script>
+        window.onload = function () {
+          setTimeout(function () {
+            window.print();
+          }, 150);
+        };
+      <\/script>
+    </body>
+    </html>
+  `;
+
+  const w = window.open('', '_blank');
+  if (!w) {
+    toast('เบราว์เซอร์บล็อก pop-up กรุณาอนุญาตก่อน', 'error');
+    return;
+  }
+
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
 }
 </script>
 
