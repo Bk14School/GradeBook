@@ -1374,8 +1374,12 @@ function onCfg() {
 }
 
 function switchTerm(t, btn) {
-  document.querySelectorAll('.ttab').forEach(b => b.classList.remove('on'));
+  const tabWrap = btn.closest('.ttabs');
+  if (tabWrap) {
+    tabWrap.querySelectorAll('.ttab').forEach(b => b.classList.remove('on'));
+  }
   btn.classList.add('on');
+
   document.getElementById('subPanel_1').style.display = t === 1 ? '' : 'none';
   document.getElementById('subPanel_2').style.display = t === 2 ? '' : 'none';
 }
@@ -1586,8 +1590,9 @@ async function loadGrades() {
 
     document.getElementById('gradePanel').style.display = '';
     buildTable();
-renderHolisticTable(STUDENTS, 'assContainer', 'assBody', 'subject');
-renderHolisticTable(STUDENTS, 'hrAssContainer', 'hrAssBody', 'homeroom');
+    renderHolisticTable(STUDENTS, 'assContainer', 'assBody', 'subject');
+    renderHolisticTable(STUDENTS, 'hrAssContainer', 'hrAssBody', 'homeroom');
+    
     const acc = document.getElementById('accCourseInfo');
     const body = document.getElementById('accCourseInfoBody');
     if (acc && body) {
@@ -2460,32 +2465,7 @@ async function printClassPDF(reportType = 'year') {
   pg_();
 }
 
-async function printClassPDF(reportMode = 'year') {
-  const year = document.getElementById('gYear').value;
-  const classroom = document.getElementById('gClass').value;
-  const modeLabel = reportMode === 'term1' ? 'เทอม 1' : 'ทั้งปี';
 
-  if (!confirm(`พิมพ์รายงาน ปพ.6 ${modeLabel} ของห้อง ${classroom} ปี ${year} ?`)) return;
-
-  pg(`กำลังสร้างเอกสาร ปพ.6 ${modeLabel}...`);
-  try {
-    const pdfData = await api('generateClassPDF', {
-      year,
-      classroom,
-      ignoreR: IGNORE_R,
-      reportMode
-    });
-
-    openBase64PdfInPrintWindow(
-      pdfData,
-      `ปพ6_ทั้งห้อง_${classroom}_${reportMode}_ปี${year}.pdf`
-    );
-    toast(`เปิดหน้าพิมพ์ ปพ.6 ${modeLabel} แล้ว`);
-  } catch (e) {
-    toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
-  }
-  pg_();
-}
 
 async function printSummaryPDF() {
   const year = document.getElementById('gYear').value;
