@@ -2564,7 +2564,7 @@ async function printRowPDF(studentId, reportType = 'year') {
 
   pg(`กำลังสร้างเอกสาร ${reportLabel}...`);
   try {
-    const pdfData = await api('generateStudentPDF', {
+    const html = await api('generateStudentHTML', {
       year,
       classroom,
       studentId,
@@ -2572,10 +2572,7 @@ async function printRowPDF(studentId, reportType = 'year') {
       reportType
     });
 
-    openBase64PdfInPrintWindow(
-      pdfData,
-      `ปพ6_${reportLabel}_${studentId}_${classroom}.pdf`
-    );
+    openPrintHtmlWindow(html, `ปพ6_${reportLabel}_${studentId}_${classroom}`);
     toast(`เปิดหน้าพิมพ์รายบุคคล (${reportLabel}) แล้ว`);
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
@@ -2592,17 +2589,14 @@ async function printClassPDF(reportType = 'year') {
 
   pg(`กำลังสร้างเอกสาร ${reportLabel} ทั้งห้อง...`);
   try {
-    const pdfData = await api('generateClassPDF', {
+    const html = await api('generateClassHTML', {
       year,
       classroom,
       ignoreR: IGNORE_R,
       reportType
     });
 
-    openBase64PdfInPrintWindow(
-      pdfData,
-      `ปพ6_${reportLabel.replace(/\s+/g,'')}_${classroom}_ปี${year}.pdf`
-    );
+    openPrintHtmlWindow(html, `ปพ6_${reportLabel.replace(/\s+/g,'')}_${classroom}_ปี${year}`);
     toast(`เปิดหน้าพิมพ์ ${reportLabel} ทั้งห้องแล้ว`);
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
@@ -2618,16 +2612,16 @@ async function printSummaryPDF() {
 
   if (!confirm(`ต้องการสร้างตารางสรุปเกรดรวมของห้อง ${classroom} ใช่หรือไม่?`)) return;
 
-  pg('กำลังรวบรวมข้อมูลทุกวิชาและสร้าง PDF...');
+  pg('กำลังรวบรวมข้อมูลทุกวิชา...');
   try {
-    const pdfData = await api('generateSummaryPDF', {
+    const html = await api('generateSummaryHTML', {
       year,
       classroom,
       ignoreR: IGNORE_R
     });
 
-const rModeLabel = IGNORE_R ? 'ซ่อนร' : 'แสดงร';
-openBase64PdfInPrintWindow(pdfData, `สรุปผลการเรียน_${classroom}_ปี${year}_${rModeLabel}.pdf`);    toast('เปิดหน้าพิมพ์สรุปผลการเรียนแล้ว');
+    openPrintHtmlWindow(html, `สรุปผลการเรียน_${classroom}_ปี${year}`);
+    toast('เปิดหน้าพิมพ์สรุปผลการเรียนแล้ว');
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
@@ -3178,7 +3172,7 @@ function printHolisticReport(mode = 'subject') {
     mode === 'homeroom' ? '' : 'none';
 }
 
-    async function printPp5SubjectPDF() {
+async function printPp5SubjectPDF() {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
   const subject = document.getElementById('gSubj').value;
@@ -3193,18 +3187,35 @@ function printHolisticReport(mode = 'subject') {
 
   pg('กำลังสร้าง ปพ.5 ...');
   try {
-    const pdfData = await api('generatePp5SubjectPDF', {
+    const html = await api('generatePp5SubjectHTML', {
       year,
       classroom,
       subject
     });
 
-    openBase64PdfInPrintWindow(pdfData, `ปพ5_${subject}_${classroom}_ปี${year}.pdf`);
+    openPrintHtmlWindow(html, `ปพ5_${subject}_${classroom}_ปี${year}`);
     toast('เปิดหน้าพิมพ์ ปพ.5 แล้ว');
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
   pg_();
+}
+
+    function openPrintHtmlWindow(html, fileName = 'report') {
+  try {
+    const w = window.open('', '_blank');
+    if (!w) {
+      alert('เบราว์เซอร์บล็อก Pop-up กรุณาอนุญาตก่อน');
+      return;
+    }
+
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  } catch (err) {
+    console.error(err);
+    toast('เกิดข้อผิดพลาดในการเปิดหน้าพิมพ์', 'error');
+  }
 }
 </script>
 
