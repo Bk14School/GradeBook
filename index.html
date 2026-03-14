@@ -463,57 +463,48 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     <div class="acc-title">⚙️ ตั้งค่าคะแนนและหัวข้อย่อย</div>
     <span class="acc-arrow">▾</span>
   </div>
-<div class="acc-body hidden" id="accMainBody">
+  <div class="acc-body hidden" id="accMainBody">
+    
     <!-- ส่วนสัดส่วนคะแนน -->
     <div class="card mb-3" style="background:#f8fafc;">
       <div class="cfg-row">
+        <!-- เทอม 1 -->
         <div class="cfg-block">
-          <div class="cfg-ttl" style="color:#1d4ed8;">เทอม 1 (เก็บ/สอบ)</div>
-      <!-- ในส่วนการตั้งค่าสัดส่วนคะแนน -->
-<div class="cfg-inline">
-  <input type="number" class="cfg-n" id="c_t1a" value="70" readonly style="background:#f1f5f9;">
-  <input type="number" class="cfg-n" id="c_t1e" value="30" readonly style="background:#f1f5f9;">
-</div>
+          <div class="cfg-ttl" style="color:#1d4ed8;">คะแนน เทอม 1 (เก็บ/สอบ)</div>
+          <div class="cfg-inline">
+            <input type="number" class="cfg-n" id="c_t1a" value="35">
+            <input type="number" class="cfg-n" id="c_t1e" value="15">
+          </div>
         </div>
-        <div class="cfg-block">
-          <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (เก็บ/สอบ)</div>
-     <!-- ในส่วนการตั้งค่าสัดส่วนคะแนน -->
-<div class="cfg-inline">
-  <input type="number" class="cfg-n" id="c_t2a" value="70" readonly style="background:#f1f5f9;">
-  <input type="number" class="cfg-n" id="c_t2e" value="30" readonly style="background:#f1f5f9;">
-</div>
+        <!-- เทอม 2 -->
+        <div class="cfg-block" id="block_t2">
+          <div class="cfg-ttl" style="color:#0e7490;">คะแนน เทอม 2 (เก็บ/สอบ)</div>
+          <div class="cfg-inline">
+            <input type="number" class="cfg-n" id="c_t2a" value="35">
+            <input type="number" class="cfg-n" id="c_t2e" value="15">
+          </div>
         </div>
       </div>
     </div>
     
-    <!-- ส่วนหัวข้อย่อย (เดิมคือ acc2) -->
+    <!-- สลับเทอม -->
     <div class="ttabs mb-3">
-      <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
-      <button class="ttab" onclick="switchTerm(2,this)">เทอม 2</button>
+      <button class="ttab on" id="tab_t1" onclick="switchTerm(1,this)">เทอม 1</button>
+      <button class="ttab" id="tab_t2" onclick="switchTerm(2,this)">เทอม 2</button>
     </div>
-<!-- ฝั่งเทอม 1 -->
-<div id="subPanel_1">
-  <!-- ต้องมี id="subList_1" ตรงนี้ครับ -->
-  <div id="subList_1" class="d-flex flex-column gap-3"></div>
-  <button class="btn-add-sub mt-3" onclick="addUnit(1)">＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 1)</button>
-</div>
 
-<!-- ฝั่งเทอม 2 -->
-<!-- ในส่วนของเทอม 2 ให้เพิ่มส่วนกรอกสัดส่วนด้วย -->
-<div id="subPanel_2" style="display:none;">
-    <div class="cfg-row mb-3">
-      <div class="cfg-block">
-        <div class="cfg-ttl" style="color:#0e7490;">เทอม 2 (เก็บ/สอบ)</div>
-        <div class="cfg-inline">
-          <input type="number" class="cfg-n" id="c_t2a" value="35">
-          <input type="number" class="cfg-n" id="c_t2e" value="15">
-        </div>
-      </div>
+    <!-- แผงหน่วยการเรียนรู้ -->
+    <div id="subPanel_1">
+      <div id="subList_1" class="d-flex flex-column gap-3"></div>
+      <button class="btn-add-sub mt-3" onclick="addUnit(1)">＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 1)</button>
     </div>
-    <div id="subList_2" class="d-flex flex-column gap-3"></div>
-    <button class="btn-add-sub mt-3" onclick="addUnit(2)">＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 2)</button>
-</div>
-    <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
+
+    <div id="subPanel_2" style="display:none;">
+      <div id="subList_2" class="d-flex flex-column gap-3"></div>
+      <button class="btn-add-sub mt-3" onclick="addUnit(2)">＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 2)</button>
+    </div>
+
+    <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตารางและคำนวณใหม่</button>
   </div>
 </div>
         
@@ -1089,21 +1080,23 @@ function buildBody(){
 }
 function applySubConfig() {
   if (!STUDENTS.length) return toast('โหลดรายชื่อก่อน', 'error');
-  
+
   const t1a = +document.getElementById('c_t1a').value;
   const t1e = +document.getElementById('c_t1e').value;
   const t2a = +document.getElementById('c_t2a').value;
   const t2e = +document.getElementById('c_t2e').value;
-  
-  // กำหนด Target ตามโหมด (IS_SEM_MODE = มัธยม = 100, ประถม = 50)
-  const targetTotal = IS_SEM_MODE ? 100 : 50;
 
-  if (t1a + t1e !== targetTotal) {
-    return toast(`เทอม 1: คะแนนรวมต้องเท่ากับ ${targetTotal}`, 'error');
+  // ถ้าเป็นมัธยม (IS_SEM_MODE) รวมต้องได้ 100, ถ้าประถม รวมต้องได้ 50
+  const target = IS_SEM_MODE ? 100 : 50;
+
+  // ตรวจสอบเทอม 1
+  if ((t1a + t1e) !== target) {
+    return toast(`เทอม 1: คะแนนรวมต้องเท่ากับ ${target} คะแนน`, 'error');
   }
-  
-  if (!IS_SEM_MODE && (t2a + t2e !== 50)) { // ประถมเทอม 2 ต้องรวมเป็น 50
-    return toast(`เทอม 2: คะแนนรวมต้องเท่ากับ 50`, 'error');
+
+  // ตรวจสอบเทอม 2 (ถ้าไม่ใช่โหมดมัธยม)
+  if (!IS_SEM_MODE && (t2a + t2e) !== 50) {
+    return toast('เทอม 2: คะแนนรวมต้องเท่ากับ 50 คะแนน', 'error');
   }
 
   const snap = snapshotInputs();
@@ -1316,6 +1309,7 @@ function calcGradeFrontend(s) {
 }
   
 async function saveConfigOnly() {
+  
   // 1. ดึงค่าตัวแปรที่จำเป็น
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
