@@ -489,15 +489,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       <button class="ttab on" onclick="switchTerm(1,this)">เทอม 1</button>
       <button class="ttab" onclick="switchTerm(2,this)">เทอม 2</button>
     </div>
- <!-- ฝั่งเทอม 1 -->
+<!-- ฝั่งเทอม 1 -->
 <div id="subPanel_1">
-  <div id="unitList_1" class="d-flex flex-column gap-3"></div>
+  <!-- ต้องมี id="subList_1" ตรงนี้ครับ -->
+  <div id="subList_1" class="d-flex flex-column gap-3"></div>
   <button class="btn-add-sub mt-3" onclick="addUnit(1)">＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 1)</button>
 </div>
 
 <!-- ฝั่งเทอม 2 -->
 <div id="subPanel_2" style="display:none;">
-  <div id="unitList_2" class="d-flex flex-column gap-3"></div>
+  <!-- ต้องมี id="subList_2" ตรงนี้ครับ -->
+  <div id="subList_2" class="d-flex flex-column gap-3"></div>
   <button class="btn-add-sub mt-3" onclick="addUnit(2)">＋ เพิ่มหน่วยการเรียนรู้ใหม่ (เทอม 2)</button>
 </div>
     <button class="btn-apply mt-4" onclick="applySubConfig()">🔄 อัปเดตตาราง</button>
@@ -892,8 +894,8 @@ async function loadGrades() {
     } // ใส่ } ปิด if ให้ถูกต้อง
 
     // 4. สั่งวาดรายการหัวข้อย่อย และคำนวณ Raw Max ใหม่
-    renderSubList(1);
-    if (!IS_SEM_MODE) renderSubList(2);
+renderUnits(1);
+if (!IS_SEM_MODE) renderUnits(2);
     onCfg(); 
     calcTotalHours(); // ✨ เรียกคำนวณคาบเรียนทันทีเมื่อโหลดเสร็จ
 
@@ -1849,8 +1851,11 @@ function addTask(t, unitIdx) {
 }
 
 function renderUnits(t) {
-  const container = document.getElementById(`unitList_${t}`);
-  container.innerHTML = UNITS[t].map((u, uIdx) => `
+ const container = document.getElementById(`subList_${t}`);
+  if (!container) {
+    console.error("หา id subList_" + t + " ไม่พบ");
+    return;
+  }  container.innerHTML = UNITS[t].map((u, uIdx) => `
     <div class="card p-3" style="background:#f8fafc; border:1px solid #c7d2fe;">
       <div class="d-flex gap-2 mb-2 align-items-center">
         <input class="form-control fw-bold" value="${u.name}" onchange="UNITS[${t}][${uIdx}].name=this.value">
