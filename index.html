@@ -451,102 +451,91 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     padding: 6px 3px;
   }
 }
-  /* =====================================================
-   SETTINGS TAB BAR
+  
+/* =====================================================
+   SETTINGS TAB BAR (NAVBAR VERSION)
    ===================================================== */
-.settings-tabs {
-  display: flex;
-  gap: 0;
-  background: #f1f5f9;
-  border-radius: 12px;
-  padding: 4px;
-  margin-bottom: 16px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.settings-tab {
-  flex: 1;
-  min-width: 0;
-  padding: 10px 16px;
-  border-radius: 9px;
-  border: none;
-  background: transparent;
-  font-weight: 700;
-  font-size: .84rem;
-  color: var(--muted);
-  cursor: pointer;
-  font-family: inherit;
-  transition: all .18s;
-  white-space: nowrap;
-  text-align: center;
-  min-height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-.settings-tab:hover {
-  color: var(--text);
-  background: rgba(255,255,255,.5);
-}
-.settings-tab.active {
-  background: #fff;
-  color: var(--primary);
-  box-shadow: 0 2px 8px rgba(99,102,241,.15);
-}
-.settings-tab .tab-icon {
-  font-size: 1rem;
-}
-.settings-panel {
-  display: none !important;
-}
-.settings-panel.active {
-  display: block !important;
-  animation: tabFade .2s ease;
-}
-@keyframes tabFade {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@media (max-width: 600px) {
-  .settings-tabs {
-    border-radius: 10px;
-    padding: 3px;
-    gap: 0;
-  }
-  .settings-tab {
-    padding: 8px 10px;
-    font-size: .78rem;
-    min-height: 38px;
-  }
-  .settings-tab .tab-label {
-    display: none;
-  }
-  .settings-tab .tab-icon {
-    font-size: 1.1rem;
-  }
-}
-  .settings-tabs{
+.settings-tabs{
   display:flex;
+  align-items:center;
   gap:6px;
-  margin-right:10px;
+  margin-right:6px;
+  padding:0;
+  background:transparent;
+  border-radius:0;
+  overflow:visible;
+  -webkit-overflow-scrolling:auto;
 }
 
 .settings-tab{
-  border:1px solid #e5e7eb;
-  background:#fff;
+  flex:none;
+  min-width:auto;
   padding:5px 10px;
-  border-radius:6px;
+  min-height:34px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:#fff;
+  color:var(--muted);
   cursor:pointer;
-  font-size:13px;
+  font-family:inherit;
+  font-size:.78rem;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  white-space:nowrap;
+  text-align:center;
+  transition:all .15s;
+  box-shadow:none;
+}
+
+.settings-tab:hover{
+  border-color:var(--primary);
+  color:var(--primary);
+  background:var(--pl);
 }
 
 .settings-tab.active{
-  background:#2563eb;
+  background:linear-gradient(135deg,var(--primary),var(--pd));
   color:#fff;
-  border-color:#2563eb;
+  border-color:transparent;
+  box-shadow:none;
 }
 
+.settings-tab .tab-icon{
+  font-size:.95rem;
+}
+
+.settings-panel{
+  display:none !important;
+}
+
+.settings-panel.active{
+  display:block !important;
+  animation:tabFade .2s ease;
+}
+
+@keyframes tabFade{
+  from{opacity:0;transform:translateY(4px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+@media (max-width: 1100px){
+  .settings-tab .tab-label{
+    display:none;
+  }
+
+  .settings-tab{
+    padding:5px 8px;
+  }
+}
+
+@media (max-width: 768px){
+  #settingsTabs{
+    display:none !important;
+  }
+}
   
   
 </style>
@@ -560,41 +549,32 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     </div>
 
 <div class="nav-r">
-
   <div class="tag" id="teacherTag">🎓</div>
 
-  <!-- TAB SETTINGS -->
-  <div class="settings-tabs" id="settingsTabs" style="display:none;">
-
-    <button type="button" class="settings-tab active"
-      onclick="switchSettingsTab('courseInfo', this)">
-      📝 รายวิชา
+  <div class="settings-tabs nav-tabs" id="settingsTabs" style="display:none;">
+    <button type="button" class="settings-tab active" onclick="switchSettingsTab('courseInfo', this)">
+      <span class="tab-icon">📝</span>
+      <span class="tab-label">รายวิชา</span>
     </button>
-
-    <button type="button" class="settings-tab"
-      onclick="switchSettingsTab('schoolProfile', this)">
-      🏫 โรงเรียน
+    <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
+      <span class="tab-icon">🏫</span>
+      <span class="tab-label">โรงเรียน</span>
     </button>
-
-    <button type="button" class="settings-tab"
-      onclick="switchSettingsTab('holistic', this)">
-      🌟 ประเมิน
+    <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
+      <span class="tab-icon">🌟</span>
+      <span class="tab-label">ประเมิน</span>
     </button>
-
   </div>
 
   <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">
     ⚙️ <span>แอดมิน</span>
   </button>
-
   <button class="nbtn" id="btnGrade" onclick="showPage('gradePage')" style="display:none;">
     📝 <span>กรอกคะแนน</span>
   </button>
-
   <button class="nbtn red" id="btnOut" onclick="logout()" style="display:none;">
     ⏏ <span>ออก</span>
   </button>
-
 </div>
 
     
@@ -797,21 +777,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       <!-- Card รวม accordion -->
       <div class="card" style="padding:14px 16px;">
 
-<!-- ===== SETTINGS TAB BAR ===== -->
-<div class="settings-tabs" id="settingsTabs">
-  <button type="button" class="settings-tab active" onclick="switchSettingsTab('courseInfo', this)">
-    <span class="tab-icon">📝</span>
-    <span class="tab-label">ข้อมูลรายวิชา</span>
-  </button>
-  <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
-    <span class="tab-icon">🏫</span>
-    <span class="tab-label">ข้อมูลโรงเรียน</span>
-  </button>
-  <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
-    <span class="tab-icon">🌟</span>
-    <span class="tab-label">ประเมินผู้เรียน</span>
-  </button>
-</div>
+
 
 <!-- ===== TAB: ข้อมูลรายวิชา ===== -->
 <div class="settings-panel active" id="panel_courseInfo">
@@ -1126,6 +1092,12 @@ function pg_() {
 function showPage(id) {
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   document.getElementById(id).classList.add('on');
+
+  const tabs = document.getElementById('settingsTabs');
+  if (tabs) {
+    tabs.style.display = (id === 'gradePage') ? 'flex' : 'none';
+  }
+
   scrollTo(0, 0);
 }
 
@@ -1157,24 +1129,24 @@ function calcGradeFrontend(score) {
     /* =====================================================
    SETTINGS TAB SWITCHER
    ===================================================== */
-function switchSettingsTab(tabId, btn){
+function switchSettingsTab(tabId, btn) {
+  const panels = document.querySelectorAll('.settings-panel');
+  const tabs = document.querySelectorAll('#settingsTabs .settings-tab');
 
-  document.querySelectorAll('.settings-panel')
-    .forEach(p => p.classList.remove('active'));
-
-  document.querySelectorAll('.settings-tab')
-    .forEach(t => t.classList.remove('active'));
+  panels.forEach(panel => panel.classList.remove('active'));
+  tabs.forEach(tab => tab.classList.remove('active'));
 
   const panel = document.getElementById('panel_' + tabId);
 
-  if(panel){
+  if (panel) {
     panel.classList.add('active');
+  } else {
+    console.warn('ไม่พบ panel:', 'panel_' + tabId);
   }
 
-  if(btn){
+  if (btn) {
     btn.classList.add('active');
   }
-
 }
     
 function toggleAcc(id) {
@@ -1266,9 +1238,14 @@ async function doLogin() {
 function logout() {
   CU = null;
   cp();
+
   ['teacherTag', 'btnAdmin', 'btnGrade', 'btnOut'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
+
+  const tabs = document.getElementById('settingsTabs');
+  if (tabs) tabs.style.display = 'none';
+
   showPage('loginPage');
 }
 
@@ -1882,10 +1859,11 @@ async function loadGrades() {
     
 // เปิดแท็บข้อมูลรายวิชาเป็นค่าเริ่มต้น
 document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
-document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
-
 document.getElementById('panel_courseInfo').classList.add('active');
-document.querySelector('.settings-tab[onclick*="courseInfo"]').classList.add('active');
+
+document.querySelectorAll('#settingsTabs .settings-tab').forEach(t => t.classList.remove('active'));
+const firstTab = document.querySelector('#settingsTabs .settings-tab[onclick*="courseInfo"]');
+if (firstTab) firstTab.classList.add('active');
     
     toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
   } catch (e) {
