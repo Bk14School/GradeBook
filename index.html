@@ -189,13 +189,12 @@ body{
    ========================= */
 .settings-tabs-wrap{
   display:none;
-  max-width:100%;
   overflow-x:auto;
   overflow-y:hidden;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
   margin-right:4px;
-  flex:0 1 auto;
+  flex:1 1 0;
   min-width:0;
 }
 
@@ -1321,14 +1320,14 @@ body{
             <span class="tab-label">รายวิชา</span>
           </button>
 
-          <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
-            <span class="tab-icon">🏫</span>
-            <span class="tab-label">โรงเรียน</span>
-          </button>
-
           <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
             <span class="tab-icon">🌟</span>
             <span class="tab-label">ประเมิน</span>
+          </button>
+
+          <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
+            <span class="tab-icon">🏫</span>
+            <span class="tab-label">โรงเรียน</span>
           </button>
         </div>
       </div>
