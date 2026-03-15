@@ -207,33 +207,99 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 .gtbl tbody tr:hover td{background:#f8fafc!important;}
 
 /* ── Sticky header rows ── */
-/* ── Sticky header rows แบบ 3 ชั้น ไม่ทับกัน ── */
-.gtbl thead tr:nth-child(1) th{
+.gtbl thead tr:first-child th { position:sticky; top:0; z-index:30; }
+.gtbl thead tr:last-child  th { position:sticky; top:37px; z-index:30; }
+
+/* =========================================
+   STICKY COLUMNS
+   ========================================= */
+
+/* หัวตารางคอลัมน์ตรึง */
+.gtbl thead th.s-c0,
+.gtbl thead th.s-c1,
+.gtbl thead th.s-c2 {
   position: sticky;
-  top: 0;
-  z-index: 40;
+  z-index: 60 !important;
 }
 
-.gtbl thead tr:nth-child(2) th{
-  position: sticky;
-  top: 54px;   /* ความสูงแถวแรก */
-  z-index: 39;
+/* ตำแหน่ง */
+.gtbl thead th.s-c0,
+.gtbl tbody td.s-c0 {
+  left: 0;
 }
 
-.gtbl thead tr:nth-child(3) th{
-  position: sticky;
-  top: 108px;  /* ความสูงแถวแรก + แถวสอง */
-  z-index: 38;
+.gtbl thead th.s-c1,
+.gtbl tbody td.s-c1 {
+  left: 36px;
 }
 
-/* ── Sticky columns: ที่(col0)=0  รหัส(col1)=36px  ชื่อ(col2)=108px ──  */
-.gtbl thead th.s-c0 { left:0;    z-index:50; }
-.gtbl thead th.s-c1 { left:36px; z-index:50; }
-.gtbl thead th.s-c2 { left:108px;z-index:50; }
+.gtbl thead th.s-c2,
+.gtbl tbody td.s-c2 {
+  left: 108px;
+}
 
-.gtbl tbody td.s-c0 { position:sticky; left:0;    z-index:10; background:#1e293b; color:#94a3b8; font-size:.78rem; }
-.gtbl tbody td.s-c1 { position:sticky; left:36px; z-index:10; background:#1e293b; color:#94a3b8; font-size:.74rem; }
-.gtbl tbody td.s-c2 { position:sticky; left:108px;z-index:10; background:#fff;    text-align:left; font-weight:500; min-width:145px; }
+/* คอลัมน์ตรึงฝั่ง body */
+.gtbl tbody td.s-c0,
+.gtbl tbody td.s-c1,
+.gtbl tbody td.s-c2 {
+  position: sticky;
+  z-index: 25 !important;
+}
+
+/* พื้นหลังทึบ เพื่อบังข้อมูลที่เลื่อนอยู่ข้างหลัง */
+.gtbl tbody td.s-c0 {
+  background: #1e293b !important;
+  color: #94a3b8;
+  font-size: .78rem;
+}
+
+.gtbl tbody td.s-c1 {
+  background: #1e293b !important;
+  color: #94a3b8;
+  font-size: .74rem;
+}
+
+.gtbl tbody td.s-c2 {
+  background: #ffffff !important;
+  text-align: left;
+  font-weight: 500;
+  min-width: 145px;
+}
+
+/* ทำให้หัวคอลัมน์ตรึงทึบจริง */
+.gtbl thead th.s-c0 {
+  background: #1e293b !important;
+}
+
+.gtbl thead th.s-c1 {
+  background: #1e293b !important;
+}
+
+.gtbl thead th.s-c2 {
+  background: #1e293b !important;
+}
+
+/* เส้นคั่น + เงา ให้ดูเหมือนส่วนเลื่อนอยู่ด้านหลัง */
+.gtbl thead th.s-c2,
+.gtbl tbody td.s-c2 {
+  border-right: 2px solid #6366f1 !important;
+  box-shadow:
+    8px 0 14px rgba(15, 23, 42, 0.14),
+    2px 0 0 #6366f1;
+}
+
+/* hover แล้วยังคงทึบ ไม่โปร่ง */
+.gtbl tbody tr:hover td.s-c0 {
+  background: #334155 !important;
+}
+
+.gtbl tbody tr:hover td.s-c1 {
+  background: #334155 !important;
+}
+
+.gtbl tbody tr:hover td.s-c2 {
+  background: #f0f4ff !important;
+}
 
 /* เส้น + เงาหลังคอลัมน์ชื่อ เพื่อแยกส่วนที่ตรึงออกจาก scroll content */
 .gtbl thead th.s-c2,
@@ -249,6 +315,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 .gtbl thead tr:nth-child(2) th,
 .gtbl thead tr:nth-child(3) th{
   box-shadow: inset 0 -1px 0 rgba(255,255,255,.12);
+}
+  .tbl-wrap {
+  overflow: auto;
+  position: relative;
+}
+  .gtbl thead th {
+  background-clip: padding-box;
 }
   /* คอลัมน์ชื่อ */
 .gtbl td:nth-child(3),
