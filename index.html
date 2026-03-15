@@ -539,18 +539,45 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
       ระบบบันทึกคะแนน
     </div>
 
-    <div class="nav-r">
-      <div class="tag" id="teacherTag">🎓</div>
-      <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">
-        ⚙️ <span>แอดมิน</span>
-      </button>
-      <button class="nbtn" id="btnGrade" onclick="showPage('gradePage')" style="display:none;">
-        📝 <span>กรอกคะแนน</span>
-      </button>
-      <button class="nbtn red" id="btnOut" onclick="logout()" style="display:none;">
-        ⏏ <span>ออก</span>
-      </button>
-    </div>
+<div class="nav-r">
+
+  <div class="tag" id="teacherTag">🎓</div>
+
+  <!-- TAB SETTINGS -->
+  <div class="settings-tabs" id="settingsTabs" style="display:none;">
+
+    <button type="button" class="settings-tab active"
+      onclick="switchSettingsTab('courseInfo', this)">
+      📝 รายวิชา
+    </button>
+
+    <button type="button" class="settings-tab"
+      onclick="switchSettingsTab('schoolProfile', this)">
+      🏫 โรงเรียน
+    </button>
+
+    <button type="button" class="settings-tab"
+      onclick="switchSettingsTab('holistic', this)">
+      🌟 ประเมิน
+    </button>
+
+  </div>
+
+  <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">
+    ⚙️ <span>แอดมิน</span>
+  </button>
+
+  <button class="nbtn" id="btnGrade" onclick="showPage('gradePage')" style="display:none;">
+    📝 <span>กรอกคะแนน</span>
+  </button>
+
+  <button class="nbtn red" id="btnOut" onclick="logout()" style="display:none;">
+    ⏏ <span>ออก</span>
+  </button>
+
+</div>
+
+    
   </div>
 </div>
 
