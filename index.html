@@ -1409,8 +1409,7 @@ body{
   🖨️ พิมพ์ ปพ.5 รายวิชา
 </button>
   <button class="btn-pri" style="background:linear-gradient(135deg,#16a34a,#15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
-  <button class="btn-pri" style="background:linear-gradient(135deg,#0284c7,#0369a1);" onclick="printSummaryPDF()">📊 สรุปเกรดรวม</button>
-
+<button class="btn-pri" style="background:linear-gradient(135deg,#0284c7,#0369a1);" onclick="openSummaryModeModal()">📊 สรุปเกรดรวม</button>
   <button class="btn-pri" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="printClassPDF('term1')">
     🖨️ พิมพ์ ปพ.6 เทอม 1
   </button>
@@ -1710,7 +1709,30 @@ body{
   </div>
 </div>
 
+<!-- SUMMARY MODE MODAL -->
+<div id="summaryModeModal" class="modal-bg">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="fw-bold mb-0">📊 เลือกรูปแบบสรุปเกรดรวม</h6>
+      <button class="btn-sm" onclick="closeSummaryModeModal()">✕</button>
+    </div>
 
+    <div class="mb-3 text-muted" style="font-size:.9rem;">
+      เลือกว่าต้องการพิมพ์ผลการเรียนแบบ <b>เทอม 1</b> หรือ <b>ทั้งปี</b>
+    </div>
+
+    <div class="d-grid gap-2">
+      <button class="btn-pri" onclick="printSummaryPDF('term1')" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">
+        🟣 ดูเทอม 1
+      </button>
+
+      <button class="btn-pri" onclick="printSummaryPDF('year')" style="background:linear-gradient(135deg,#0284c7,#0369a1);">
+        🔵 ดูทั้งปี
+      </button>
+    </div>
+  </div>
+</div>
+  
   <script>
 /* =====================================================
    GLOBAL STATE
@@ -3395,22 +3417,30 @@ async function printClassPDF(reportType = 'year') {
 
 
 
-async function printSummaryPDF() {
+async function printSummaryPDF(reportType = 'year') {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
 
-  if (!confirm(`ต้องการสร้างตารางสรุปเกรดรวมของห้อง ${classroom} ใช่หรือไม่?`)) return;
+  const isPrimary = !classroom.includes('เทอม');
+  const reportLabel = reportType === 'term1' ? 'เทอม 1' : 'ทั้งปี';
 
-  pg('กำลังรวบรวมข้อมูลทุกวิชา...');
+  if (isPrimary) {
+    closeSummaryModeModal();
+  }
+
+  if (!confirm(`ต้องการสร้างตารางสรุปเกรดรวม (${reportLabel}) ของห้อง ${classroom} ใช่หรือไม่?`)) return;
+
+  pg(`กำลังรวบรวมข้อมูลสรุปเกรดรวม (${reportLabel})...`);
   try {
     const html = await api('generateSummaryHTML', {
       year,
       classroom,
-      ignoreR: IGNORE_R
+      ignoreR: IGNORE_R,
+      reportType
     });
 
-    openPrintHtmlWindow(html, `สรุปผลการเรียน_${classroom}_ปี${year}`);
-    toast('เปิดหน้าพิมพ์สรุปผลการเรียนแล้ว');
+    openPrintHtmlWindow(html, `สรุปผลการเรียน_${classroom}_${reportLabel.replace(/\s+/g,'')}_ปี${year}`);
+    toast(`เปิดหน้าพิมพ์สรุปผลการเรียน (${reportLabel}) แล้ว`);
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
@@ -4113,6 +4143,25 @@ function switchSettingsTab(tabId, btn) {
 function refreshAllScoreInputStates(scope = document) {
   scope.querySelectorAll('.sub1, .sub2, .s-t1e, .s-t2e').forEach(updateScoreInputState);
 }
+
+    function openSummaryModeModal() {
+  const classroom = document.getElementById('gClass').value || '';
+
+  // ฝั่งมัธยมเป็นรายภาคอยู่แล้ว ไม่ต้องถาม
+  if (classroom.includes('เทอม')) {
+    printSummaryPDF('term1');
+    return;
+  }
+
+  document.getElementById('summaryModeModal').style.display = 'flex';
+}
+
+function closeSummaryModeModal() {
+  document.getElementById('summaryModeModal').style.display = 'none';
+}
+    document.getElementById('summaryModeModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeSummaryModeModal();
+});
 </script>
 
 
