@@ -199,16 +199,7 @@ body{
   display:none;
 }
 
-.settings-tabs{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:0;
-  background:transparent;
-  border-radius:0;
-  flex-wrap:nowrap;
-  min-width:max-content;
-}
+
 
 .settings-tab{
   flex:none;
@@ -1123,6 +1114,23 @@ body{
 
 
 @media (max-width:768px){
+  .nav-i{
+    min-height:auto;
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+
+  .brand{
+    width:100%;
+    font-size:.95rem;
+  }
+
+  .nav-r{
+    width:100%;
+    justify-content:flex-start;
+    flex-wrap:wrap;
+  }
+
   .settings-tabs-wrap{
     display:block !important;
     width:100%;
@@ -1139,7 +1147,7 @@ body{
   .settings-tab .tab-label{
     display:inline !important;
   }
-}
+
   .gtbl thead th.s-c0,
   .gtbl thead th.s-c1,
   .gtbl tbody td.s-c0,
@@ -1160,17 +1168,21 @@ body{
     background:#1e293b !important;
     color:#fff !important;
   }
+
   .gtbl tbody td.s-c2{
     z-index:30 !important;
     background:#fff !important;
     text-align:left !important;
   }
+
   .gtbl tbody tr:hover td.s-c2{
     background:#f0f4ff !important;
   }
+
   .gtbl th,.gtbl td{
     padding:4px 5px !important;
   }
+
   .sinput{
     width:48px;
     min-width:48px;
@@ -1182,7 +1194,11 @@ body{
     overflow:auto;
     -webkit-overflow-scrolling:touch;
   }
-  .ass-tbl .ass-no{display:none !important;}
+
+  .ass-tbl .ass-no{
+    display:none !important;
+  }
+
   .ass-tbl .ass-name{
     position:sticky !important;
     left:0 !important;
@@ -1192,77 +1208,81 @@ body{
     text-align:left !important;
     box-shadow:3px 0 8px rgba(99,102,241,.12);
   }
+
   .ass-tbl thead th{
     position:sticky;
     top:0;
     z-index:20;
   }
+
   .ass-tbl thead .ass-name{
     background:#f8fafc !important;
     color:#1e293b !important;
     z-index:50 !important;
   }
+
   .ass-tbl tbody .ass-name{
     background:#fff !important;
     font-weight:600;
   }
+
   .ass-tbl tbody tr:hover .ass-name{
     background:#f8fafc !important;
-  }
-}
-
-@media (max-width:600px){
-  .sub-row{flex-wrap:wrap;gap:6px;}
-  .sub-name{width:100%;flex:none;}
-  .sel-bar{flex-direction:column;align-items:stretch;}
-  .sg input,.sg select{width:100%;}
-  .btn-apply{font-size:.92rem;}
-  .cfg-row{gap:12px;}
-}
-
-@media (max-width:420px){
-  .brand{font-size:.9rem;}
-  .brand-ic{
-    width:32px;
-    height:32px;
-    min-width:32px;
-  }
-  .tag{
-    font-size:.7rem;
-    padding:5px 10px;
-  }
-  .nbtn{
-    min-height:36px;
-    min-width:36px;
-    padding:5px 9px;
   }
 }
 </style>
 </head>
 <body>
-<div class="settings-tabs-wrap" id="settingsTabsWrap" style="display:none;">
-  <div class="settings-tabs" id="settingsTabs">
-    <button type="button" class="settings-tab active" id="tabScoreMain" onclick="showScoreMain(this)">
-      <span class="tab-icon">📋</span>
-      <span class="tab-label">ตารางคะแนน</span>
-    </button>
+  <div class="nav">
+  <div class="nav-i">
+    <div class="brand">
+      <div class="brand-ic">G+</div>
+      <span class="brand-text">ระบบบันทึกคะแนน</span>
+    </div>
 
-    <button type="button" class="settings-tab" onclick="switchSettingsTab('courseInfo', this)">
-      <span class="tab-icon">📝</span>
-      <span class="tab-label">รายวิชา</span>
-    </button>
+    <div class="nav-r">
+      <div class="tag" id="teacherTag">🎓</div>
 
-    <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
-      <span class="tab-icon">🏫</span>
-      <span class="tab-label">โรงเรียน</span>
-    </button>
+      <div class="settings-tabs-wrap" id="settingsTabsWrap" style="display:none;">
+        <div class="settings-tabs" id="settingsTabs">
+          <button type="button" class="settings-tab active" id="tabScoreMain" onclick="showScoreMain(this)">
+            <span class="tab-icon">📋</span>
+            <span class="tab-label">ตารางคะแนน</span>
+          </button>
 
-    <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
-      <span class="tab-icon">🌟</span>
-      <span class="tab-label">ประเมิน</span>
-    </button>
+          <button type="button" class="settings-tab" onclick="switchSettingsTab('courseInfo', this)">
+            <span class="tab-icon">📝</span>
+            <span class="tab-label">รายวิชา</span>
+          </button>
+
+          <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
+            <span class="tab-icon">🏫</span>
+            <span class="tab-label">โรงเรียน</span>
+          </button>
+
+          <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
+            <span class="tab-icon">🌟</span>
+            <span class="tab-label">ประเมิน</span>
+          </button>
+        </div>
+      </div>
+
+      <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">
+        ⚙️ <span>แอดมิน</span>
+      </button>
+
+      <button class="nbtn" id="btnGrade" onclick="showPage('gradePage')" style="display:none;">
+        📝 <span>กรอกคะแนน</span>
+      </button>
+
+      <button class="nbtn red" id="btnOut" onclick="logout()" style="display:none;">
+        ⏏ <span>ออก</span>
+      </button>
+    </div>
   </div>
 </div>
+  
+
 
 <div class="tshelf" id="tshelf"></div>
 
