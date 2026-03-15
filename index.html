@@ -1091,6 +1091,31 @@ body{
   .brand{font-size:.95rem;}
   .tag{max-width:120px;font-size:.72rem;}
 }
+  @media (max-width:1100px){
+  .tag{
+    max-width:170px;
+    font-size:.76rem;
+    padding:6px 10px;
+  }
+
+  .settings-tab .tab-label{
+    display:none;
+  }
+
+  .settings-tab{
+    padding:6px 8px;
+    min-width:38px;
+  }
+
+  .nbtn span{
+    display:none;
+  }
+
+  .nbtn{
+    min-width:38px;
+    padding:6px 10px;
+  }
+}
 /* =========================
    RESPONSIVE
    ========================= */
@@ -1747,10 +1772,7 @@ body{
     </button>
   </div>
 </div>
-
       </div>
-        </div>
-</div>
     </div>
   </div>
 </div>
@@ -1832,7 +1854,7 @@ function showPage(id) {
 
 const tabsWrap = document.getElementById('settingsTabsWrap');
 if (tabsWrap) {
-  tabsWrap.style.display = (id === 'gradePage') ? 'block' : 'none';
+  tabsWrap.style.display = (id === 'gradePage') ? '' : 'none';
 }
 
   scrollTo(0, 0);
