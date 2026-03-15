@@ -3990,7 +3990,7 @@ async function printPp5SubjectPDF() {
   pg_();
 }
 
-    function openPrintHtmlWindow(html, fileName = 'report') {
+function openPrintHtmlWindow(html, fileName = 'report') {
   try {
     const w = window.open('', '_blank');
     if (!w) {
@@ -3998,8 +3998,48 @@ async function printPp5SubjectPDF() {
       return;
     }
 
+    const wrappedHtml = `
+      <!DOCTYPE html>
+      <html lang="th">
+      <head>
+        <meta charset="UTF-8">
+        <title>${fileName}</title>
+      </head>
+      <body>
+        ${html.includes('<body') ? '' : html}
+        <script>
+          window.onload = function () {
+            setTimeout(function () {
+              window.focus();
+              window.print();
+            }, 1000);
+          };
+        <\/script>
+      </body>
+      </html>
+    `;
+
     w.document.open();
-    w.document.write(html);
+
+    if (html.includes('<html')) {
+      const finalHtml = html.replace(
+        /<\/body>/i,
+        `
+        <script>
+          window.onload = function () {
+            setTimeout(function () {
+              window.focus();
+              window.print();
+            }, 1000);
+          };
+        <\/script>
+        </body>`
+      );
+      w.document.write(finalHtml);
+    } else {
+      w.document.write(wrappedHtml);
+    }
+
     w.document.close();
   } catch (err) {
     console.error(err);
