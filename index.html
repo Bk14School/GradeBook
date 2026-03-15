@@ -767,7 +767,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 </div>
 
 <!-- ===== TAB: ข้อมูลรายวิชา ===== -->
-<div class="settings-panel" id="panel_courseInfo" style="display:block;">
+<div class="settings-panel active" id="panel_courseInfo">
   <!-- 1) ข้อมูลพื้นฐานรายวิชา -->
   <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
     <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">1) ข้อมูลรายวิชา</div>
@@ -938,7 +938,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 </div>
 
 <!-- ===== TAB: ข้อมูลโรงเรียน ===== -->
-<div class="settings-panel" id="panel_schoolProfile" style="display:none;">
+<div class="settings-panel" id="panel_schoolProfile">
   <div class="card mb-0" style="background:#ffffff;border:1px solid #dbeafe;">
     <div style="font-weight:800;font-size:.9rem;color:#1d4ed8;margin-bottom:12px;">ข้อมูลโรงเรียน</div>
 
@@ -980,7 +980,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 </div>
 
 <!-- ===== TAB: ประเมินผู้เรียน ===== -->
-<div class="settings-panel" id="panel_holistic" style="display:none;">
+<div class="settings-panel" id="panel_holistic">
   <div class="ttabs mb-3" id="holisticTabs">
     <button class="ttab on" type="button" onclick="switchHolisticTab('subject', this)">
       รายวิชา
@@ -1112,13 +1112,16 @@ function calcGradeFrontend(score) {
    ===================================================== */
 function switchSettingsTab(tabId, btn) {
   document.querySelectorAll('.settings-panel').forEach(p => {
-    p.style.display = 'none';
+    p.classList.remove('active');
   });
-  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
-  
+
+  document.querySelectorAll('.settings-tab').forEach(t => {
+    t.classList.remove('active');
+  });
+
   const panel = document.getElementById('panel_' + tabId);
-  if (panel) panel.style.display = 'block';
-  
+  if (panel) panel.classList.add('active');
+
   if (btn) btn.classList.add('active');
 }
     
@@ -1826,9 +1829,9 @@ async function loadGrades() {
     renderHolisticTable(STUDENTS, 'hrAssContainer', 'hrAssBody', 'homeroom');
     
 // เปิดแท็บข้อมูลรายวิชาเป็นค่าเริ่มต้น
-// เปิดแท็บข้อมูลรายวิชาเป็นค่าเริ่มต้น
-document.querySelectorAll('.settings-panel').forEach(p => p.style.display = 'none');
-document.getElementById('panel_courseInfo').style.display = 'block';
+document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+document.getElementById('panel_courseInfo').classList.add('active');
+
 document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
 document.querySelector('.settings-tab').classList.add('active');
     
