@@ -1121,21 +1121,7 @@ body{
   .tag{max-width:120px;font-size:.72rem;}
 }
 
-@media (max-width:768px){
-  .nav-i{
-    min-height:auto;
-    align-items:flex-start;
-    flex-wrap:wrap;
-  }
-  .brand{
-    width:100%;
-    font-size:.95rem;
-  }
-  .nav-r{
-    width:100%;
-    justify-content:flex-start;
-    flex-wrap:wrap;
-  }
+
 @media (max-width:768px){
   .settings-tabs-wrap{
     display:block !important;
@@ -3956,54 +3942,7 @@ function openPrintHtmlWindow(html, fileName = 'report') {
   printHtmlViaIframe(html, fileName);
 }
 
-    const wrappedHtml = `
-      <!DOCTYPE html>
-      <html lang="th">
-      <head>
-        <meta charset="UTF-8">
-        <title>${fileName}</title>
-      </head>
-      <body>
-        ${html.includes('<body') ? '' : html}
-        <script>
-          window.onload = function () {
-            setTimeout(function () {
-              window.focus();
-              window.print();
-            }, 1000);
-          };
-        <\/script>
-      </body>
-      </html>
-    `;
 
-    w.document.open();
-
-    if (html.includes('<html')) {
-      const finalHtml = html.replace(
-        /<\/body>/i,
-        `
-        <script>
-          window.onload = function () {
-            setTimeout(function () {
-              window.focus();
-              window.print();
-            }, 1000);
-          };
-        <\/script>
-        </body>`
-      );
-      w.document.write(finalHtml);
-    } else {
-      w.document.write(wrappedHtml);
-    }
-
-    w.document.close();
-  } catch (err) {
-    console.error(err);
-    toast('เกิดข้อผิดพลาดในการเปิดหน้าพิมพ์', 'error');
-  }
-}
 function showScoreMain(btn) {
   const scoreArea = document.getElementById('scoreMainArea');
   const settingsArea = document.getElementById('settingsContentArea');
