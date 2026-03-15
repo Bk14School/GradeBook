@@ -199,6 +199,10 @@ body{
   min-width:0;
 }
 
+.settings-tabs-wrap.is-visible{
+  display:block;
+}
+
 .settings-tabs-wrap::-webkit-scrollbar{
   display:none;
 }
@@ -1885,10 +1889,8 @@ function showPage(id) {
   if (tabsWrap) {
     if (id === 'gradePage') {
       tabsWrap.classList.add('is-visible');
-      tabsWrap.style.display = '';
     } else {
       tabsWrap.classList.remove('is-visible');
-      tabsWrap.style.display = 'none';
     }
   }
 
@@ -2026,7 +2028,6 @@ function logout() {
   const tabsWrap = document.getElementById('settingsTabsWrap');
   if (tabsWrap) {
     tabsWrap.classList.remove('is-visible');
-    tabsWrap.style.display = 'none';
   }
 
   showPage('loginPage');
