@@ -30,11 +30,13 @@
 }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{overflow-x:hidden;}
 body{
   margin:0;
   font-family:'Sarabun',sans-serif;
   background:var(--bg);
   color:var(--text);
+  overflow-x:hidden;
 }
 
 /* =========================
@@ -71,6 +73,7 @@ body{
   position:sticky;
   top:0;
   z-index:300;
+  overflow:hidden;
 }
 
 .nav-i{
@@ -81,8 +84,9 @@ body{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
+  gap:8px 12px;
   flex-wrap:wrap;
+  overflow:hidden;
 }
 
 .brand{
@@ -123,10 +127,11 @@ body{
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  gap:8px;
+  gap:6px;
   flex-wrap:wrap;
   min-width:0;
-  flex:1;
+  flex:1 1 auto;
+  overflow:hidden;
 }
 
 .tag{
@@ -145,6 +150,7 @@ body{
   overflow:hidden;
   text-overflow:ellipsis;
   text-align:center;
+  flex-shrink:1;
 }
 
 .nbtn{
@@ -164,7 +170,8 @@ body{
   justify-content:center;
   gap:6px;
   white-space:nowrap;
-  flex-shrink:0;
+  flex-shrink:1;
+  overflow:hidden;
 }
 
 .nbtn:hover{
@@ -191,8 +198,8 @@ body{
   overflow-y:hidden;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
-  margin-right:6px;
-  flex:1;
+  margin-right:4px;
+  flex:0 1 auto;
   min-width:0;
 }
 
@@ -1134,19 +1141,25 @@ body{
 @media (max-width:768px){
   .nav-i{
     min-height:auto;
-    align-items:flex-start;
+    align-items:center;
+    flex-wrap:wrap;
   }
 
   .brand{
-    width:auto;
-    font-size:.95rem;
     flex-shrink:0;
+    font-size:.95rem;
   }
 
   .nav-r{
     width:100%;
     justify-content:flex-start;
     flex-wrap:wrap;
+    gap:6px;
+  }
+
+  .tag{
+    max-width:none;
+    flex-shrink:1;
   }
 
   .settings-tabs-wrap.is-visible{
