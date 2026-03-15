@@ -82,6 +82,7 @@ body{
   align-items:center;
   justify-content:space-between;
   gap:12px;
+  flex-wrap:wrap;
 }
 
 .brand{
@@ -123,7 +124,7 @@ body{
   align-items:center;
   justify-content:flex-end;
   gap:8px;
-  flex-wrap:nowrap;
+  flex-wrap:wrap;
   min-width:0;
   flex:1;
 }
@@ -199,8 +200,6 @@ body{
   display:none;
 }
 
-
-
 .settings-tabs{
   display:inline-flex;
   align-items:center;
@@ -263,7 +262,7 @@ body{
    LOGIN
    ========================= */
 .login-shell{
-  min-height:calc(100vh - 54px);
+  min-height:calc(100vh - 64px);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -1072,6 +1071,7 @@ body{
   color:#fff;
   box-shadow:0 8px 24px rgba(0,0,0,.12);
   animation:tIn .22s ease;
+  pointer-events:auto;
 }
 .tst.success{background:var(--success);}
 .tst.error{background:var(--danger);}
@@ -1082,16 +1082,18 @@ body{
 }
 
 /* =========================
-   RESPONSIVE
+   GRADE PANEL HEADER BUTTONS
    ========================= */
-
-
-@media (max-width:900px){
-  .nav-i{padding:8px 10px;gap:8px;}
-  .brand{font-size:.95rem;}
-  .tag{max-width:120px;font-size:.72rem;}
+.grade-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
 }
-  @media (max-width:1100px){
+
+/* =========================
+   RESPONSIVE >= 1100
+   ========================= */
+@media (max-width:1100px){
   .tag{
     max-width:170px;
     font-size:.76rem;
@@ -1107,7 +1109,7 @@ body{
     min-width:38px;
   }
 
-  .nbtn span{
+  .nbtn .nbtn-label{
     display:none;
   }
 
@@ -1116,21 +1118,29 @@ body{
     padding:6px 10px;
   }
 }
+
 /* =========================
-   RESPONSIVE
+   RESPONSIVE >= 900
    ========================= */
+@media (max-width:900px){
+  .nav-i{padding:8px 10px;gap:8px;}
+  .brand{font-size:.95rem;}
+  .tag{max-width:120px;font-size:.72rem;}
+}
 
-
+/* =========================
+   RESPONSIVE >= 768
+   ========================= */
 @media (max-width:768px){
   .nav-i{
     min-height:auto;
     align-items:flex-start;
-    flex-wrap:wrap;
   }
 
   .brand{
-    width:100%;
+    width:auto;
     font-size:.95rem;
+    flex-shrink:0;
   }
 
   .nav-r{
@@ -1139,10 +1149,10 @@ body{
     flex-wrap:wrap;
   }
 
-  .settings-tabs-wrap{
+  .settings-tabs-wrap.is-visible{
     display:block !important;
     width:100%;
-    order:3;
+    order:10;
     margin-top:6px;
     margin-right:0;
   }
@@ -1244,6 +1254,16 @@ body{
   .sg input,.sg select{width:100%;}
   .btn-apply{font-size:.92rem;}
   .cfg-row{gap:12px;}
+
+  .grade-actions{
+    width:100%;
+  }
+  .grade-actions .btn-pri{
+    flex:1 1 auto;
+    min-width:0;
+    font-size:.78rem;
+    padding:8px 10px;
+  }
 }
 
 @media (max-width:420px){
@@ -1263,8 +1283,6 @@ body{
     padding:5px 9px;
   }
 }
-
-
 </style>
 </head>
 <body>
@@ -1278,7 +1296,7 @@ body{
     <div class="nav-r">
       <div class="tag" id="teacherTag">🎓</div>
 
-      <div class="settings-tabs-wrap" id="settingsTabsWrap" style="display:none;">
+      <div class="settings-tabs-wrap" id="settingsTabsWrap">
         <div class="settings-tabs" id="settingsTabs">
           <button type="button" class="settings-tab active" id="tabScoreMain" onclick="showScoreMain(this)">
             <span class="tab-icon">📋</span>
@@ -1303,15 +1321,15 @@ body{
       </div>
 
       <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">
-        ⚙️ <span>แอดมิน</span>
+        ⚙️ <span class="nbtn-label">แอดมิน</span>
       </button>
 
       <button class="nbtn" id="btnGrade" onclick="showPage('gradePage')" style="display:none;">
-        📝 <span>กรอกคะแนน</span>
+        📝 <span class="nbtn-label">กรอกคะแนน</span>
       </button>
 
       <button class="nbtn red" id="btnOut" onclick="logout()" style="display:none;">
-        ⏏ <span>ออก</span>
+        ⏏ <span class="nbtn-label">ออก</span>
       </button>
     </div>
   </div>
@@ -1475,21 +1493,19 @@ body{
             </label>
           </div>
 
-<div style="display:flex;gap:8px;flex-wrap:wrap;">
-  <button class="btn-pri" style="background:linear-gradient(135deg,#0f766e,#0d9488);" onclick="printPp5SubjectPDF()">
-  🖨️ พิมพ์ ปพ.5 รายวิชา
-</button>
-  <button class="btn-pri" style="background:linear-gradient(135deg,#16a34a,#15803d);" onclick="exportSummaryCSV()">📥 ส่งออก Excel</button>
-<button class="btn-pri" style="background:linear-gradient(135deg,#0284c7,#0369a1);" onclick="openSummaryModeModal()">📊 สรุปเกรดรวม</button>
-  <button class="btn-pri" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="printClassPDF('term1')">
-    🖨️ พิมพ์ ปพ.6 เทอม 1
-  </button>
-
-  <button class="btn-pri" onclick="printClassPDF('year')">
-    🖨️ พิมพ์ ปพ.6 ทั้งปี
-  </button>
-</div>
-
+          <div class="grade-actions">
+            <button class="btn-pri" style="background:linear-gradient(135deg,#0f766e,#0d9488);" onclick="printPp5SubjectPDF()">
+              🖨️ ปพ.5
+            </button>
+            <button class="btn-pri" style="background:linear-gradient(135deg,#16a34a,#15803d);" onclick="exportSummaryCSV()">📥 Excel</button>
+            <button class="btn-pri" style="background:linear-gradient(135deg,#0284c7,#0369a1);" onclick="openSummaryModeModal()">📊 สรุปเกรด</button>
+            <button class="btn-pri" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="printClassPDF('term1')">
+              🖨️ ปพ.6 ท.1
+            </button>
+            <button class="btn-pri" onclick="printClassPDF('year')">
+              🖨️ ปพ.6 ทั้งปี
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1813,7 +1829,7 @@ let CU = null;
 let PIN = "";
 let SUBS = {};
 let STUDENTS = [];
-let SI = { 1: [], 2: [] }; // units by term
+let SI = { 1: [], 2: [] };
 let EXP = { 1: true, 2: true };
 let editTid = null;
 let editAssigned = [];
@@ -1852,10 +1868,16 @@ function showPage(id) {
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   document.getElementById(id).classList.add('on');
 
-const tabsWrap = document.getElementById('settingsTabsWrap');
-if (tabsWrap) {
-  tabsWrap.style.display = (id === 'gradePage') ? '' : 'none';
-}
+  const tabsWrap = document.getElementById('settingsTabsWrap');
+  if (tabsWrap) {
+    if (id === 'gradePage') {
+      tabsWrap.classList.add('is-visible');
+      tabsWrap.style.display = '';
+    } else {
+      tabsWrap.classList.remove('is-visible');
+      tabsWrap.style.display = 'none';
+    }
+  }
 
   scrollTo(0, 0);
 }
@@ -1885,11 +1907,6 @@ function calcGradeFrontend(score) {
 /* =====================================================
    ACCORDION
    ===================================================== */
-    /* =====================================================
-   SETTINGS TAB SWITCHER
-   ===================================================== */
-
-    
 function toggleAcc(id) {
   const el = document.getElementById(id);
   const body = document.getElementById(id + 'Body');
@@ -1994,7 +2011,10 @@ function logout() {
   });
 
   const tabsWrap = document.getElementById('settingsTabsWrap');
-  if (tabsWrap) tabsWrap.style.display = 'none';
+  if (tabsWrap) {
+    tabsWrap.classList.remove('is-visible');
+    tabsWrap.style.display = 'none';
+  }
 
   showPage('loginPage');
 }
@@ -2457,6 +2477,7 @@ function toggleCols(t) {
   const btn = document.getElementById(`tbtn${t}`);
   if (btn) btn.innerHTML = `<span class="arr">${EXP[t] ? '▼' : '▶'}</span> ${EXP[t] ? 'ยุบ' : 'ขยาย'}`;
 }
+
 function setCourseInfoForm(courseInfo = {}, currentSubject = '') {
   document.getElementById('ci_learning_area').value = courseInfo.learningArea || '';
   document.getElementById('ci_name').value = courseInfo.name || currentSubject || '';
@@ -2526,6 +2547,7 @@ function getSchoolProfileForm() {
     academic_head_position: document.getElementById('sp_academic_head_position').value || 'หัวหน้าวิชาการ'
   };
 }
+
 /* =====================================================
    LOAD GRADES
    ===================================================== */
@@ -2561,12 +2583,12 @@ async function loadGrades() {
 
     setCourseInfoForm(config.courseInfo || {}, subj);
     try {
-  const schoolProfile = await api('getSchoolProfile', {});
-  setSchoolProfileForm(schoolProfile || {});
-  } catch (e) {
-  console.warn('โหลด School_Profile ไม่สำเร็จ:', e.message);
-  setSchoolProfileForm({});
-  }
+      const schoolProfile = await api('getSchoolProfile', {});
+      setSchoolProfileForm(schoolProfile || {});
+    } catch (e) {
+      console.warn('โหลด School_Profile ไม่สำเร็จ:', e.message);
+      setSchoolProfileForm({});
+    }
 
     const t2Tab = document.querySelector('.ttab[onclick*="switchTerm(2"]');
     const t2Block = document.getElementById('t2AutoBlock');
@@ -2608,18 +2630,18 @@ async function loadGrades() {
     renderHolisticTable(STUDENTS, 'assContainer', 'assBody', 'subject');
     renderHolisticTable(STUDENTS, 'hrAssContainer', 'hrAssBody', 'homeroom');
     
-// เปิดแท็บข้อมูลรายวิชาเป็นค่าเริ่มต้น
-const scoreArea = document.getElementById('scoreMainArea');
-const settingsArea = document.getElementById('settingsContentArea');
+    // Reset to score main tab
+    const scoreArea = document.getElementById('scoreMainArea');
+    const settingsArea = document.getElementById('settingsContentArea');
 
-if (scoreArea) scoreArea.style.display = 'block';
-if (settingsArea) settingsArea.style.display = 'none';
+    if (scoreArea) scoreArea.style.display = 'block';
+    if (settingsArea) settingsArea.style.display = 'none';
 
-document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
-document.querySelectorAll('#settingsTabs .settings-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#settingsTabs .settings-tab').forEach(t => t.classList.remove('active'));
 
-const scoreTab = document.getElementById('tabScoreMain');
-if (scoreTab) scoreTab.classList.add('active');
+    const scoreTab = document.getElementById('tabScoreMain');
+    if (scoreTab) scoreTab.classList.add('active');
     
     toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
   } catch (e) {
@@ -2778,23 +2800,23 @@ function buildBody() {
         <td class="s-c0">${idx + 1}</td>
         <td class="s-c1">${s.studentId}</td>
         <td class="s-c2">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
-  <span>${s.name}</span>
-  <div style="display:flex;gap:4px;flex-shrink:0;">
-    <button class="btn-sm"
-      style="padding:2px 7px;font-size:0.72rem;background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd;"
-      onclick="printRowPDF('${s.studentId}','term1')"
-      title="พิมพ์ ปพ.6 เทอม 1 ของ ${s.name}">
-      T1
-    </button>
-    <button class="btn-sm"
-      style="padding:2px 8px;font-size:0.75rem;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;"
-      onclick="printRowPDF('${s.studentId}','year')"
-      title="พิมพ์ ปพ.6 ทั้งปีของ ${s.name}">
-      🖨️
-    </button>
-  </div>
-</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+            <span>${s.name}</span>
+            <div style="display:flex;gap:4px;flex-shrink:0;">
+              <button class="btn-sm"
+                style="padding:2px 7px;font-size:0.72rem;background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd;"
+                onclick="printRowPDF('${s.studentId}','term1')"
+                title="พิมพ์ ปพ.6 เทอม 1 ของ ${s.name}">
+                T1
+              </button>
+              <button class="btn-sm"
+                style="padding:2px 8px;font-size:0.75rem;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;"
+                onclick="printRowPDF('${s.studentId}','year')"
+                title="พิมพ์ ปพ.6 ทั้งปีของ ${s.name}">
+                🖨️
+              </button>
+            </div>
+          </div>
         </td>
         <td><span class="sp p">ม ${st.present || 0}</span> <span class="sp a">ข ${st.absent || 0}</span> <span class="sp l">ล ${st.leave || 0}</span></td>
         ${t1Cells}
@@ -2970,7 +2992,7 @@ function calcSub(el, t) {
 
   updateScoreInputState(el);
 
-  const tr = el.closest('tr'); // ย้ายขึ้นมาด้านบนเลย
+  const tr = el.closest('tr');
 
   if (el.value.length >= String(mx).length) {
     const td = el.closest('td');
@@ -3164,6 +3186,7 @@ async function saveGrades() {
   }
   pg_();
 }
+
 async function saveSchoolProfile() {
   const profile = getSchoolProfileForm();
 
@@ -3177,6 +3200,7 @@ async function saveSchoolProfile() {
   }
   pg_();
 }
+
 function buildConfigPayload() {
   const courseInfo = getCourseInfoForm();
 
@@ -3260,8 +3284,10 @@ async function saveCourseInfo() {
   if (!ok) return;
 
   setTimeout(() => {
-    document.getElementById('accCourseInfo').classList.remove('open');
-    document.getElementById('accCourseInfoBody').classList.add('hidden');
+    const el = document.getElementById('accCourseInfo');
+    const body = document.getElementById('accCourseInfoBody');
+    if (el) el.classList.remove('open');
+    if (body) body.classList.add('hidden');
   }, 800);
 }
 
@@ -3297,6 +3323,7 @@ document.addEventListener('keydown', function(event) {
     }
   }
 });
+
 /* =====================================================
    PDF / EXPORT
    ===================================================== */
@@ -3360,6 +3387,7 @@ function openBase64PdfInPrintWindow(dataUri, fileName = 'report.pdf') {
     toast('เกิดข้อผิดพลาดในการเปิด PDF', 'error');
   }
 }
+
 async function printRowPDF(studentId, reportType = 'year') {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
@@ -3406,8 +3434,6 @@ async function printClassPDF(reportType = 'year') {
   }
   pg_();
 }
-
-
 
 async function printSummaryPDF(reportType = 'year') {
   const year = document.getElementById('gYear').value;
@@ -3465,8 +3491,9 @@ async function exportSummaryCSV() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-const rModeLabel = IGNORE_R ? 'ซ่อนร' : 'แสดงร';
-link.setAttribute('download', `สรุปผลการเรียน_${classroom}_ปี${year}_${rModeLabel}.csv`);    link.style.visibility = 'hidden';
+    const rModeLabel = IGNORE_R ? 'ซ่อนร' : 'แสดงร';
+    link.setAttribute('download', `สรุปผลการเรียน_${classroom}_ปี${year}_${rModeLabel}.csv`);
+    link.style.visibility = 'hidden';
 
     document.body.appendChild(link);
     link.click();
@@ -3575,6 +3602,7 @@ function renderHolisticTable(
     calcAssRow(tr.querySelector('.s-inp'), 's');
   });
 }
+
 function calcAssRow(inputEl, type) {
   if (!inputEl) return;
   const tr = inputEl.closest('tr');
@@ -3679,7 +3707,7 @@ async function saveHolisticData(mode = 'subject') {
   pg('กำลังบันทึกข้อมูล...');
   try {
     const msg = await api('saveHolistic', {
-      mode, // subject | homeroom
+      mode,
       year: document.getElementById('gYear').value,
       classroom: document.getElementById('gClass').value,
       subject: document.getElementById('gSubj').value,
@@ -3691,6 +3719,7 @@ async function saveHolisticData(mode = 'subject') {
   }
   pg_();
 }
+
 /* =====================================================
    TOTAL HOURS
    ===================================================== */
@@ -3770,7 +3799,7 @@ function calcTotalHours() {
   document.getElementById('ci_total_hours').textContent = totalHours;
 }
 
-    function escHtml(v) {
+function escHtml(v) {
   return String(v ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -3804,6 +3833,7 @@ function getAssPrintRows(mode = 'subject') {
 
   return rows;
 }
+
 function buildPrintTable(title, headers, rows, scoreKey, totalKey, resultKey, themeClass) {
   const headCols = headers.map(h => `<th class="v">${escHtml(h)}</th>`).join('');
 
@@ -3865,53 +3895,20 @@ function printHolisticReport(mode = 'subject') {
 
   const page1 = buildPrintTable(
     `รายงานประเมินคุณลักษณะอันพึงประสงค์ (${reportScope})`,
-    [
-      '1.รักชาติฯ',
-      '2.ซื่อสัตย์ฯ',
-      '3.มีวินัย',
-      '4.ใฝ่เรียนรู้',
-      '5.อยู่อย่างพอเพียง',
-      '6.มุ่งมั่นทำงาน',
-      '7.รักความเป็นไทย',
-      '8.มีจิตสาธารณะ'
-    ],
-    rows,
-    'charScores',
-    'charTotal',
-    'charResult',
-    'theme-char'
+    ['1.รักชาติฯ','2.ซื่อสัตย์ฯ','3.มีวินัย','4.ใฝ่เรียนรู้','5.อยู่อย่างพอเพียง','6.มุ่งมั่นทำงาน','7.รักความเป็นไทย','8.มีจิตสาธารณะ'],
+    rows, 'charScores', 'charTotal', 'charResult', 'theme-char'
   );
 
   const page2 = buildPrintTable(
     `รายงานประเมินการอ่าน คิดวิเคราะห์ และเขียน (${reportScope})`,
-    [
-      '1.สามารถอ่านฯ',
-      '2.สามารถจับประเด็นฯ',
-      '3.สามารถวิเคราะห์ฯ',
-      '4.สามารถประเมินฯ',
-      '5.สามารถเขียนฯ'
-    ],
-    rows,
-    'readScores',
-    'readTotal',
-    'readResult',
-    'theme-read'
+    ['1.สามารถอ่านฯ','2.สามารถจับประเด็นฯ','3.สามารถวิเคราะห์ฯ','4.สามารถประเมินฯ','5.สามารถเขียนฯ'],
+    rows, 'readScores', 'readTotal', 'readResult', 'theme-read'
   );
 
   const page3 = buildPrintTable(
     `รายงานประเมินสมรรถนะสำคัญของผู้เรียน (${reportScope})`,
-    [
-      '1.สื่อสาร',
-      '2.คิด',
-      '3.แก้ปัญหา',
-      '4.ทักษะชีวิต',
-      '5.เทคโนโลยี'
-    ],
-    rows,
-    'skillScores',
-    'skillTotal',
-    'skillResult',
-    'theme-skill'
+    ['1.สื่อสาร','2.คิด','3.แก้ปัญหา','4.ทักษะชีวิต','5.เทคโนโลยี'],
+    rows, 'skillScores', 'skillTotal', 'skillResult', 'theme-skill'
   );
 
   const html = `
@@ -3958,7 +3955,8 @@ function printHolisticReport(mode = 'subject') {
 
   printHtmlViaIframe(html, `รายงานประเมิน_${reportScope}`);
 }
-    function switchHolisticTab(mode, btn) {
+
+function switchHolisticTab(mode, btn) {
   const tabs = document.querySelectorAll('#holisticTabs .ttab');
   tabs.forEach(t => t.classList.remove('on'));
   if (btn) btn.classList.add('on');
@@ -4003,7 +4001,6 @@ function openPrintHtmlWindow(html, fileName = 'report') {
   printHtmlViaIframe(html, fileName);
 }
 
-
 function showScoreMain(btn) {
   const scoreArea = document.getElementById('scoreMainArea');
   const settingsArea = document.getElementById('settingsContentArea');
@@ -4046,7 +4043,8 @@ function switchSettingsTab(tabId, btn) {
 
   if (btn) btn.classList.add('active');
 }
-    function updateScoreInputState(input) {
+
+function updateScoreInputState(input) {
   if (!input) return;
 
   input.classList.remove('score-empty', 'score-partial', 'score-full');
@@ -4072,10 +4070,9 @@ function refreshAllScoreInputStates(scope = document) {
   scope.querySelectorAll('.sub1, .sub2, .s-t1e, .s-t2e').forEach(updateScoreInputState);
 }
 
-    function openSummaryModeModal() {
+function openSummaryModeModal() {
   const classroom = document.getElementById('gClass').value || '';
 
-  // ฝั่งมัธยมเป็นรายภาคอยู่แล้ว ไม่ต้องถาม
   if (classroom.includes('เทอม')) {
     printSummaryPDF('term1');
     return;
@@ -4087,11 +4084,12 @@ function refreshAllScoreInputStates(scope = document) {
 function closeSummaryModeModal() {
   document.getElementById('summaryModeModal').style.display = 'none';
 }
-    document.getElementById('summaryModeModal')?.addEventListener('click', function(e) {
+
+document.getElementById('summaryModeModal')?.addEventListener('click', function(e) {
   if (e.target === this) closeSummaryModeModal();
 });
 
-    function printHtmlViaIframe(html, fileName = 'report') {
+function printHtmlViaIframe(html, fileName = 'report') {
   try {
     const iframe = document.getElementById('printFrame');
     if (!iframe) {
@@ -4140,7 +4138,5 @@ function closeSummaryModeModal() {
   }
 }
 </script>
-
-
 </body>
 </html>
