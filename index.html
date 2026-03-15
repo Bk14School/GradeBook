@@ -198,6 +198,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
    GRADE TABLE
    ===================================================== */
 .tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+  .tbl-wrap{
+  overflow-x:auto;
+}
 .gtbl{width:100%;border-collapse:separate;border-spacing:0;font-size:.84rem;min-width:580px;}
 .gtbl th{padding:8px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12);white-space:nowrap;color:#fff;}
 .gtbl td{padding:6px 7px;text-align:center;border-right:1px solid var(--border);border-bottom:1px solid var(--border);vertical-align:middle;}
@@ -221,6 +224,15 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 .gtbl tbody td.s-c2 {
   border-right: 2px solid #6366f1 !important;
   box-shadow: 3px 0 8px rgba(99,102,241,.15);
+}
+  /* คอลัมน์ชื่อ */
+.gtbl td:nth-child(3),
+.gtbl th:nth-child(3){
+  white-space: nowrap;
+  min-width: 240px;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* row hover — คง bg ของ sticky cols ไว้ */
