@@ -286,6 +286,42 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 .sinput.t2{border-color:#a5f3fc;color:#0e7490;}
 .sinput.t2:focus{border-color:var(--t2s);background:#ecfeff;}
 .sinput::-webkit-outer-spin-button,.sinput::-webkit-inner-spin-button{-webkit-appearance:none;}
+  /* สถานะสีช่องกรอกคะแนน */
+.sinput.score-empty{
+  background:#fee2e2 !important;
+  border-color:#ef4444 !important;
+  color:#991b1b !important;
+}
+
+.sinput.score-partial{
+  background:#dcfce7 !important;
+  border-color:#22c55e !important;
+  color:#166534 !important;
+}
+
+.sinput.score-full{
+  background:#dbeafe !important;
+  border-color:#3b82f6 !important;
+  color:#1d4ed8 !important;
+}
+
+.sinput.score-empty:focus{
+  background:#fecaca !important;
+  border-color:#dc2626 !important;
+  color:#7f1d1d !important;
+}
+
+.sinput.score-partial:focus{
+  background:#bbf7d0 !important;
+  border-color:#16a34a !important;
+  color:#14532d !important;
+}
+
+.sinput.score-full:focus{
+  background:#bfdbfe !important;
+  border-color:#2563eb !important;
+  color:#1e40af !important;
+}
 
 .tbadge{display:inline-block;font-weight:700;padding:3px 8px;border-radius:6px;min-width:40px;font-size:.86rem;}
 .tbadge.ok{background:#dcfce7;color:#166534;}
@@ -2137,6 +2173,7 @@ function buildBody() {
   }).join('');
 
   document.getElementById('gtBody').innerHTML = rows;
+  refreshAllScoreInputStates(document.getElementById('gtBody'));
 }
 
 /* =====================================================
@@ -2219,6 +2256,7 @@ function calcSub(el, t) {
     toast(`เต็ม ${mx} คะแนน`, 'warning');
   }
   if (+el.value < 0) el.value = 0;
+  updateScoreInputState(el);
 
   if (el.value.length >= String(mx).length) {
     const td = el.closest('td');
@@ -2234,6 +2272,7 @@ function calcSub(el, t) {
       if (nextInput) {
         nextInput.focus();
         nextInput.select();
+        
       }
     }
   }
@@ -2270,6 +2309,7 @@ function calcExam(el) {
     toast(`เต็ม ${mx} คะแนน`, 'warning');
   }
   if (+el.value < 0) el.value = 0;
+  updateScoreInputState(el);
 
   if (el.value.length >= String(mx).length) {
     const td = el.closest('td');
@@ -3392,6 +3432,31 @@ function switchSettingsTab(tabId, btn) {
   }
 
   if (btn) btn.classList.add('active');
+}
+    function updateScoreInputState(input) {
+  if (!input) return;
+
+  input.classList.remove('score-empty', 'score-partial', 'score-full');
+
+  const raw = String(input.value ?? '').trim();
+  const val = Number(raw);
+  const max = Number(input.getAttribute('max')) || 0;
+
+  if (raw === '' || isNaN(val) || val <= 0) {
+    input.classList.add('score-empty');
+    return;
+  }
+
+  if (max > 0 && val >= max) {
+    input.classList.add('score-full');
+    return;
+  }
+
+  input.classList.add('score-partial');
+}
+
+function refreshAllScoreInputStates(scope = document) {
+  scope.querySelectorAll('.sub1, .sub2, .s-t1e, .s-t2e').forEach(updateScoreInputState);
 }
 </script>
 
