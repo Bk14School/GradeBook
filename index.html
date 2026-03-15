@@ -551,24 +551,27 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 <div class="nav-r">
   <div class="tag" id="teacherTag">🎓</div>
 
-  <div class="settings-tabs nav-tabs" id="settingsTabs" style="display:none;">
-    <button type="button" class="settings-tab" id="tabScoreMain" onclick="showScoreMain(this)">
-  <span class="tab-icon">📋</span>
-  <span class="tab-label">ตารางคะแนน</span>
-</button>
-    <button type="button" class="settings-tab active" onclick="switchSettingsTab('courseInfo', this)">
-      <span class="tab-icon">📝</span>
-      <span class="tab-label">รายวิชา</span>
-    </button>
-    <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
-      <span class="tab-icon">🏫</span>
-      <span class="tab-label">โรงเรียน</span>
-    </button>
-    <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
-      <span class="tab-icon">🌟</span>
-      <span class="tab-label">ประเมิน</span>
-    </button>
-  </div>
+<div class="settings-tabs" id="settingsTabs" style="display:none;">
+  <button type="button" class="settings-tab active" id="tabScoreMain" onclick="showScoreMain(this)">
+    <span class="tab-icon">📋</span>
+    <span class="tab-label">ตารางคะแนน</span>
+  </button>
+
+  <button type="button" class="settings-tab" onclick="switchSettingsTab('courseInfo', this)">
+    <span class="tab-icon">📝</span>
+    <span class="tab-label">รายวิชา</span>
+  </button>
+
+  <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
+    <span class="tab-icon">🏫</span>
+    <span class="tab-label">โรงเรียน</span>
+  </button>
+
+  <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
+    <span class="tab-icon">🌟</span>
+    <span class="tab-label">ประเมิน</span>
+  </button>
+</div>
 
   <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">
     ⚙️ <span>แอดมิน</span>
@@ -771,12 +774,24 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
         </div>
       </div>
 
-      <!-- Save score -->
-      <div class="card" style="padding:14px 16px;">
-        <button class="btn-save w-100" onclick="saveGrades()" style="font-size:1rem;padding:13px 20px;">
-          💾 บันทึกคะแนน
-        </button>
-      </div>
+<div id="scoreMainArea">
+  <!-- TABLE -->
+  <div class="card" style="padding:11px;">
+    <div class="tbl-wrap">
+      <table class="gtbl" id="gtbl">
+        <thead id="gtHead"></thead>
+        <tbody id="gtBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Save score -->
+  <div class="card" style="padding:14px 16px;">
+    <button class="btn-save w-100" onclick="saveGrades()" style="font-size:1rem;padding:13px 20px;">
+      💾 บันทึกคะแนน
+    </button>
+  </div>
+</div>
 
 <div id="settingsContentArea" style="display:none;">
   <div class="card" style="padding:14px 16px;">
@@ -3357,7 +3372,7 @@ async function printPp5SubjectPDF() {
     toast('เกิดข้อผิดพลาดในการเปิดหน้าพิมพ์', 'error');
   }
 }
-    function showScoreMain(btn) {
+function showScoreMain(btn) {
   const scoreArea = document.getElementById('scoreMainArea');
   const settingsArea = document.getElementById('settingsContentArea');
 
@@ -3371,6 +3386,31 @@ async function printPp5SubjectPDF() {
   document.querySelectorAll('#settingsTabs .settings-tab').forEach(tab => {
     tab.classList.remove('active');
   });
+
+  if (btn) btn.classList.add('active');
+}
+
+function switchSettingsTab(tabId, btn) {
+  const scoreArea = document.getElementById('scoreMainArea');
+  const settingsArea = document.getElementById('settingsContentArea');
+
+  if (scoreArea) scoreArea.style.display = 'none';
+  if (settingsArea) settingsArea.style.display = 'block';
+
+  document.querySelectorAll('.settings-panel').forEach(panel => {
+    panel.classList.remove('active');
+  });
+
+  document.querySelectorAll('#settingsTabs .settings-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+
+  const panel = document.getElementById('panel_' + tabId);
+  if (panel) {
+    panel.classList.add('active');
+  } else {
+    console.warn('ไม่พบ panel:', 'panel_' + tabId);
+  }
 
   if (btn) btn.classList.add('active');
 }
