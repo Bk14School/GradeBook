@@ -1319,15 +1319,16 @@ body{
           <button type="button" class="settings-tab" onclick="switchSettingsTab('courseInfo', this)">
             <span class="tab-icon">📝</span>
             <span class="tab-label">รายวิชา</span>
-          </button>       
+          </button>
+
+          <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
+            <span class="tab-icon">🏫</span>
+            <span class="tab-label">โรงเรียน</span>
+          </button>
 
           <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
             <span class="tab-icon">🌟</span>
             <span class="tab-label">ประเมิน</span>
-          </button>
-            <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
-            <span class="tab-icon">🏫</span>
-            <span class="tab-label">โรงเรียน</span>
           </button>
         </div>
       </div>
@@ -1814,12 +1815,16 @@ body{
     </div>
 
     <div class="mb-3 text-muted" style="font-size:.9rem;">
-      เลือกว่าต้องการพิมพ์ผลการเรียนแบบ <b>เทอม 1</b> หรือ <b>ทั้งปี</b>
+      เลือกว่าต้องการพิมพ์ผลการเรียนแบบ <b>เทอม 1</b>, <b>เทอม 2</b> หรือ <b>ทั้งปี</b>
     </div>
 
     <div class="d-grid gap-2">
       <button class="btn-pri" onclick="printSummaryPDF('term1')" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">
         🟣 ดูเทอม 1
+      </button>
+
+      <button class="btn-pri" onclick="printSummaryPDF('term2')" style="background:linear-gradient(135deg,#0f766e,#0d9488);">
+        🟢 ดูเทอม 2
       </button>
 
       <button class="btn-pri" onclick="printSummaryPDF('year')" style="background:linear-gradient(135deg,#0284c7,#0369a1);">
