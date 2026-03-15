@@ -1832,7 +1832,7 @@ body{
     </div>
   </div>
 </div>
-  <iframe id="printFrame" style="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;"></iframe>
+  <!-- print via window.open -->
   <script>
 /* =====================================================
    GLOBAL STATE
@@ -3342,11 +3342,8 @@ document.addEventListener('keydown', function(event) {
    ===================================================== */
 function openBase64PdfInPrintWindow(dataUri, fileName = 'report.pdf') {
   try {
-    const iframe = document.getElementById('printFrame');
-    if (!iframe) {
-      toast('ไม่พบ printFrame', 'error');
-      return;
-    }
+    const printWin = window.open('', '_blank');
+    if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
 
     const finalHtml = `
       <!DOCTYPE html>
@@ -3355,46 +3352,19 @@ function openBase64PdfInPrintWindow(dataUri, fileName = 'report.pdf') {
         <meta charset="utf-8">
         <title>${fileName}</title>
         <style>
-          html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background: #fff;
-            overflow: hidden;
-            font-family: 'Sarabun', sans-serif;
-          }
-          iframe.pdf-frame {
-            width: 100vw;
-            height: 100vh;
-            border: none;
-            display: block;
-            background: #fff;
-          }
+          html, body { margin:0; padding:0; height:100%; background:#fff; overflow:hidden; }
+          iframe.pdf-frame { width:100vw; height:100vh; border:none; display:block; }
         </style>
       </head>
       <body>
-        <iframe class="pdf-frame" id="pdfFrame" src="${dataUri}"></iframe>
-        <script>
-          const frame = document.getElementById('pdfFrame');
-          function printPdf() {
-            try {
-              frame.contentWindow.focus();
-              frame.contentWindow.print();
-            } catch (e) {}
-          }
-          frame.onload = function () {
-            setTimeout(printPdf, 600);
-          };
-          setTimeout(printPdf, 1200);
-        <\/script>
+        <iframe class="pdf-frame" src="${dataUri}"></iframe>
       </body>
       </html>
     `;
 
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(finalHtml);
-    doc.close();
+    printWin.document.open();
+    printWin.document.write(finalHtml);
+    printWin.document.close();
   } catch (err) {
     console.error(err);
     toast('เกิดข้อผิดพลาดในการเปิด PDF', 'error');
@@ -3406,19 +3376,19 @@ async function printRowPDF(studentId, reportType = 'year') {
   const classroom = document.getElementById('gClass').value;
   const reportLabel = reportType === 'term1' ? 'เทอม1' : 'ทั้งปี';
 
+  const printWin = window.open('', '_blank');
+  if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
+  printWin.document.write('<html><head><meta charset="UTF-8"><title>กำลังโหลด...</title></head><body style="font-family:sans-serif;text-align:center;padding-top:80px;color:#666;"><h2>⏳ กำลังสร้างเอกสาร...</h2></body></html>');
+
   pg(`กำลังสร้างเอกสาร ${reportLabel}...`);
   try {
     const html = await api('generateStudentHTML', {
-      year,
-      classroom,
-      studentId,
-      ignoreR: IGNORE_R,
-      reportType
+      year, classroom, studentId, ignoreR: IGNORE_R, reportType
     });
-
-    openPrintHtmlWindow(html, `ปพ6_${reportLabel}_${studentId}_${classroom}`);
+    writeToPrintWindow(printWin, html, `ปพ6_${reportLabel}_${studentId}_${classroom}`);
     toast(`เปิดหน้าพิมพ์รายบุคคล (${reportLabel}) แล้ว`);
   } catch (e) {
+    printWin.close();
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
   pg_();
@@ -3431,18 +3401,19 @@ async function printClassPDF(reportType = 'year') {
 
   if (!confirm(`พิมพ์รายงาน ปพ.6 ${reportLabel} ห้อง ${classroom} ปี ${year} ?`)) return;
 
+  const printWin = window.open('', '_blank');
+  if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
+  printWin.document.write('<html><head><meta charset="UTF-8"><title>กำลังโหลด...</title></head><body style="font-family:sans-serif;text-align:center;padding-top:80px;color:#666;"><h2>⏳ กำลังสร้างเอกสาร...</h2></body></html>');
+
   pg(`กำลังสร้างเอกสาร ${reportLabel} ทั้งห้อง...`);
   try {
     const html = await api('generateClassHTML', {
-      year,
-      classroom,
-      ignoreR: IGNORE_R,
-      reportType
+      year, classroom, ignoreR: IGNORE_R, reportType
     });
-
-    openPrintHtmlWindow(html, `ปพ6_${reportLabel.replace(/\s+/g,'')}_${classroom}_ปี${year}`);
+    writeToPrintWindow(printWin, html, `ปพ6_${reportLabel.replace(/\s+/g,'')}_${classroom}_ปี${year}`);
     toast(`เปิดหน้าพิมพ์ ${reportLabel} ทั้งห้องแล้ว`);
   } catch (e) {
+    printWin.close();
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
   pg_();
@@ -3453,7 +3424,7 @@ async function printSummaryPDF(reportType = 'year') {
   const classroom = document.getElementById('gClass').value;
 
   const isPrimary = !classroom.includes('เทอม');
-  const reportLabel = reportType === 'term1' ? 'เทอม 1' : 'ทั้งปี';
+  const reportLabel = reportType === 'term1' ? 'เทอม 1' : (reportType === 'term2' ? 'เทอม 2' : 'ทั้งปี');
 
   if (isPrimary) {
     closeSummaryModeModal();
@@ -3461,18 +3432,19 @@ async function printSummaryPDF(reportType = 'year') {
 
   if (!confirm(`ต้องการสร้างตารางสรุปเกรดรวม (${reportLabel}) ของห้อง ${classroom} ใช่หรือไม่?`)) return;
 
+  const printWin = window.open('', '_blank');
+  if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
+  printWin.document.write('<html><head><meta charset="UTF-8"><title>กำลังโหลด...</title></head><body style="font-family:sans-serif;text-align:center;padding-top:80px;color:#666;"><h2>⏳ กำลังรวบรวมข้อมูล...</h2></body></html>');
+
   pg(`กำลังรวบรวมข้อมูลสรุปเกรดรวม (${reportLabel})...`);
   try {
     const html = await api('generateSummaryHTML', {
-      year,
-      classroom,
-      ignoreR: IGNORE_R,
-      reportType
+      year, classroom, ignoreR: IGNORE_R, reportType
     });
-
-    openPrintHtmlWindow(html, `สรุปผลการเรียน_${classroom}_${reportLabel.replace(/\s+/g,'')}_ปี${year}`);
+    writeToPrintWindow(printWin, html, `สรุปผลการเรียน_${classroom}_${reportLabel.replace(/\s+/g,'')}_ปี${year}`);
     toast(`เปิดหน้าพิมพ์สรุปผลการเรียน (${reportLabel}) แล้ว`);
   } catch (e) {
+    printWin.close();
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
   pg_();
@@ -3966,7 +3938,9 @@ function printHolisticReport(mode = 'subject') {
     </html>
   `;
 
-  printHtmlViaIframe(html, `รายงานประเมิน_${reportScope}`);
+  const printWin = window.open('', '_blank');
+  if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
+  writeToPrintWindow(printWin, html, `รายงานประเมิน_${reportScope}`);
 }
 
 function switchHolisticTab(mode, btn) {
@@ -3994,24 +3968,47 @@ async function printPp5SubjectPDF() {
     return toast('กรุณาเลือกรายวิชา', 'error');
   }
 
+  const printWin = window.open('', '_blank');
+  if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
+  printWin.document.write('<html><head><meta charset="UTF-8"><title>กำลังโหลด...</title></head><body style="font-family:sans-serif;text-align:center;padding-top:80px;color:#666;"><h2>⏳ กำลังสร้าง ปพ.5 ...</h2></body></html>');
+
   pg('กำลังสร้าง ปพ.5 ...');
   try {
     const html = await api('generatePp5SubjectHTML', {
-      year,
-      classroom,
-      subject
+      year, classroom, subject
     });
-
-    openPrintHtmlWindow(html, `ปพ5_${subject}_${classroom}_ปี${year}`);
+    writeToPrintWindow(printWin, html, `ปพ5_${subject}_${classroom}_ปี${year}`);
     toast('เปิดหน้าพิมพ์ ปพ.5 แล้ว');
   } catch (e) {
+    printWin.close();
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
   pg_();
 }
 
-function openPrintHtmlWindow(html, fileName = 'report') {
-  printHtmlViaIframe(html, fileName);
+/**
+ * เขียน HTML ลงใน window ที่เปิดไว้แล้ว
+ * ใช้ pattern: เปิด window.open('','_blank') ก่อน await api → แล้วเรียกฟังก์ชันนี้
+ * เพื่อหลีกเลี่ยง popup blocker
+ */
+function writeToPrintWindow(win, html, fileName) {
+  if (!win) return;
+  try {
+    const finalHtml = html.includes('<html')
+      ? html
+      : `<!DOCTYPE html>
+        <html lang="th">
+        <head><meta charset="UTF-8"><title>${fileName || 'report'}</title></head>
+        <body>${html}</body>
+        </html>`;
+
+    win.document.open();
+    win.document.write(finalHtml);
+    win.document.close();
+  } catch (err) {
+    console.error(err);
+    toast('เกิดข้อผิดพลาดในการเปิดหน้าพิมพ์', 'error');
+  }
 }
 
 function showScoreMain(btn) {
@@ -4102,54 +4099,7 @@ document.getElementById('summaryModeModal')?.addEventListener('click', function(
   if (e.target === this) closeSummaryModeModal();
 });
 
-function printHtmlViaIframe(html, fileName = 'report') {
-  try {
-    const iframe = document.getElementById('printFrame');
-    if (!iframe) {
-      toast('ไม่พบ printFrame', 'error');
-      return;
-    }
-
-    const finalHtml = html.includes('<html')
-      ? html
-      : `
-        <!DOCTYPE html>
-        <html lang="th">
-        <head>
-          <meta charset="UTF-8">
-          <title>${fileName}</title>
-        </head>
-        <body>
-          ${html}
-        </body>
-        </html>
-      `;
-
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(finalHtml);
-    doc.close();
-
-    const tryPrint = () => {
-      try {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-      } catch (e) {
-        console.error('print iframe error:', e);
-        toast('สั่งพิมพ์ไม่สำเร็จ', 'error');
-      }
-    };
-
-    iframe.onload = function () {
-      setTimeout(tryPrint, 500);
-    };
-
-    setTimeout(tryPrint, 900);
-  } catch (err) {
-    console.error(err);
-    toast('เกิดข้อผิดพลาดในการพิมพ์', 'error');
-  }
-}
+/* printHtmlViaIframe removed — ใช้ writeToPrintWindow แทน */
 </script>
 </body>
 </html>
