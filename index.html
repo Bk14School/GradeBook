@@ -1111,7 +1111,26 @@ body{
   .brand{font-size:.95rem;}
   .tag{max-width:120px;font-size:.72rem;}
 }
+/* =========================
+   RESPONSIVE
+   ========================= */
+@media (max-width:1100px){
+  .tag{
+    max-width:170px;
+    font-size:.76rem;
+    padding:6px 10px;
+  }
+  .settings-tab .tab-label{display:none;}
+  .settings-tab{padding:6px 8px;min-width:38px;}
+  .nbtn span{display:none;}
+  .nbtn{min-width:38px;padding:6px 10px;}
+}
 
+@media (max-width:900px){
+  .nav-i{padding:8px 10px;gap:8px;}
+  .brand{font-size:.95rem;}
+  .tag{max-width:120px;font-size:.72rem;}
+}
 
 @media (max-width:768px){
   .nav-i{
@@ -1195,9 +1214,7 @@ body{
     -webkit-overflow-scrolling:touch;
   }
 
-  .ass-tbl .ass-no{
-    display:none !important;
-  }
+  .ass-tbl .ass-no{display:none !important;}
 
   .ass-tbl .ass-name{
     position:sticky !important;
@@ -1230,6 +1247,35 @@ body{
     background:#f8fafc !important;
   }
 }
+
+@media (max-width:600px){
+  .sub-row{flex-wrap:wrap;gap:6px;}
+  .sub-name{width:100%;flex:none;}
+  .sel-bar{flex-direction:column;align-items:stretch;}
+  .sg input,.sg select{width:100%;}
+  .btn-apply{font-size:.92rem;}
+  .cfg-row{gap:12px;}
+}
+
+@media (max-width:420px){
+  .brand{font-size:.9rem;}
+  .brand-ic{
+    width:32px;
+    height:32px;
+    min-width:32px;
+  }
+  .tag{
+    font-size:.7rem;
+    padding:5px 10px;
+  }
+  .nbtn{
+    min-height:36px;
+    min-width:36px;
+    padding:5px 9px;
+  }
+}
+
+
 </style>
 </head>
 <body>
@@ -1243,29 +1289,7 @@ body{
     <div class="nav-r">
       <div class="tag" id="teacherTag">🎓</div>
 
-      <div class="settings-tabs-wrap" id="settingsTabsWrap" style="display:none;">
-        <div class="settings-tabs" id="settingsTabs">
-          <button type="button" class="settings-tab active" id="tabScoreMain" onclick="showScoreMain(this)">
-            <span class="tab-icon">📋</span>
-            <span class="tab-label">ตารางคะแนน</span>
-          </button>
 
-          <button type="button" class="settings-tab" onclick="switchSettingsTab('courseInfo', this)">
-            <span class="tab-icon">📝</span>
-            <span class="tab-label">รายวิชา</span>
-          </button>
-
-          <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
-            <span class="tab-icon">🏫</span>
-            <span class="tab-label">โรงเรียน</span>
-          </button>
-
-          <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
-            <span class="tab-icon">🌟</span>
-            <span class="tab-label">ประเมิน</span>
-          </button>
-        </div>
-      </div>
 
       <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">
         ⚙️ <span>แอดมิน</span>
@@ -1281,7 +1305,6 @@ body{
     </div>
   </div>
 </div>
-  
 
 
 <div class="tshelf" id="tshelf"></div>
@@ -1912,13 +1935,20 @@ async function doLogin() {
     CU = u;
     SUBS = subs;
 
-    document.getElementById('teacherTag').textContent = `🎓 ${CU.name}`;
-    document.getElementById('teacherTag').style.display = 'flex';
-    document.getElementById('btnGrade').style.display = 'inline-block';
-    document.getElementById('btnOut').style.display = 'inline-block';
+    const teacherTag = document.getElementById('teacherTag');
+    const btnGrade = document.getElementById('btnGrade');
+    const btnOut = document.getElementById('btnOut');
+    const btnAdmin = document.getElementById('btnAdmin');
+
+    if (teacherTag) {
+      teacherTag.textContent = `🎓 ${CU.name}`;
+      teacherTag.style.display = 'flex';
+    }
+    if (btnGrade) btnGrade.style.display = 'inline-flex';
+    if (btnOut) btnOut.style.display = 'inline-flex';
 
     if (CU.isAdmin) {
-      document.getElementById('btnAdmin').style.display = 'inline-block';
+      if (btnAdmin) btnAdmin.style.display = 'inline-flex';
       loadTeachers();
       showPage('adminPage');
     } else {
@@ -1945,6 +1975,21 @@ async function doLogin() {
   pg_();
 }
 
+function logout() {
+  CU = null;
+  cp();
+
+  ['teacherTag', 'btnAdmin', 'btnGrade', 'btnOut'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = 'none';
+  });
+
+  const tabsWrap = document.getElementById('settingsTabsWrap');
+  if (tabsWrap) tabsWrap.style.display = 'none';
+
+  showPage('loginPage');
+}
 function logout() {
   CU = null;
   cp();
