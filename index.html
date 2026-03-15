@@ -752,15 +752,15 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
 
 <!-- ===== SETTINGS TAB BAR ===== -->
 <div class="settings-tabs" id="settingsTabs">
-  <button class="settings-tab active" onclick="switchSettingsTab('courseInfo', this)">
+  <button type="button" class="settings-tab active" onclick="switchSettingsTab('courseInfo', this)">
     <span class="tab-icon">📝</span>
     <span class="tab-label">ข้อมูลรายวิชา</span>
   </button>
-  <button class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
+  <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
     <span class="tab-icon">🏫</span>
     <span class="tab-label">ข้อมูลโรงเรียน</span>
   </button>
-  <button class="settings-tab" onclick="switchSettingsTab('holistic', this)">
+  <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
     <span class="tab-icon">🌟</span>
     <span class="tab-label">ประเมินผู้เรียน</span>
   </button>
@@ -1111,16 +1111,18 @@ function calcGradeFrontend(score) {
    SETTINGS TAB SWITCHER
    ===================================================== */
 function switchSettingsTab(tabId, btn) {
-  document.querySelectorAll('.settings-panel').forEach(p => {
-    p.classList.remove('active');
-  });
+  const panels = document.querySelectorAll('.settings-panel');
+  const tabs = document.querySelectorAll('.settings-tab');
 
-  document.querySelectorAll('.settings-tab').forEach(t => {
-    t.classList.remove('active');
-  });
+  panels.forEach(panel => panel.classList.remove('active'));
+  tabs.forEach(tab => tab.classList.remove('active'));
 
-  const panel = document.getElementById('panel_' + tabId);
-  if (panel) panel.classList.add('active');
+  const target = document.getElementById(`panel_${tabId}`);
+  if (target) {
+    target.classList.add('active');
+  } else {
+    console.warn('ไม่พบ panel:', `panel_${tabId}`);
+  }
 
   if (btn) btn.classList.add('active');
 }
@@ -1830,10 +1832,10 @@ async function loadGrades() {
     
 // เปิดแท็บข้อมูลรายวิชาเป็นค่าเริ่มต้น
 document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
-document.getElementById('panel_courseInfo').classList.add('active');
-
 document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
-document.querySelector('.settings-tab').classList.add('active');
+
+document.getElementById('panel_courseInfo').classList.add('active');
+document.querySelector('.settings-tab[onclick*="courseInfo"]').classList.add('active');
     
     toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
   } catch (e) {
