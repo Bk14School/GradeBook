@@ -526,6 +526,26 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);mar
     font-size: 1.1rem;
   }
 }
+  .settings-tabs{
+  display:flex;
+  gap:6px;
+  margin-right:10px;
+}
+
+.settings-tab{
+  border:1px solid #e5e7eb;
+  background:#fff;
+  padding:5px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.settings-tab.active{
+  background:#2563eb;
+  color:#fff;
+  border-color:#2563eb;
+}
 
   
   
@@ -1137,21 +1157,24 @@ function calcGradeFrontend(score) {
     /* =====================================================
    SETTINGS TAB SWITCHER
    ===================================================== */
-function switchSettingsTab(tabId, btn) {
-  const panels = document.querySelectorAll('.settings-panel');
-  const tabs = document.querySelectorAll('.settings-tab');
+function switchSettingsTab(tabId, btn){
 
-  panels.forEach(panel => panel.classList.remove('active'));
-  tabs.forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.settings-panel')
+    .forEach(p => p.classList.remove('active'));
 
-  const target = document.getElementById(`panel_${tabId}`);
-  if (target) {
-    target.classList.add('active');
-  } else {
-    console.warn('ไม่พบ panel:', `panel_${tabId}`);
+  document.querySelectorAll('.settings-tab')
+    .forEach(t => t.classList.remove('active'));
+
+  const panel = document.getElementById('panel_' + tabId);
+
+  if(panel){
+    panel.classList.add('active');
   }
 
-  if (btn) btn.classList.add('active');
+  if(btn){
+    btn.classList.add('active');
+  }
+
 }
     
 function toggleAcc(id) {
