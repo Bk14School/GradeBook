@@ -183,14 +183,52 @@ body{
 /* =========================
    SETTINGS TABS ON NAVBAR
    ========================= */
+.settings-tabs-wrap{
+  display:none;
+  max-width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  margin-right:6px;
+  flex:1;
+  min-width:0;
+}
+
+.settings-tabs-wrap::-webkit-scrollbar{
+  display:none;
+}
+
 .settings-tabs{
-  display:flex;
+  display:inline-flex;
   align-items:center;
   gap:6px;
-  margin-right:6px;
   padding:0;
   background:transparent;
   border-radius:0;
+  flex-wrap:nowrap;
+  min-width:max-content;
+}
+
+.settings-tab{
+  flex:none;
+  min-width:auto;
+  padding:5px 12px;
+  min-height:34px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:#fff;
+  color:var(--muted);
+  cursor:pointer;
+  font-family:inherit;
+  font-size:.78rem;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  white-space:nowrap;
+  transition:all .15s;
 }
 
 .settings-tab{
@@ -1098,8 +1136,24 @@ body{
     justify-content:flex-start;
     flex-wrap:wrap;
   }
-  .settings-tabs{display:none !important;}
+@media (max-width:768px){
+  .settings-tabs-wrap{
+    display:block !important;
+    width:100%;
+    order:3;
+    margin-top:6px;
+    margin-right:0;
+  }
 
+  .settings-tab{
+    padding:6px 12px;
+    min-width:auto;
+  }
+
+  .settings-tab .tab-label{
+    display:inline !important;
+  }
+}
   .gtbl thead th.s-c0,
   .gtbl thead th.s-c1,
   .gtbl tbody td.s-c0,
@@ -1200,50 +1254,27 @@ body{
 </style>
 </head>
 <body>
-<div class="nav">
-  <div class="nav-i">
-<div class="brand">
-  <div class="brand-ic">G+</div>
-  <span class="brand-text">ระบบบันทึกคะแนน</span>
-</div>
+<div class="settings-tabs-wrap" id="settingsTabsWrap" style="display:none;">
+  <div class="settings-tabs" id="settingsTabs">
+    <button type="button" class="settings-tab active" id="tabScoreMain" onclick="showScoreMain(this)">
+      <span class="tab-icon">📋</span>
+      <span class="tab-label">ตารางคะแนน</span>
+    </button>
 
-<div class="nav-r">
-  <div class="tag" id="teacherTag">🎓</div>
+    <button type="button" class="settings-tab" onclick="switchSettingsTab('courseInfo', this)">
+      <span class="tab-icon">📝</span>
+      <span class="tab-label">รายวิชา</span>
+    </button>
 
-<div class="settings-tabs" id="settingsTabs" style="display:none;">
-  <button type="button" class="settings-tab active" id="tabScoreMain" onclick="showScoreMain(this)">
-    <span class="tab-icon">📋</span>
-    <span class="tab-label">ตารางคะแนน</span>
-  </button>
+    <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
+      <span class="tab-icon">🏫</span>
+      <span class="tab-label">โรงเรียน</span>
+    </button>
 
-  <button type="button" class="settings-tab" onclick="switchSettingsTab('courseInfo', this)">
-    <span class="tab-icon">📝</span>
-    <span class="tab-label">รายวิชา</span>
-  </button>
-
-  <button type="button" class="settings-tab" onclick="switchSettingsTab('schoolProfile', this)">
-    <span class="tab-icon">🏫</span>
-    <span class="tab-label">โรงเรียน</span>
-  </button>
-
-  <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
-    <span class="tab-icon">🌟</span>
-    <span class="tab-label">ประเมิน</span>
-  </button>
-</div>
-
-  <button class="nbtn" id="btnAdmin" onclick="showPage('adminPage')" style="display:none;">
-    ⚙️ <span>แอดมิน</span>
-  </button>
-  <button class="nbtn" id="btnGrade" onclick="showPage('gradePage')" style="display:none;">
-    📝 <span>กรอกคะแนน</span>
-  </button>
-  <button class="nbtn red" id="btnOut" onclick="logout()" style="display:none;">
-    ⏏ <span>ออก</span>
-  </button>
-</div>
-
-    
+    <button type="button" class="settings-tab" onclick="switchSettingsTab('holistic', this)">
+      <span class="tab-icon">🌟</span>
+      <span class="tab-label">ประเมิน</span>
+    </button>
   </div>
 </div>
 
@@ -1784,10 +1815,10 @@ function showPage(id) {
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   document.getElementById(id).classList.add('on');
 
-  const tabs = document.getElementById('settingsTabs');
-  if (tabs) {
-    tabs.style.display = (id === 'gradePage') ? 'flex' : 'none';
-  }
+const tabsWrap = document.getElementById('settingsTabsWrap');
+if (tabsWrap) {
+  tabsWrap.style.display = (id === 'gradePage') ? 'block' : 'none';
+}
 
   scrollTo(0, 0);
 }
@@ -1916,8 +1947,8 @@ function logout() {
     document.getElementById(id).style.display = 'none';
   });
 
-  const tabs = document.getElementById('settingsTabs');
-  if (tabs) tabs.style.display = 'none';
+const tabsWrap = document.getElementById('settingsTabsWrap');
+if (tabsWrap) tabsWrap.style.display = 'none';
 
   showPage('loginPage');
 }
