@@ -1295,6 +1295,33 @@ body{
     padding:5px 9px;
   }
 }
+  .grade-loading{
+  position:relative;
+  pointer-events:none;
+  opacity:.65;
+  filter:grayscale(.08);
+}
+
+.grade-loading::after{
+  content:"กำลังโหลดข้อมูลใหม่...";
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.55);
+  color:#4338ca;
+  font-size:1rem;
+  font-weight:800;
+  z-index:20;
+  backdrop-filter:blur(1px);
+}
+
+.tst.auto{
+  background:#334155;
+  color:#fff;
+  opacity:.95;
+}
 </style>
 </head>
 <body>
@@ -1463,26 +1490,28 @@ body{
   <div class="wrap">
 
     <!-- Selector -->
-    <div class="card">
-      <div class="sel-bar">
-        <div class="sg">
-          <label>ปีการศึกษา</label>
-          <input type="number" id="gYear" style="width:88px;" value="2568">
-        </div>
-
-        <div class="sg">
-          <label>ชั้นเรียน</label>
-          <select id="gClass" style="min-width:130px;" onchange="updateSubjDrop()"></select>
-        </div>
-
-        <div class="sg">
-          <label>รายวิชา</label>
-          <select id="gSubj" style="min-width:210px;"></select>
-        </div>
-
-        <button class="btn-pri" onclick="loadGrades()">🔄 โหลดรายชื่อ</button>
-      </div>
+   <div class="card">
+  <div class="sel-bar">
+    <div class="sg">
+      <label>ปีการศึกษา</label>
+      <input type="number" id="gYear" style="width:88px;" value="2568" onchange="onGradeSelectorChange()">
     </div>
+
+    <div class="sg">
+      <label>ชั้นเรียน</label>
+      <select id="gClass" style="min-width:130px;" onchange="onClassChangeAuto()"></select>
+    </div>
+
+    <div class="sg">
+      <label>รายวิชา</label>
+      <select id="gSubj" style="min-width:210px;" onchange="onGradeSelectorChange()"></select>
+    </div>
+
+    <div style="font-size:.8rem;color:#64748b;font-weight:700;align-self:center;">
+      โหลดอัตโนมัติเมื่อเปลี่ยนข้อมูล
+    </div>
+  </div>
+</div>
 
     <!-- Grade panel -->
     <div id="gradePanel" style="display:none;">
@@ -1858,17 +1887,20 @@ let SCHOOL_PROFILE = {
   director_position: 'ผู้อำนวยการโรงเรียน',
   academic_head_name: '',
   academic_head_position: 'หัวหน้าวิชาการ'
-};    
+};
+
+let autoLoadTimer = null;
+let IS_AUTO_LOADING = false;  
 
 /* =====================================================
    UTILS
    ===================================================== */
-function toast(msg, type = 'success') {
+function toast(msg, type = 'success', ms = 3000) {
   const d = document.createElement('div');
   d.className = `tst ${type}`;
   d.textContent = msg;
   document.getElementById('tshelf').appendChild(d);
-  setTimeout(() => d.remove(), 3000);
+  setTimeout(() => d.remove(), ms);
 }
 
 function pg(text) {
@@ -2000,10 +2032,10 @@ async function doLogin() {
         ? cls.map(c => `<option>${c}</option>`).join('')
         : `<option value="">ไม่มีสิทธิ์</option>`;
 
-      if (cls.includes(CU.classroom)) sel.value = CU.classroom;
-      updateSubjDrop();
-      showPage('gradePage');
-    }
+if (cls.includes(CU.classroom)) sel.value = CU.classroom;
+updateSubjDrop();
+showPage('gradePage');
+onGradeSelectorChange();
 
     cp();
   } catch (e) {
@@ -2564,7 +2596,70 @@ function getSchoolProfileForm() {
 /* =====================================================
    LOAD GRADES
    ===================================================== */
-async function loadGrades() {
+    function setGradeLoadingState(isLoading) {
+  const gradePanel = document.getElementById('gradePanel');
+  const selectorBar = document.querySelector('#gradePage .sel-bar');
+
+  if (gradePanel) {
+    gradePanel.classList.toggle('grade-loading', !!isLoading);
+  }
+
+  if (selectorBar) {
+    selectorBar.querySelectorAll('input, select, button').forEach(el => {
+      el.disabled = !!isLoading;
+    });
+  }
+}
+
+function resetGradePanelBeforeLoad() {
+  const gradePanel = document.getElementById('gradePanel');
+  const gtHead = document.getElementById('gtHead');
+  const gtBody = document.getElementById('gtBody');
+  const assContainer = document.getElementById('assContainer');
+  const hrAssContainer = document.getElementById('hrAssContainer');
+  const toggleRWrapper = document.getElementById('toggleRWrapper');
+  const toggleR = document.getElementById('toggleR');
+
+  if (gradePanel) gradePanel.style.display = 'none';
+  if (gtHead) gtHead.innerHTML = '';
+  if (gtBody) gtBody.innerHTML = '';
+
+  if (assContainer) {
+    assContainer.innerHTML = '<div class="text-center text-muted py-3">กำลังโหลดข้อมูล...</div>';
+  }
+
+  if (hrAssContainer) {
+    hrAssContainer.innerHTML = '<div class="text-center text-muted py-3">กำลังโหลดข้อมูล...</div>';
+  }
+
+  if (toggleRWrapper) toggleRWrapper.style.display = 'none';
+  if (toggleR) toggleR.checked = false;
+}
+
+function onClassChangeAuto() {
+  updateSubjDrop();
+  onGradeSelectorChange();
+}
+
+function onGradeSelectorChange() {
+  clearTimeout(autoLoadTimer);
+
+  const year = document.getElementById('gYear')?.value;
+  const cls = document.getElementById('gClass')?.value;
+  const subj = document.getElementById('gSubj')?.value;
+
+  if (!year || !cls || !subj || subj === '-- ไม่พบวิชา --') return;
+  if (IS_AUTO_LOADING) return;
+
+  autoLoadTimer = setTimeout(() => {
+    resetGradePanelBeforeLoad();
+    setGradeLoadingState(true);
+    loadGrades(true);
+  }, 250);
+}
+async function loadGrades(isAuto = false) {
+  if (IS_AUTO_LOADING) return;
+
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
@@ -2573,17 +2668,24 @@ async function loadGrades() {
     return toast('กรุณาเลือกวิชาที่ถูกต้อง', 'error');
   }
 
+  const requestKey = `${year}||${cls}||${subj}`;
+
+  IS_AUTO_LOADING = true;
   IS_SEM_MODE = cls.includes("เทอม");
   document.getElementById('lblClass').textContent = cls;
   document.getElementById('lblSubj').textContent = subj;
 
-  pg('กำลังโหลดข้อมูลและสถิติมาเรียน...');
+  pg(isAuto ? 'กำลังโหลดข้อมูลอัตโนมัติ...' : 'กำลังโหลดข้อมูลและสถิติมาเรียน...');
   document.getElementById('toggleRWrapper').style.display = IS_SEM_MODE ? 'flex' : 'none';
   document.getElementById('toggleR').checked = false;
   IGNORE_R = false;
 
   try {
     const res = await api('getGrades', { year, classroom: cls, subject: subj });
+
+    const currentKey = `${document.getElementById('gYear').value}||${document.getElementById('gClass').value}||${document.getElementById('gSubj').value}`;
+    if (requestKey !== currentKey) return;
+
     const config = res.config || {};
 
     TERM_DATES = res.termDates || {};
@@ -2595,6 +2697,7 @@ async function loadGrades() {
     document.getElementById('c_t2e').value = config.t2_exam || 15;
 
     setCourseInfoForm(config.courseInfo || {}, subj);
+
     try {
       const schoolProfile = await api('getSchoolProfile', {});
       setSchoolProfileForm(schoolProfile || {});
@@ -2642,8 +2745,7 @@ async function loadGrades() {
     buildTable();
     renderHolisticTable(STUDENTS, 'assContainer', 'assBody', 'subject');
     renderHolisticTable(STUDENTS, 'hrAssContainer', 'hrAssBody', 'homeroom');
-    
-    // Reset to score main tab
+
     const scoreArea = document.getElementById('scoreMainArea');
     const settingsArea = document.getElementById('settingsContentArea');
 
@@ -2655,17 +2757,22 @@ async function loadGrades() {
 
     const scoreTab = document.getElementById('tabScoreMain');
     if (scoreTab) scoreTab.classList.add('active');
-    
-    toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
+
+    if (isAuto) {
+      toast(`โหลดอัตโนมัติแล้ว: ${subj} (${cls})`, 'auto', 1400);
+    } else {
+      toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
+    }
   } catch (e) {
     console.error(e);
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
     document.getElementById('gradePanel').style.display = 'none';
+  } finally {
+    IS_AUTO_LOADING = false;
+    setGradeLoadingState(false);
+    pg_();
   }
-
-  pg_();
 }
-
 /* =====================================================
    BUILD TABLE
    ===================================================== */
@@ -4012,6 +4119,8 @@ function writeToPrintWindow(win, html, fileName) {
 }
 
 function showScoreMain(btn) {
+  if (IS_AUTO_LOADING) return;
+
   const scoreArea = document.getElementById('scoreMainArea');
   const settingsArea = document.getElementById('settingsContentArea');
 
@@ -4028,8 +4137,9 @@ function showScoreMain(btn) {
 
   if (btn) btn.classList.add('active');
 }
-
 function switchSettingsTab(tabId, btn) {
+  if (IS_AUTO_LOADING) return;
+
   const scoreArea = document.getElementById('scoreMainArea');
   const settingsArea = document.getElementById('settingsContentArea');
 
@@ -4053,6 +4163,7 @@ function switchSettingsTab(tabId, btn) {
 
   if (btn) btn.classList.add('active');
 }
+  
 
 function updateScoreInputState(input) {
   if (!input) return;
