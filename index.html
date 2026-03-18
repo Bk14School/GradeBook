@@ -1467,17 +1467,17 @@ body{
       <div class="sel-bar">
         <div class="sg">
           <label>ปีการศึกษา</label>
-<input type="number" id="gYear" style="width:88px;" value="2568" onchange="onClassOrYearChanged()">
+          <input type="number" id="gYear" style="width:88px;" value="2568">
         </div>
 
         <div class="sg">
           <label>ชั้นเรียน</label>
-<select id="gClass" style="min-width:130px;" onchange="onClassOrYearChanged()"></select>
+          <select id="gClass" style="min-width:130px;" onchange="updateSubjDrop()"></select>
         </div>
 
         <div class="sg">
           <label>รายวิชา</label>
-<select id="gSubj" style="min-width:210px;" onchange="onSubjectChanged()">
+          <select id="gSubj" style="min-width:210px;"></select>
         </div>
 
         <button class="btn-pri" onclick="loadGrades()">🔄 โหลดรายชื่อ</button>
@@ -1858,83 +1858,8 @@ let SCHOOL_PROFILE = {
   director_position: 'ผู้อำนวยการโรงเรียน',
   academic_head_name: '',
   academic_head_position: 'หัวหน้าวิชาการ'
-};
+};    
 
-let LOADED_KEY = "";
-function getCurrentKey() {
-  const y = document.getElementById('gYear').value || '';
-  const c = document.getElementById('gClass').value || '';
-  const s = document.getElementById('gSubj').value || '';
-  return `${y}|${c}|${s}`;
-}
-
-function isDataStale() {
-  return !LOADED_KEY || LOADED_KEY !== getCurrentKey();
-}
-    // === เพิ่มฟังก์ชันใหม่ ===
-function onSelectorChanged() {
-  // อัปเดต dropdown วิชาตามชั้นที่เลือก
-  updateSubjDrop();
-  
-  // ถ้า key ไม่ตรงกับที่โหลดไว้ → ซ่อน panel + แจ้งเตือน
-  if (isDataStale()) {
-    hideGradePanelWithWarning();
-  }
-}
-
-function hideGradePanelWithWarning() {
-  // ซ่อน gradePanel
-  const panel = document.getElementById('gradePanel');
-  if (panel) panel.style.display = 'none';
-  
-  // เคลียร์ข้อมูลเก่า
-  STUDENTS = [];
-  SI = { 1: [], 2: [] };
-  
-  // แสดง stale warning banner (ถ้ายังไม่มี)
-  showStaleBanner(true);
-}
-
-function showStaleBanner(show) {
-  let banner = document.getElementById('staleBanner');
-  
-  if (show) {
-    if (!banner) {
-      banner = document.createElement('div');
-      banner.id = 'staleBanner';
-      banner.style.cssText = `
-        background: linear-gradient(135deg, #fef3c7, #fde68a);
-        border: 2px solid #f59e0b;
-        border-radius: 12px;
-        padding: 16px 20px;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: #92400e;
-        animation: pgIn 0.2s ease;
-      `;
-      banner.innerHTML = `
-        <span style="font-size:1.5rem;">⚠️</span>
-        <div>
-          <div>คุณเปลี่ยนชั้นเรียน/รายวิชาแล้ว กรุณากด <strong style="color:#b45309;">"🔄 โหลดรายชื่อ"</strong> ก่อนแก้ไขหรือบันทึกข้อมูล</div>
-          <div style="font-size:0.8rem;font-weight:500;color:#a16207;margin-top:4px;">เพื่อป้องกันข้อมูลบันทึกผิดไฟล์</div>
-        </div>
-      `;
-      
-      // ใส่หลัง selector card
-      const selCard = document.querySelector('#gradePage .sel-bar')?.closest('.card');
-      if (selCard && selCard.parentNode) {
-        selCard.parentNode.insertBefore(banner, selCard.nextSibling);
-      }
-    }
-    banner.style.display = 'flex';
-  } else {
-    if (banner) banner.style.display = 'none';
-  }
-}
 /* =====================================================
    UTILS
    ===================================================== */
@@ -2105,8 +2030,6 @@ function logout() {
   }
 
   showPage('loginPage');
-  LOADED_KEY = "";
- showStaleBanner(false);
 }
 
 
@@ -2733,10 +2656,7 @@ async function loadGrades() {
     const scoreTab = document.getElementById('tabScoreMain');
     if (scoreTab) scoreTab.classList.add('active');
     
-  toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
-
-   LOADED_KEY = getCurrentKey();
-  showStaleBanner(false);
+    toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
   } catch (e) {
     console.error(e);
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
@@ -2745,14 +2665,7 @@ async function loadGrades() {
 
   pg_();
 }
-// ฟังก์ชันตรวจสอบ (เรียกใช้ที่ต้นทุกฟังก์ชัน save)
-function guardStaleData(actionName) {
-  if (isDataStale()) {
-    toast(`กรุณากด "โหลดรายชื่อ" ก่อน${actionName || 'บันทึก'} — ข้อมูลอาจไม่ตรงกับชั้น/วิชาที่เลือก`, 'error');
-    return true; // true = stale, ให้ return ออก
-  }
-  return false; // false = OK, ดำเนินการต่อได้
-}
+
 /* =====================================================
    BUILD TABLE
    ===================================================== */
@@ -3013,7 +2926,6 @@ function buildBody() {
    APPLY CONFIG / SNAPSHOT / RESTORE
    ===================================================== */
 function applySubConfig() {
-  if (isDataStale()) { toast('กรุณากด "โหลดรายชื่อ" ก่อนอัปเดตตาราง', 'error'); return; }
   if (!STUDENTS.length) return toast('โหลดรายชื่อก่อน', 'error');
 
   const t1Target = IS_SEM_MODE ? 100 : 50;
@@ -3226,7 +3138,6 @@ function recalcTots(tr) {
    SAVE GRADES / SAVE CONFIG
    ===================================================== */
 async function saveGrades() {
-  if (guardStaleData('บันทึกคะแนน')) return;
   syncAutoScoreToHiddenInputs();
 
   const t1Keep = getUnitsMax(1);
@@ -3322,7 +3233,6 @@ function buildConfigPayload() {
 }
 
 async function saveConfigOnly() {
-  if (guardStaleData('บันทึกการตั้งค่า')) return false;
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
@@ -3759,7 +3669,6 @@ function calcAssRow(inputEl, type) {
 }
 
 async function saveHolisticData(mode = 'subject') {
-  if (guardStaleData('บันทึกผลประเมิน')) return;
   const tableId = mode === 'homeroom' ? '#hrAssBody' : '#assBody';
   const records = [];
 
@@ -4190,10 +4099,7 @@ document.getElementById('summaryModeModal')?.addEventListener('click', function(
   if (e.target === this) closeSummaryModeModal();
 });
 
-function onSubjectChanged() {
-  if (LOADED_KEY && isDataStale()) {
-    hideGradePanelWithWarning();
-  }
-}</script>
+/* printHtmlViaIframe removed — ใช้ writeToPrintWindow แทน */
+</script>
 </body>
 </html>
