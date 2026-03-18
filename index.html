@@ -1467,17 +1467,17 @@ body{
       <div class="sel-bar">
         <div class="sg">
           <label>ปีการศึกษา</label>
-<input type="number" id="gYear" style="width:88px;" value="2568" onchange="onSelectorChanged()">
+<input type="number" id="gYear" style="width:88px;" value="2568" onchange="onClassOrYearChanged()">
         </div>
 
         <div class="sg">
           <label>ชั้นเรียน</label>
-          <select id="gClass" style="min-width:130px;" onchange="onSelectorChanged()"></select>
+<select id="gClass" style="min-width:130px;" onchange="onClassOrYearChanged()"></select>
         </div>
 
         <div class="sg">
           <label>รายวิชา</label>
-         <select id="gSubj" style="min-width:210px;" onchange="onSelectorChanged()"></select>
+<select id="gSubj" style="min-width:210px;" onchange="onSubjectChanged()">
         </div>
 
         <button class="btn-pri" onclick="loadGrades()">🔄 โหลดรายชื่อ</button>
@@ -4190,7 +4190,10 @@ document.getElementById('summaryModeModal')?.addEventListener('click', function(
   if (e.target === this) closeSummaryModeModal();
 });
 
-/* printHtmlViaIframe removed — ใช้ writeToPrintWindow แทน */
-</script>
+function onSubjectChanged() {
+  if (LOADED_KEY && isDataStale()) {
+    hideGradePanelWithWarning();
+  }
+}</script>
 </body>
 </html>
