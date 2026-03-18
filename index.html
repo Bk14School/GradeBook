@@ -39,9 +39,6 @@ body{
   overflow-x:hidden;
 }
 
-/* =========================
-   PAGE CORE
-   ========================= */
 .pg{display:none;}
 .pg.on{display:block;animation:pgIn .2s ease;}
 @keyframes pgIn{
@@ -64,9 +61,6 @@ body{
   border:1px solid #f8fafc;
 }
 
-/* =========================
-   TOP NAV
-   ========================= */
 .nav{
   background:#fff;
   border-bottom:1px solid #e2e8f0;
@@ -184,9 +178,6 @@ body{
   background:#fff1f2;
 }
 
-/* =========================
-   SETTINGS TABS ON NAVBAR
-   ========================= */
 .settings-tabs-wrap{
   display:none;
   overflow-x:auto;
@@ -264,9 +255,6 @@ body{
   to{opacity:1;transform:translateY(0)}
 }
 
-/* =========================
-   LOGIN
-   ========================= */
 .login-shell{
   min-height:calc(100vh - 64px);
   display:flex;
@@ -350,9 +338,6 @@ body{
   color:#64748b;
 }
 
-/* =========================
-   MODAL
-   ========================= */
 .modal-bg{
   display:none;
   position:fixed;
@@ -396,9 +381,6 @@ body{
   line-height:1;
 }
 
-/* =========================
-   ADMIN
-   ========================= */
 .adm-table{
   width:100%;
   border-collapse:collapse;
@@ -416,9 +398,6 @@ body{
   vertical-align:middle;
 }
 
-/* =========================
-   SELECTOR
-   ========================= */
 .sel-bar{
   background:#f8fafc;
   border:1px solid var(--border);
@@ -452,9 +431,6 @@ body{
   border-color:var(--primary);
 }
 
-/* =========================
-   CONFIG AREA
-   ========================= */
 .cfg-row{display:flex;flex-wrap:wrap;gap:16px;}
 .cfg-block{display:flex;flex-direction:column;gap:5px;}
 .cfg-ttl{
@@ -620,9 +596,6 @@ body{
 .raw-preview strong{color:#5b21b6;}
 .raw-preview .res{color:#4c1d95;font-weight:800;}
 
-/* =========================
-   BUTTONS
-   ========================= */
 .btn-pri{
   background:linear-gradient(135deg,var(--primary),var(--pd));
   color:#fff;
@@ -688,9 +661,6 @@ body{
   min-height:34px;
 }
 
-/* =========================
-   TABLE WRAPPER
-   ========================= */
 .tbl-wrap{
   overflow:auto;
   border-radius:10px;
@@ -745,6 +715,38 @@ body{
 .th-t2e{background:var(--t2s) !important;}
 .th-t2t{background:var(--t2) !important;}
 .th-grand{background:#0f172a !important;}
+
+/* =============================
+   NEW: รวมเก็บ รวมสอบ headers
+   ============================= */
+.th-sum-keep{background:#7c3aed !important;}   /* รวมคะแนนเก็บ */
+.th-sum-exam{background:#b45309 !important;}   /* รวมคะแนนสอบ */
+
+/* cell backgrounds */
+.td-sum-keep{background:#ede9fe !important;}
+.td-sum-exam{background:#fef3c7 !important;}
+
+/* badges for sum columns */
+.sbadge-keep{
+  display:inline-block;
+  font-weight:800;
+  padding:3px 8px;
+  border-radius:6px;
+  min-width:44px;
+  font-size:.88rem;
+  background:#ddd6fe;
+  color:#4c1d95;
+}
+.sbadge-exam{
+  display:inline-block;
+  font-weight:800;
+  padding:3px 8px;
+  border-radius:6px;
+  min-width:44px;
+  font-size:.88rem;
+  background:#fde68a;
+  color:#78350f;
+}
 
 /* sticky header 3 rows */
 .gtbl thead tr:nth-child(1) th{
@@ -831,7 +833,6 @@ body{
 .gtbl tbody tr:hover td.s-c1{background:#334155 !important;}
 .gtbl tbody tr:hover td.s-c2{background:#f0f4ff !important;}
 
-/* score area */
 .td-sub1{background:#eff6ff !important;}
 .td-sc1{background:#bfdbfe !important;font-weight:800;color:#1e3a8a;font-size:.92rem;}
 .td-sub2{background:#ecfeff !important;}
@@ -865,7 +866,6 @@ body{
   -webkit-appearance:none;
 }
 
-/* score color states */
 .sinput.score-empty{
   background:#fee2e2 !important;
   border-color:#ef4444 !important;
@@ -897,7 +897,6 @@ body{
   color:#1e40af !important;
 }
 
-/* totals */
 .tbadge{
   display:inline-block;
   font-weight:700;
@@ -962,9 +961,6 @@ body{
 .gtbl.t1-collapsed #tbtn1 .arr{transform:rotate(-90deg);}
 .gtbl.t2-collapsed #tbtn2 .arr{transform:rotate(-90deg);}
 
-/* =========================
-   ASSESSMENT TABLE
-   ========================= */
 .ass-wrap{
   overflow-x:auto;
   border:1px solid #e2e8f0;
@@ -1023,14 +1019,11 @@ body{
   font-weight:800;
   font-size:.8rem;
 }
-.res-3{background:#dcfce7;color:#166534;}
+.res-3{background:#dcfce7;color:#166634;}
 .res-2{background:#e0f2fe;color:#075985;}
 .res-1{background:#fef3c7;color:#92400e;}
 .res-0{background:#fee2e2;color:#991b1b;}
 
-/* =========================
-   PROGRESS + TOAST
-   ========================= */
 #pgov{
   display:none;
   position:fixed;
@@ -1087,80 +1080,60 @@ body{
   to{opacity:1;transform:translateX(0)}
 }
 
-/* =========================
-   GRADE PANEL HEADER BUTTONS
-   ========================= */
 .grade-actions{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
 }
 
-/* =========================
-   RESPONSIVE >= 1100
-   ========================= */
 @media (max-width:1100px){
   .tag{
     max-width:170px;
     font-size:.76rem;
     padding:6px 10px;
   }
-
   .settings-tab .tab-label{
     display:none;
   }
-
   .settings-tab{
     padding:6px 8px;
     min-width:38px;
   }
-
   .nbtn .nbtn-label{
     display:none;
   }
-
   .nbtn{
     min-width:38px;
     padding:6px 10px;
   }
 }
 
-/* =========================
-   RESPONSIVE >= 900
-   ========================= */
 @media (max-width:900px){
   .nav-i{padding:8px 10px;gap:8px;}
   .brand{font-size:.95rem;}
   .tag{max-width:120px;font-size:.72rem;}
 }
 
-/* =========================
-   RESPONSIVE >= 768
-   ========================= */
 @media (max-width:768px){
   .nav-i{
     min-height:auto;
     align-items:center;
     flex-wrap:wrap;
   }
-
   .brand{
     flex-shrink:0;
     font-size:.95rem;
   }
-
   .nav-r{
     width:100%;
     justify-content:flex-start;
     flex-wrap:wrap;
     gap:6px;
   }
-
   .tag{
     max-width:none;
     flex-shrink:1;
   }
-
   .settings-tabs-wrap.is-visible{
     display:block !important;
     width:100%;
@@ -1168,23 +1141,19 @@ body{
     margin-top:6px;
     margin-right:0;
   }
-
   .settings-tab{
     padding:6px 12px;
     min-width:auto;
   }
-
   .settings-tab .tab-label{
     display:inline !important;
   }
-
   .gtbl thead th.s-c0,
   .gtbl thead th.s-c1,
   .gtbl tbody td.s-c0,
   .gtbl tbody td.s-c1{
     display:none !important;
   }
-
   .gtbl thead th.s-c2,
   .gtbl tbody td.s-c2{
     left:0 !important;
@@ -1192,41 +1161,33 @@ body{
     max-width:none !important;
     white-space:nowrap !important;
   }
-
   .gtbl thead th.s-c2{
     z-index:75 !important;
     background:#1e293b !important;
     color:#fff !important;
   }
-
   .gtbl tbody td.s-c2{
     z-index:30 !important;
     background:#fff !important;
     text-align:left !important;
   }
-
   .gtbl tbody tr:hover td.s-c2{
     background:#f0f4ff !important;
   }
-
   .gtbl th,.gtbl td{
     padding:4px 5px !important;
   }
-
   .sinput{
     width:48px;
     min-width:48px;
     height:32px;
   }
-
   .ass-wrap{
     max-height:70vh;
     overflow:auto;
     -webkit-overflow-scrolling:touch;
   }
-
   .ass-tbl .ass-no{display:none !important;}
-
   .ass-tbl .ass-name{
     position:sticky !important;
     left:0 !important;
@@ -1236,24 +1197,20 @@ body{
     text-align:left !important;
     box-shadow:3px 0 8px rgba(99,102,241,.12);
   }
-
   .ass-tbl thead th{
     position:sticky;
     top:0;
     z-index:20;
   }
-
   .ass-tbl thead .ass-name{
     background:#f8fafc !important;
     color:#1e293b !important;
     z-index:50 !important;
   }
-
   .ass-tbl tbody .ass-name{
     background:#fff !important;
     font-weight:600;
   }
-
   .ass-tbl tbody tr:hover .ass-name{
     background:#f8fafc !important;
   }
@@ -1266,7 +1223,6 @@ body{
   .sg input,.sg select{width:100%;}
   .btn-apply{font-size:.92rem;}
   .cfg-row{gap:12px;}
-
   .grade-actions{
     width:100%;
   }
@@ -1347,7 +1303,6 @@ body{
   </div>
 </div>
 
-
 <div class="tshelf" id="tshelf"></div>
 
 <div id="pgov">
@@ -1376,15 +1331,12 @@ body{
         <button class="pkey" onclick="ap('1')">1</button>
         <button class="pkey" onclick="ap('2')">2</button>
         <button class="pkey" onclick="ap('3')">3</button>
-
         <button class="pkey" onclick="ap('4')">4</button>
         <button class="pkey" onclick="ap('5')">5</button>
         <button class="pkey" onclick="ap('6')">6</button>
-
         <button class="pkey" onclick="ap('7')">7</button>
         <button class="pkey" onclick="ap('8')">8</button>
         <button class="pkey" onclick="ap('9')">9</button>
-
         <button class="pkey fn" onclick="cp()">C</button>
         <button class="pkey" onclick="ap('0')">0</button>
         <button class="pkey fn" style="color:var(--danger)" onclick="dp()">⌫</button>
@@ -1398,7 +1350,6 @@ body{
   <div class="wrap">
     <div class="card">
       <div style="font-weight:800;font-size:.97rem;margin-bottom:13px;">จัดการวิชาที่ครูสอน</div>
-
       <div style="overflow-x:auto;">
         <table class="adm-table">
           <thead>
@@ -1416,10 +1367,8 @@ body{
     <div class="card" style="max-width:520px;margin:0 auto;">
       <div style="font-weight:800;font-size:.97rem;margin-bottom:11px;">🚀 สร้างฐานข้อมูลประจำปี</div>
       <p style="color:var(--muted);font-size:.83rem;margin-bottom:13px;">สร้างไฟล์ Spreadsheet แต่ละชั้นเรียนอัตโนมัติ</p>
-
       <label style="font-weight:700;font-size:.82rem;display:block;margin-bottom:5px;">ปีการศึกษา (พ.ศ.)</label>
       <input type="number" id="setupYear" class="form-control form-control-lg text-center fw-bold mb-3" value="2568" style="max-width:170px;">
-
       <button class="btn-pri" style="width:100%;padding:12px;" onclick="adminSetup()">สร้างไฟล์ฐานข้อมูล</button>
     </div>
   </div>
@@ -1432,20 +1381,16 @@ body{
       <h6 class="fw-bold mb-0">📚 <span id="modalName" class="text-primary"></span></h6>
       <button class="btn-sm" onclick="closeModal()">✕</button>
     </div>
-
     <div class="p-3 bg-light rounded border mb-3">
       <label class="fw-bold d-block mb-2" style="font-size:.82rem;">1. เลือกชั้นเรียน</label>
       <select id="mClassSel" class="form-select mb-3" onchange="renderMCbs()"></select>
-
       <label class="fw-bold d-block mb-2" style="font-size:.82rem;">2. เลือกวิชา</label>
       <div id="mCbs" class="d-flex flex-wrap gap-2"></div>
     </div>
-
     <div class="mb-3">
       <label class="fw-bold d-block mb-1" style="font-size:.82rem;">สรุปวิชาทั้งหมด:</label>
       <div id="mAssigned" class="p-2 border rounded bg-white" style="min-height:60px;"></div>
     </div>
-
     <button class="btn-pri w-100" onclick="saveModal()">💾 บันทึก</button>
   </div>
 </div>
@@ -1469,17 +1414,14 @@ body{
           <label>ปีการศึกษา</label>
           <input type="number" id="gYear" style="width:88px;" value="2568">
         </div>
-
         <div class="sg">
           <label>ชั้นเรียน</label>
           <select id="gClass" style="min-width:130px;" onchange="updateSubjDrop()"></select>
         </div>
-
         <div class="sg">
           <label>รายวิชา</label>
           <select id="gSubj" style="min-width:210px;"></select>
         </div>
-
         <button class="btn-pri" onclick="loadGrades()">🔄 โหลดรายชื่อ</button>
         <span class="brand-text">เมื่อเปลี่ยนวิชาต้องกดโหลดรายชื่อทุกครั้งก่อนแก้ไขข้อมูลตารางคะแนน รายวิชา เพื่อป้องกันการบันทึกผิดวิชาครับ</span>
       </div>
@@ -1491,13 +1433,11 @@ body{
       <!-- Panel header -->
       <div class="card" style="padding:15px 20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
-
           <div style="font-weight:800;font-size:.97rem;display:flex;align-items:center;gap:15px;flex-wrap:wrap;">
             <div>
               📋 <span id="lblSubj"></span>
               <span style="font-weight:400;color:var(--muted);font-size:.85rem;"> — ชั้น <span id="lblClass"></span></span>
             </div>
-
             <label
               id="toggleRWrapper"
               style="font-size:0.8rem;font-weight:700;color:#b45309;background:#fef3c7;border:1px solid #fde68a;padding:4px 10px;border-radius:8px;cursor:pointer;margin:0;display:none;align-items:center;gap:6px;">
@@ -1521,7 +1461,6 @@ body{
           </div>
         </div>
       </div>
-
 
 <div id="scoreMainArea">
   <!-- TABLE -->
@@ -1547,7 +1486,6 @@ body{
 
 <!-- ===== TAB: ข้อมูลรายวิชา ===== -->
 <div class="settings-panel" id="panel_courseInfo">
-  <!-- 1) ข้อมูลพื้นฐานรายวิชา -->
   <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
     <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">1) ข้อมูลรายวิชา</div>
 
@@ -1616,7 +1554,6 @@ body{
     </div>
   </div>
 
-  <!-- 2) เวลาเรียน -->
   <div class="card mb-3" style="background:#ffffff;border:1px solid #dcfce7;">
     <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">2) เวลาเรียน (ปพ.5)</div>
 
@@ -1648,7 +1585,6 @@ body{
     </div>
   </div>
 
-  <!-- 3) ตั้งค่าคะแนน -->
   <div class="card mb-0" style="background:#ffffff;border:1px solid #dcfce7;">
     <div style="font-weight:800;font-size:.9rem;color:#166534;margin-bottom:12px;">
       3) ตั้งค่าคะแนนแบบหน่วยการเรียนรู้
@@ -1773,13 +1709,11 @@ body{
     <div id="assContainer">
       <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
     </div>
-
     <div style="text-align:right;margin-top:10px;">
       <button class="btn-pri" type="button" onclick="printHolisticReport('subject')">
         🖨️ พิมพ์รายงานรายวิชา
       </button>
     </div>
-
     <button class="btn-save mt-3 w-100" onclick="saveHolisticData('subject')">
       💾 บันทึกผลการประเมินรายวิชา
     </button>
@@ -1789,19 +1723,18 @@ body{
     <div id="hrAssContainer">
       <div class="text-center text-muted py-3">กรุณาโหลดรายชื่อผู้เรียน</div>
     </div>
-
     <div style="text-align:right;margin-top:10px;">
       <button class="btn-pri" type="button" onclick="printHolisticReport('homeroom')">
         🖨️ พิมพ์รายงานประจำชั้น
       </button>
     </div>
-
     <button class="btn-save mt-3 w-100" onclick="saveHolisticData('homeroom')">
       💾 บันทึกผลการประเมินประจำชั้น
     </button>
   </div>
 </div>
-      </div>
+  </div>
+</div>
     </div>
   </div>
 </div>
@@ -1813,31 +1746,24 @@ body{
       <h6 class="fw-bold mb-0">📊 เลือกรูปแบบสรุปเกรดรวม</h6>
       <button class="btn-sm" onclick="closeSummaryModeModal()">✕</button>
     </div>
-
     <div class="mb-3 text-muted" style="font-size:.9rem;">
       เลือกว่าต้องการพิมพ์ผลการเรียนแบบ <b>เทอม 1</b>, <b>เทอม 2</b> หรือ <b>ทั้งปี</b>
     </div>
-
     <div class="d-grid gap-2">
       <button class="btn-pri" onclick="printSummaryPDF('term1')" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">
         🟣 ดูเทอม 1
       </button>
-
       <button class="btn-pri" onclick="printSummaryPDF('term2')" style="background:linear-gradient(135deg,#0f766e,#0d9488);">
         🟢 ดูเทอม 2
       </button>
-
       <button class="btn-pri" onclick="printSummaryPDF('year')" style="background:linear-gradient(135deg,#0284c7,#0369a1);">
         🔵 ดูทั้งปี
       </button>
     </div>
   </div>
 </div>
-  <!-- print via window.open -->
-  <script>
-/* =====================================================
-   GLOBAL STATE
-   ===================================================== */
+
+<script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwOa2Qg0CXQiq1NqI10NKDajlHCiqn0n3Ytkv_0UvdWseBTMqZ_y0ZfChEuV2L7y9ZF/exec";
 const ALL_CLS = ["ป.1","ป.2","ป.3","ป.4","ป.5","ป.6","ม.1 เทอม 1","ม.1 เทอม 2","ม.2 เทอม 1","ม.2 เทอม 2","ม.3 เทอม 1","ม.3 เทอม 2"];
 
@@ -1859,7 +1785,7 @@ let SCHOOL_PROFILE = {
   director_position: 'ผู้อำนวยการโรงเรียน',
   academic_head_name: '',
   academic_head_position: 'หัวหน้าวิชาการ'
-};    
+};
 
 /* =====================================================
    UTILS
@@ -1884,16 +1810,11 @@ function pg_() {
 function showPage(id) {
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   document.getElementById(id).classList.add('on');
-
   const tabsWrap = document.getElementById('settingsTabsWrap');
   if (tabsWrap) {
-    if (id === 'gradePage') {
-      tabsWrap.classList.add('is-visible');
-    } else {
-      tabsWrap.classList.remove('is-visible');
-    }
+    if (id === 'gradePage') tabsWrap.classList.add('is-visible');
+    else tabsWrap.classList.remove('is-visible');
   }
-
   scrollTo(0, 0);
 }
 
@@ -1920,24 +1841,6 @@ function calcGradeFrontend(score) {
 }
 
 /* =====================================================
-   ACCORDION
-   ===================================================== */
-function toggleAcc(id) {
-  const el = document.getElementById(id);
-  const body = document.getElementById(id + 'Body');
-  if (!el || !body) return;
-
-  const isOpen = el.classList.contains('open');
-  if (isOpen) {
-    el.classList.remove('open');
-    body.classList.add('hidden');
-  } else {
-    el.classList.add('open');
-    body.classList.remove('hidden');
-  }
-}
-
-/* =====================================================
    PIN / LOGIN
    ===================================================== */
 function updDots(err = false) {
@@ -1954,15 +1857,8 @@ function ap(n) {
   }
 }
 
-function dp() {
-  PIN = PIN.slice(0, -1);
-  updDots();
-}
-
-function cp() {
-  PIN = "";
-  updDots();
-}
+function dp() { PIN = PIN.slice(0, -1); updDots(); }
+function cp() { PIN = ""; updDots(); }
 
 async function doLogin() {
   pg('กำลังโหลด...');
@@ -1980,10 +1876,7 @@ async function doLogin() {
     const btnOut = document.getElementById('btnOut');
     const btnAdmin = document.getElementById('btnAdmin');
 
-    if (teacherTag) {
-      teacherTag.textContent = `🎓 ${CU.name}`;
-      teacherTag.style.display = 'flex';
-    }
+    if (teacherTag) { teacherTag.textContent = `🎓 ${CU.name}`; teacherTag.style.display = 'flex'; }
     if (btnGrade) btnGrade.style.display = 'inline-flex';
     if (btnOut) btnOut.style.display = 'inline-flex';
 
@@ -2005,7 +1898,6 @@ async function doLogin() {
       updateSubjDrop();
       showPage('gradePage');
     }
-
     cp();
   } catch (e) {
     updDots(true);
@@ -2018,21 +1910,15 @@ async function doLogin() {
 function logout() {
   CU = null;
   cp();
-
   ['teacherTag', 'btnAdmin', 'btnGrade', 'btnOut'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     el.style.display = 'none';
   });
-
   const tabsWrap = document.getElementById('settingsTabsWrap');
-  if (tabsWrap) {
-    tabsWrap.classList.remove('is-visible');
-  }
-
+  if (tabsWrap) tabsWrap.classList.remove('is-visible');
   showPage('loginPage');
 }
-
 
 /* =====================================================
    ADMIN
@@ -2044,26 +1930,16 @@ async function loadTeachers() {
     document.getElementById('tTbody').innerHTML = ts.map(t => {
       const [id, name, , cls, , subsStr = ''] = [...t, ''];
       if (cls === '*') return '';
-
       const tags = (subsStr ? subsStr.split(',') : [])
         .map(s => {
           const [c, n] = s.split('_');
-          return n
-            ? `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary me-1" style="font-size:.74rem;">${c}: ${n}</span>`
-            : '';
-        })
-        .join('');
-
+          return n ? `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary me-1" style="font-size:.74rem;">${c}: ${n}</span>` : '';
+        }).join('');
       return `
         <tr>
-          <td>
-            <b>${name}</b><br>
-            <span class="text-muted" style="font-size:.76rem;">ประจำชั้น ${cls}</span>
-          </td>
+          <td><b>${name}</b><br><span class="text-muted" style="font-size:.76rem;">ประจำชั้น ${cls}</span></td>
           <td>${tags || '<span class="text-muted" style="font-size:.78rem;">ยังไม่กำหนด</span>'}</td>
-          <td style="text-align:center;">
-            <button class="btn-sm" onclick="openModal('${id}','${name}','${cls}','${subsStr}')">⚙️</button>
-          </td>
+          <td style="text-align:center;"><button class="btn-sm" onclick="openModal('${id}','${name}','${cls}','${subsStr}')">⚙️</button></td>
         </tr>`;
     }).join('');
   } catch (e) {
@@ -2075,33 +1951,25 @@ async function loadTeachers() {
 function openModal(id, name, cls, subsStr) {
   editTid = id;
   editAssigned = subsStr ? subsStr.split(',') : [];
-
   document.getElementById('modalName').textContent = name;
   const sel = document.getElementById('mClassSel');
   sel.innerHTML = ALL_CLS.map(c => `<option>${c}</option>`).join('');
   if (ALL_CLS.includes(cls)) sel.value = cls;
-
   document.getElementById('subModal').style.display = 'flex';
   renderMCbs();
   renderMAssigned();
 }
 
-function closeModal() {
-  document.getElementById('subModal').style.display = 'none';
-}
+function closeModal() { document.getElementById('subModal').style.display = 'none'; }
 
 function renderMCbs() {
   const cls = document.getElementById('mClassSel').value;
   const subs = SUBS[cls] || [];
-
   document.getElementById('mCbs').innerHTML = subs.length
     ? subs.map(s => {
         const v = `${cls}_${s}`;
-        return `
-          <label class="border p-2 rounded bg-white" style="cursor:pointer;font-size:.84rem;user-select:none;">
-            <input type="checkbox" class="form-check-input me-1" value="${v}" ${editAssigned.includes(v) ? 'checked' : ''} onchange="toggleMSub(this)">
-            ${s}
-          </label>`;
+        return `<label class="border p-2 rounded bg-white" style="cursor:pointer;font-size:.84rem;user-select:none;">
+          <input type="checkbox" class="form-check-input me-1" value="${v}" ${editAssigned.includes(v) ? 'checked' : ''} onchange="toggleMSub(this)">${s}</label>`;
       }).join('')
     : '<span class="text-muted">ไม่มีรายวิชา</span>';
 }
@@ -2131,10 +1999,7 @@ function renderMAssigned() {
 async function saveModal() {
   pg('บันทึก...');
   try {
-    await api('saveTeacherAssignments', {
-      teacherId: editTid,
-      subjects: editAssigned.join(',')
-    });
+    await api('saveTeacherAssignments', { teacherId: editTid, subjects: editAssigned.join(',') });
     toast('✅ บันทึกสำเร็จ');
     closeModal();
     loadTeachers();
@@ -2148,13 +2013,9 @@ async function adminSetup() {
   const y = document.getElementById('setupYear').value;
   if (!y || y < 2560) return toast('ปีไม่ถูกต้อง', 'error');
   if (!confirm(`สร้างฐานข้อมูลปี ${y}?`)) return;
-
   pg(`สร้างปี ${y}...`);
-  try {
-    toast(await api('setupGradeYear', { year: y }));
-  } catch (e) {
-    toast(e.message, 'error');
-  }
+  try { toast(await api('setupGradeYear', { year: y })); }
+  catch (e) { toast(e.message, 'error'); }
   pg_();
 }
 
@@ -2165,47 +2026,26 @@ function updateSubjDrop() {
   const cls = document.getElementById('gClass').value;
   const sel = document.getElementById('gSubj');
   sel.innerHTML = '';
-
   if (CU?.isAdmin) {
     const gS = document.getElementById('gClass');
-    if (!gS.options.length) {
-      gS.innerHTML = ALL_CLS.map(c => `<option>${c}</option>`).join('');
-    }
+    if (!gS.options.length) gS.innerHTML = ALL_CLS.map(c => `<option>${c}</option>`).join('');
     (SUBS[cls] || []).forEach(s => sel.innerHTML += `<option>${s}</option>`);
   } else {
     const p = cls + '_';
     const f = (CU?.mySubjects || []).filter(s => s.startsWith(p)).map(s => s.replace(p, ''));
-    if (f.length) {
-      f.forEach(s => sel.innerHTML += `<option>${s}</option>`);
-    } else {
-      sel.innerHTML = '<option>-- ไม่พบวิชา --</option>';
-    }
+    if (f.length) f.forEach(s => sel.innerHTML += `<option>${s}</option>`);
+    else sel.innerHTML = '<option>-- ไม่พบวิชา --</option>';
   }
 }
 
 /* =====================================================
    UNIT CONFIG / SCORE CONFIG
    ===================================================== */
-function getTermTargetScore(term) {
-  return IS_SEM_MODE ? 100 : 50;
-}
-
-function getUnits(term) {
-  return SI[term] || [];
-}
-
-function getUnitsMax(term) {
-  return getUnits(term).reduce((sum, unit) => sum + (Number(unit.max) || 0), 0);
-}
-
-function getExamMax(term) {
-  return Math.max(0, getTermTargetScore(term) - getUnitsMax(term));
-}
-
-function getUnitItemsRawMax(unit) {
-  return (unit.items || []).reduce((sum, item) => sum + (Number(item.max) || 0), 0);
-}
-
+function getTermTargetScore(term) { return IS_SEM_MODE ? 100 : 50; }
+function getUnits(term) { return SI[term] || []; }
+function getUnitsMax(term) { return getUnits(term).reduce((sum, unit) => sum + (Number(unit.max) || 0), 0); }
+function getExamMax(term) { return Math.max(0, getTermTargetScore(term) - getUnitsMax(term)); }
+function getUnitItemsRawMax(unit) { return (unit.items || []).reduce((sum, item) => sum + (Number(item.max) || 0), 0); }
 function getUnitRawMax(term, unitIndex) {
   const unit = getUnits(term)[unitIndex] || {};
   return getUnitItemsRawMax(unit);
@@ -2215,15 +2055,7 @@ function getFlatItems(term) {
   const out = [];
   getUnits(term).forEach((unit, unitIndex) => {
     (unit.items || []).forEach((item, itemIndex) => {
-      out.push({
-        term,
-        unitIndex,
-        itemIndex,
-        unitName: unit.name || `หน่วย ${unitIndex + 1}`,
-        unitMax: Number(unit.max) || 0,
-        itemName: item.name || `งาน ${itemIndex + 1}`,
-        itemMax: Number(item.max) || 0
-      });
+      out.push({ term, unitIndex, itemIndex, unitName: unit.name || `หน่วย ${unitIndex + 1}`, unitMax: Number(unit.max) || 0, itemName: item.name || `งาน ${itemIndex + 1}`, itemMax: Number(item.max) || 0 });
     });
   });
   return out;
@@ -2252,36 +2084,24 @@ function calcKeepScoreFromFlat(term, flatValues) {
   const units = getUnits(term);
   const offsets = getUnitOffsets(term);
   let total = 0;
-
   offsets.forEach(({ unitIndex, start, count }) => {
     const unit = units[unitIndex];
     const rawMax = getUnitRawMax(term, unitIndex);
     let raw = 0;
-
-    for (let i = 0; i < count; i++) {
-      raw += Number(flatValues[start + i]) || 0;
-    }
-
+    for (let i = 0; i < count; i++) raw += Number(flatValues[start + i]) || 0;
     total += calcScaledScore(raw, rawMax, Number(unit.max) || 0);
   });
-
   return Math.round(total * 100) / 100;
 }
 
 function normalizeUnits(term) {
   if (!Array.isArray(SI[term])) SI[term] = [];
-
   SI[term] = SI[term].map((u, idx) => {
     if (u && Array.isArray(u.items)) return u;
     return {
       name: u?.name || `หน่วยการเรียนรู้ที่ ${idx + 1}`,
       max: Number(u?.max) || 10,
-      items: [
-        {
-          name: u?.name || 'งาน 1',
-          max: Number(u?.max) || 10
-        }
-      ]
+      items: [{ name: u?.name || 'งาน 1', max: Number(u?.max) || 10 }]
     };
   });
 }
@@ -2290,9 +2110,7 @@ function ensureHiddenScoreInputs() {
   ['c_t1a','c_t1e','c_t2a','c_t2e'].forEach(id => {
     if (!document.getElementById(id)) {
       const inp = document.createElement('input');
-      inp.type = 'hidden';
-      inp.id = id;
-      inp.value = 0;
+      inp.type = 'hidden'; inp.id = id; inp.value = 0;
       document.body.appendChild(inp);
     }
   });
@@ -2309,24 +2127,20 @@ function syncAutoScoreToHiddenInputs() {
 function updateAutoScoreDisplay() {
   const t1Keep = getUnitsMax(1);
   const t1Exam = Math.max(0, getTermTargetScore(1) - t1Keep);
-
   const el1k = document.getElementById('show_t1_keep');
   const el1e = document.getElementById('show_t1_exam');
   if (el1k) el1k.textContent = t1Keep;
   if (el1e) el1e.textContent = t1Exam;
-
   const sum1 = document.getElementById('sum_t1_units');
   if (sum1) sum1.textContent = t1Keep;
 
   if (!IS_SEM_MODE) {
     const t2Keep = getUnitsMax(2);
     const t2Exam = Math.max(0, getTermTargetScore(2) - t2Keep);
-
     const el2k = document.getElementById('show_t2_keep');
     const el2e = document.getElementById('show_t2_exam');
     if (el2k) el2k.textContent = t2Keep;
     if (el2e) el2e.textContent = t2Exam;
-
     const sum2 = document.getElementById('sum_t2_units');
     if (sum2) sum2.textContent = t2Keep;
   }
@@ -2340,23 +2154,11 @@ function refreshUnitPanelLabels() {
 
   if (sum1 && sum1.parentElement) {
     const maxTxt = IS_SEM_MODE ? '100' : '50';
-    sum1.parentElement.innerHTML = `
-      <span>คะแนนรวมทุกหน่วย เทอม 1:</span>
-      <strong id="sum_t1_units">${getUnitsMax(1)}</strong>
-      <span>/</span>
-      <span class="res">${maxTxt}</span>
-    `;
+    sum1.parentElement.innerHTML = `<span>คะแนนรวมทุกหน่วย เทอม 1:</span><strong id="sum_t1_units">${getUnitsMax(1)}</strong><span>/</span><span class="res">${maxTxt}</span>`;
   }
-
   if (sum2 && sum2.parentElement) {
-    sum2.parentElement.innerHTML = `
-      <span>คะแนนรวมทุกหน่วย เทอม 2:</span>
-      <strong id="sum_t2_units">${getUnitsMax(2)}</strong>
-      <span>/</span>
-      <span class="res">50</span>
-    `;
+    sum2.parentElement.innerHTML = `<span>คะแนนรวมทุกหน่วย เทอม 2:</span><strong id="sum_t2_units">${getUnitsMax(2)}</strong><span>/</span><span class="res">50</span>`;
   }
-
   if (IS_SEM_MODE) {
     if (t2Block) t2Block.style.display = 'none';
     if (t2Tab) t2Tab.style.display = 'none';
@@ -2364,31 +2166,21 @@ function refreshUnitPanelLabels() {
     if (t2Block) t2Block.style.display = '';
     if (t2Tab) t2Tab.style.display = '';
   }
-
   updateAutoScoreDisplay();
 }
 
-function onCfg() {
-  updateAutoScoreDisplay();
-}
+function onCfg() { updateAutoScoreDisplay(); }
 
 function switchTerm(t, btn) {
   const tabWrap = btn.closest('.ttabs');
-  if (tabWrap) {
-    tabWrap.querySelectorAll('.ttab').forEach(b => b.classList.remove('on'));
-  }
+  if (tabWrap) tabWrap.querySelectorAll('.ttab').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-
   document.getElementById('subPanel_1').style.display = t === 1 ? '' : 'none';
   document.getElementById('subPanel_2').style.display = t === 2 ? '' : 'none';
 }
 
 function addSub(term) {
-  SI[term].push({
-    name: `หน่วยการเรียนรู้ที่ ${SI[term].length + 1}`,
-    max: 10,
-    items: [{ name: "งาน 1", max: 10 }]
-  });
+  SI[term].push({ name: `หน่วยการเรียนรู้ที่ ${SI[term].length + 1}`, max: 10, items: [{ name: "งาน 1", max: 10 }] });
   renderSubList(term);
 }
 
@@ -2399,10 +2191,7 @@ function rmSub(term, unitIndex) {
 }
 
 function addSubItem(term, unitIndex) {
-  SI[term][unitIndex].items.push({
-    name: `งาน ${SI[term][unitIndex].items.length + 1}`,
-    max: 10
-  });
+  SI[term][unitIndex].items.push({ name: `งาน ${SI[term][unitIndex].items.length + 1}`, max: 10 });
   renderSubList(term);
 }
 
@@ -2415,70 +2204,40 @@ function rmSubItem(term, unitIndex, itemIndex) {
 function renderSubList(term) {
   const wrap = document.getElementById(`subList_${term}`);
   if (!wrap) return;
-
   const units = SI[term] || [];
-
   if (!units.length) {
-    wrap.innerHTML = `
-      <div class="text-muted text-center py-3" style="background:#fff;border:1px dashed #cbd5e1;border-radius:10px;">
-        ยังไม่มีหน่วยการเรียนรู้
-      </div>`;
+    wrap.innerHTML = `<div class="text-muted text-center py-3" style="background:#fff;border:1px dashed #cbd5e1;border-radius:10px;">ยังไม่มีหน่วยการเรียนรู้</div>`;
     updateAutoScoreDisplay();
     return;
   }
-
   wrap.innerHTML = units.map((unit, ui) => {
     const rawMax = getUnitItemsRawMax(unit);
-
     return `
       <div class="sub-row" style="display:block;padding:12px;border:1.5px solid #ddd6fe;background:#fff;border-radius:12px;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
           <span class="sub-n">${ui + 1}.</span>
-
-          <input class="sub-name" type="text"
-            value="${unit.name || ''}"
-            placeholder="ชื่อหน่วยการเรียนรู้"
-            onchange="SI[${term}][${ui}].name=this.value">
-
+          <input class="sub-name" type="text" value="${unit.name || ''}" placeholder="ชื่อหน่วยการเรียนรู้" onchange="SI[${term}][${ui}].name=this.value">
           <span class="sub-max-lbl">คะแนนหน่วย</span>
-          <input class="sub-max" type="number" min="1"
-            value="${Number(unit.max) || 0}"
-            onchange="SI[${term}][${ui}].max=Number(this.value)||0;updateAutoScoreDisplay();renderSubList(${term});">
-
+          <input class="sub-max" type="number" min="1" value="${Number(unit.max) || 0}" onchange="SI[${term}][${ui}].max=Number(this.value)||0;updateAutoScoreDisplay();renderSubList(${term});">
           <button class="btn-rm" onclick="rmSub(${term},${ui})">✕</button>
         </div>
-
         <div style="margin-left:24px;display:flex;flex-direction:column;gap:7px;">
           ${(unit.items || []).map((item, ii) => `
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <input class="sub-name" type="text"
-                value="${item.name || ''}"
-                placeholder="ชื่องาน / กิจกรรม"
-                onchange="SI[${term}][${ui}].items[${ii}].name=this.value">
-
+              <input class="sub-name" type="text" value="${item.name || ''}" placeholder="ชื่องาน / กิจกรรม" onchange="SI[${term}][${ui}].items[${ii}].name=this.value">
               <span class="sub-max-lbl">เต็ม</span>
-              <input class="sub-max" type="number" min="1"
-                value="${Number(item.max) || 0}"
-                onchange="SI[${term}][${ui}].items[${ii}].max=Number(this.value)||0;renderSubList(${term});">
-
+              <input class="sub-max" type="number" min="1" value="${Number(item.max) || 0}" onchange="SI[${term}][${ui}].items[${ii}].max=Number(this.value)||0;renderSubList(${term});">
               <button class="btn-rm" onclick="rmSubItem(${term},${ui},${ii})">✕</button>
             </div>
           `).join('')}
-
-          <button type="button" class="btn-add-sub" onclick="addSubItem(${term},${ui})">
-            ＋ เพิ่มงานในหน่วยนี้
-          </button>
+          <button type="button" class="btn-add-sub" onclick="addSubItem(${term},${ui})">＋ เพิ่มงานในหน่วยนี้</button>
         </div>
-
         <div class="raw-preview" style="margin-top:10px;">
-          <span>คะแนนดิบรวมของหน่วย:</span>
-          <strong>${rawMax}</strong>
-          <span>| คะแนนหน่วย:</span>
-          <strong class="res">${Number(unit.max) || 0}</strong>
+          <span>คะแนนดิบรวมของหน่วย:</span><strong>${rawMax}</strong>
+          <span>| คะแนนหน่วย:</span><strong class="res">${Number(unit.max) || 0}</strong>
         </div>
       </div>`;
   }).join('');
-
   updateAutoScoreDisplay();
 }
 
@@ -2502,7 +2261,6 @@ function setCourseInfoForm(courseInfo = {}, currentSubject = '') {
   document.getElementById('ci_group_head_name').value = courseInfo.groupHeadName || '';
   document.getElementById('ci_description').value = courseInfo.description || '';
   document.getElementById('ci_indicators').value = courseInfo.indicators || '';
-
   const sch = courseInfo.schedule || {};
   document.getElementById('sch_mon').value = sch.mon || 0;
   document.getElementById('sch_tue').value = sch.tue || 0;
@@ -2521,7 +2279,7 @@ function getCourseInfoForm() {
     type: document.getElementById('ci_type').value || 'รายวิชาพื้นฐาน',
     credit: document.getElementById('ci_credit').value || '',
     teacherName: document.getElementById('ci_teacher_name').value || '',
-    groupHeadName: document.getElementById('ci_group_head_name').value || '', 
+    groupHeadName: document.getElementById('ci_group_head_name').value || '',
     description: document.getElementById('ci_description').value || '',
     indicators: document.getElementById('ci_indicators').value || '',
     schedule: {
@@ -2544,7 +2302,6 @@ function setSchoolProfileForm(profile = {}) {
     academic_head_name: profile.academic_head_name || '',
     academic_head_position: profile.academic_head_position || 'หัวหน้าวิชาการ'
   };
-
   document.getElementById('sp_school_name').value = SCHOOL_PROFILE.school_name;
   document.getElementById('sp_director_name').value = SCHOOL_PROFILE.director_name;
   document.getElementById('sp_director_position').value = SCHOOL_PROFILE.director_position;
@@ -2570,9 +2327,7 @@ async function loadGrades() {
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
 
-  if (!subj || subj === "-- ไม่พบวิชา --") {
-    return toast('กรุณาเลือกวิชาที่ถูกต้อง', 'error');
-  }
+  if (!subj || subj === "-- ไม่พบวิชา --") return toast('กรุณาเลือกวิชาที่ถูกต้อง', 'error');
 
   IS_SEM_MODE = cls.includes("เทอม");
   document.getElementById('lblClass').textContent = cls;
@@ -2614,7 +2369,6 @@ async function loadGrades() {
       if (t2Block) t2Block.style.display = 'none';
       if (t1Title) t1Title.textContent = "สัดส่วนคะแนน (เก็บ/สอบ)";
       if (btnAddT1) btnAddT1.textContent = "＋ เพิ่มหัวข้อคะแนนย่อย";
-
       const t1TabBtn = document.querySelector('.ttab[onclick*="switchTerm(1"]');
       if (t1TabBtn) switchTerm(1, t1TabBtn);
       SI[2] = [];
@@ -2643,27 +2397,23 @@ async function loadGrades() {
     buildTable();
     renderHolisticTable(STUDENTS, 'assContainer', 'assBody', 'subject');
     renderHolisticTable(STUDENTS, 'hrAssContainer', 'hrAssBody', 'homeroom');
-    
-    // Reset to score main tab
+
     const scoreArea = document.getElementById('scoreMainArea');
     const settingsArea = document.getElementById('settingsContentArea');
-
     if (scoreArea) scoreArea.style.display = 'block';
     if (settingsArea) settingsArea.style.display = 'none';
 
     document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('#settingsTabs .settings-tab').forEach(t => t.classList.remove('active'));
-
     const scoreTab = document.getElementById('tabScoreMain');
     if (scoreTab) scoreTab.classList.add('active');
-    
+
     toast(`โหลดข้อมูลสำเร็จ: โหมด${IS_SEM_MODE ? 'มัธยม (รายภาคเรียน)' : 'ประถม (รายปี)'}`);
   } catch (e) {
     console.error(e);
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
     document.getElementById('gradePanel').style.display = 'none';
   }
-
   pg_();
 }
 
@@ -2677,6 +2427,9 @@ function buildTable() {
   EXP = { 1: true, 2: true };
 }
 
+/* =====================================================
+   BUILD HEAD — เพิ่มคอลัมน์รวมเก็บ รวมสอบ
+   ===================================================== */
 function buildHead() {
   syncAutoScoreToHiddenInputs();
 
@@ -2687,6 +2440,7 @@ function buildHead() {
   const t1Flat = getFlatItems(1);
   const t2Flat = getFlatItems(2);
 
+  // ---- แถวที่ 1 ----
   let r1 = `
     <th rowspan="3" class="th-base s-c0" style="width:36px;">ที่</th>
     <th rowspan="3" class="th-base s-c1" style="width:72px;">รหัส</th>
@@ -2720,12 +2474,19 @@ function buildHead() {
         ${t2Flat.length > 0 ? `<button class="tbtn" id="tbtn2" onclick="toggleCols(2)"><span class="arr">▼</span> ยุบ</button>` : ''}
       </th>
       <th rowspan="3" class="th-t2e" style="width:72px;">สอบ ท.2<br><small>(${t2Exam})</small></th>
-      <th rowspan="3" class="th-t2t" style="width:72px;">รวม ท.2<br><small>(50)</small></th>
-      <th rowspan="3" class="th-grand" style="width:74px;">รวม<br>ทั้งปี</th>`;
+      <th rowspan="3" class="th-t2t" style="width:72px;">รวม ท.2<br><small>(50)</small></th>`;
+
+    /* ✅ คอลัมน์ใหม่: รวมคะแนนเก็บ ท.1+ท.2 และ รวมคะแนนสอบ ท.1+ท.2 */
+    r1 += `
+      <th rowspan="3" class="th-sum-keep" style="width:80px;">รวมเก็บ<br><small>(ท.1+ท.2)</small><br><small style="opacity:.8;">(${t1Keep + t2Keep})</small></th>
+      <th rowspan="3" class="th-sum-exam" style="width:80px;">รวมสอบ<br><small>(ท.1+ท.2)</small><br><small style="opacity:.8;">(${t1Exam + t2Exam})</small></th>`;
+
+    r1 += `<th rowspan="3" class="th-grand" style="width:74px;">รวม<br>ทั้งปี</th>`;
   }
 
   r1 += `<th rowspan="3" style="width:65px;background:#4f46e5;color:#fff;font-size:15px;border-right:1px solid rgba(255,255,255,.12);vertical-align:middle;">เกรด</th>`;
 
+  // ---- แถวที่ 2 และ 3 ----
   let r2 = '';
   let r3 = '';
 
@@ -2756,6 +2517,9 @@ function buildHead() {
   document.getElementById('gtHead').innerHTML = `<tr>${r1}</tr><tr>${r2}</tr><tr>${r3}</tr>`;
 }
 
+/* =====================================================
+   BUILD BODY — เพิ่ม cell รวมเก็บ รวมสอบ
+   ===================================================== */
 function buildBody() {
   syncAutoScoreToHiddenInputs();
 
@@ -2781,26 +2545,17 @@ function buildBody() {
       const unit = getUnits(1)[unitIndex];
       const rawMax = getUnitRawMax(1, unitIndex);
       let raw = 0;
-
       for (let i = 0; i < count; i++) {
         const item = (unit.items || [])[i];
         const val = t1FlatVals[start + i] ?? '';
         raw += Number(val) || 0;
-
         t1Cells += `
           <td class="td-sub1 sc1">
-            <input type="number"
-              class="sinput sub1"
-              min="0"
-              max="${Number(item.max) || 0}"
-              value="${val}"
-              data-term="1"
-              data-unit="${unitIndex}"
-              data-item="${i}"
+            <input type="number" class="sinput sub1" min="0" max="${Number(item.max) || 0}"
+              value="${val}" data-term="1" data-unit="${unitIndex}" data-item="${i}"
               oninput="calcSub(this,1)">
           </td>`;
       }
-
       const scaled = calcScaledScore(raw, rawMax, Number(unit.max) || 0);
       t1Cells += `<td class="td-sc1 sc1 unit-total-1" data-unit="${unitIndex}">${scaled || '-'}</td>`;
     });
@@ -2817,18 +2572,10 @@ function buildBody() {
           <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
             <span>${s.name}</span>
             <div style="display:flex;gap:4px;flex-shrink:0;">
-              <button class="btn-sm"
-                style="padding:2px 7px;font-size:0.72rem;background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd;"
-                onclick="printRowPDF('${s.studentId}','term1')"
-                title="พิมพ์ ปพ.6 เทอม 1 ของ ${s.name}">
-                T1
-              </button>
-              <button class="btn-sm"
-                style="padding:2px 8px;font-size:0.75rem;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;"
-                onclick="printRowPDF('${s.studentId}','year')"
-                title="พิมพ์ ปพ.6 ทั้งปีของ ${s.name}">
-                🖨️
-              </button>
+              <button class="btn-sm" style="padding:2px 7px;font-size:0.72rem;background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd;"
+                onclick="printRowPDF('${s.studentId}','term1')" title="พิมพ์ ปพ.6 เทอม 1 ของ ${s.name}">T1</button>
+              <button class="btn-sm" style="padding:2px 8px;font-size:0.75rem;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;"
+                onclick="printRowPDF('${s.studentId}','year')" title="พิมพ์ ปพ.6 ทั้งปีของ ${s.name}">🖨️</button>
             </div>
           </div>
         </td>
@@ -2841,7 +2588,6 @@ function buildBody() {
     if (IS_SEM_MODE) {
       let rStatus = String(g.t2_acc || 'ปกติ').trim();
       if (rStatus !== 'ติด ร' && rStatus !== 'แก้ ร') rStatus = 'ปกติ';
-
       rowHtml += `
         <td style="background:#f8fafc;">
           <select class="sinput r-status" style="width:55px;font-size:0.75rem;padding:2px;text-align:center;cursor:pointer;" onchange="recalcTots(this.closest('tr'))">
@@ -2860,26 +2606,17 @@ function buildBody() {
         const unit = getUnits(2)[unitIndex];
         const rawMax = getUnitRawMax(2, unitIndex);
         let raw = 0;
-
         for (let i = 0; i < count; i++) {
           const item = (unit.items || [])[i];
           const val = t2FlatVals[start + i] ?? '';
           raw += Number(val) || 0;
-
           t2Cells += `
             <td class="td-sub2 sc2">
-              <input type="number"
-                class="sinput t2 sub2"
-                min="0"
-                max="${Number(item.max) || 0}"
-                value="${val}"
-                data-term="2"
-                data-unit="${unitIndex}"
-                data-item="${i}"
+              <input type="number" class="sinput t2 sub2" min="0" max="${Number(item.max) || 0}"
+                value="${val}" data-term="2" data-unit="${unitIndex}" data-item="${i}"
                 oninput="calcSub(this,2)">
             </td>`;
         }
-
         const scaled = calcScaledScore(raw, rawMax, Number(unit.max) || 0);
         t2Cells += `<td class="td-sc2 sc2 unit-total-2" data-unit="${unitIndex}">${scaled || '-'}</td>`;
       });
@@ -2890,11 +2627,19 @@ function buildBody() {
       const grand = t1Total + t2Total;
       finalScore = grand;
 
+      /* รวมเก็บ และ รวมสอบ ทั้งสองเทอม */
+      const sumKeep = Math.round((t1Keep + t2Keep) * 100) / 100;
+      const sumExam = t1Exam + t2Exam;
+      const keepClass = sumKeep === 0 ? 'nil' : 'ok';
+      const examClass = sumExam === 0 ? 'nil' : 'ok';
+
       rowHtml += `
         ${t2Cells}
         <td class="td-sc2"><span class="t2sc">${t2Keep || '-'}</span></td>
         <td><input type="number" class="sinput t2 s-t2e" min="0" max="${t2ExamMax}" value="${g.t2_exam ?? ''}" oninput="calcExam(this)"></td>
         <td><span class="tbadge ${t2Total === 0 ? 'nil' : 'ok'} t2tot">${t2Total || '-'}</span></td>
+        <td class="td-sum-keep"><span class="sbadge-keep sum-keep">${sumKeep || '-'}</span></td>
+        <td class="td-sum-exam"><span class="sbadge-exam sum-exam">${sumExam || '-'}</span></td>
         <td><span class="gbadge ${grand === 0 ? 'nil' : grand < 50 ? 'fail' : 'ok'} gtot">${grand || '-'}</span></td>`;
     } else {
       finalScore = t1Total;
@@ -2924,27 +2669,19 @@ function buildBody() {
 }
 
 /* =====================================================
-   APPLY CONFIG / SNAPSHOT / RESTORE
+   APPLY CONFIG
    ===================================================== */
 function applySubConfig() {
   if (!STUDENTS.length) return toast('โหลดรายชื่อก่อน', 'error');
-
   const t1Target = IS_SEM_MODE ? 100 : 50;
-  if (getUnitsMax(1) > t1Target) {
-    return toast(`เทอม 1: คะแนนรวมของหน่วยเกิน ${t1Target}`, 'error');
-  }
-  if (!IS_SEM_MODE && getUnitsMax(2) > 50) {
-    return toast('เทอม 2: คะแนนรวมของหน่วยเกิน 50', 'error');
-  }
-
+  if (getUnitsMax(1) > t1Target) return toast(`เทอม 1: คะแนนรวมของหน่วยเกิน ${t1Target}`, 'error');
+  if (!IS_SEM_MODE && getUnitsMax(2) > 50) return toast('เทอม 2: คะแนนรวมของหน่วยเกิน 50', 'error');
   syncAutoScoreToHiddenInputs();
   refreshUnitPanelLabels();
   updateAutoScoreDisplay();
-
   const snap = snapshotInputs();
   buildTable();
   restoreInputs(snap);
-
   toast('อัปเดตตารางแล้ว ✓');
 }
 
@@ -2968,23 +2705,14 @@ function restoreInputs(snap) {
     const sid = tr.getAttribute('data-sid');
     const d = snap[sid];
     if (!d) return;
-
-    tr.querySelectorAll('.sub1').forEach((inp, i) => {
-      if (d.t1s[i] !== undefined) inp.value = d.t1s[i];
-    });
-
-    tr.querySelectorAll('.sub2').forEach((inp, i) => {
-      if (d.t2s[i] !== undefined) inp.value = d.t2s[i];
-    });
-
+    tr.querySelectorAll('.sub1').forEach((inp, i) => { if (d.t1s[i] !== undefined) inp.value = d.t1s[i]; });
+    tr.querySelectorAll('.sub2').forEach((inp, i) => { if (d.t2s[i] !== undefined) inp.value = d.t2s[i]; });
     const e1 = tr.querySelector('.s-t1e');
     const e2 = tr.querySelector('.s-t2e');
     if (e1) e1.value = d.t1e;
     if (e2) e2.value = d.t2e;
-
     const rSel = tr.querySelector('.r-status');
     if (rSel && d.rStat) rSel.value = d.rStat;
-
     const any1 = tr.querySelector('.sub1');
     const any2 = tr.querySelector('.sub2');
     if (any1) calcSub(any1, 1);
@@ -2998,45 +2726,31 @@ function restoreInputs(snap) {
    ===================================================== */
 function calcSub(el, t) {
   const mx = +el.getAttribute('max');
-  if (+el.value > mx) {
-    el.value = mx;
-    toast(`เต็ม ${mx} คะแนน`, 'warning');
-  }
+  if (+el.value > mx) { el.value = mx; toast(`เต็ม ${mx} คะแนน`, 'warning'); }
   if (+el.value < 0) el.value = 0;
-
   updateScoreInputState(el);
 
   const tr = el.closest('tr');
-
   if (el.value.length >= String(mx).length) {
     const td = el.closest('td');
     const tbody = tr.closest('tbody');
     const colIndex = td.cellIndex;
     const rows = Array.from(tbody.querySelectorAll('tr'));
     const currentRowIndex = rows.indexOf(tr);
-
     if (currentRowIndex > -1 && currentRowIndex + 1 < rows.length) {
       const nextCell = rows[currentRowIndex + 1].cells[colIndex];
       const nextInput = nextCell?.querySelector('.sinput');
-      if (nextInput) {
-        nextInput.focus();
-        nextInput.select();
-      }
+      if (nextInput) { nextInput.focus(); nextInput.select(); }
     }
   }
 
   const flatVals = [...tr.querySelectorAll(t === 1 ? '.sub1' : '.sub2')].map(inp => inp.value);
   const offsets = getUnitOffsets(t);
-
   offsets.forEach(({ unitIndex, start, count }) => {
     const unit = getUnits(t)[unitIndex];
     const rawMax = getUnitRawMax(t, unitIndex);
     let raw = 0;
-
-    for (let i = 0; i < count; i++) {
-      raw += Number(flatVals[start + i]) || 0;
-    }
-
+    for (let i = 0; i < count; i++) raw += Number(flatVals[start + i]) || 0;
     const scaled = calcScaledScore(raw, rawMax, Number(unit.max) || 0);
     const unitCell = tr.querySelector(`.unit-total-${t}[data-unit="${unitIndex}"]`);
     if (unitCell) unitCell.textContent = scaled || '-';
@@ -3052,37 +2766,30 @@ function calcSub(el, t) {
 
 function calcExam(el) {
   const mx = +el.getAttribute('max');
-  if (+el.value > mx) {
-    el.value = mx;
-    toast(`เต็ม ${mx} คะแนน`, 'warning');
-  }
+  if (+el.value > mx) { el.value = mx; toast(`เต็ม ${mx} คะแนน`, 'warning'); }
   if (+el.value < 0) el.value = 0;
-
   updateScoreInputState(el);
 
   const tr = el.closest('tr');
-
   if (el.value.length >= String(mx).length) {
     const td = el.closest('td');
     const tbody = tr.closest('tbody');
     const colIndex = td.cellIndex;
     const rows = Array.from(tbody.querySelectorAll('tr'));
     const currentRowIndex = rows.indexOf(tr);
-
     if (currentRowIndex > -1 && currentRowIndex + 1 < rows.length) {
       const nextCell = rows[currentRowIndex + 1].cells[colIndex];
       const nextInput = nextCell?.querySelector('.sinput');
-      if (nextInput) {
-        nextInput.focus();
-        nextInput.select();
-      }
+      if (nextInput) { nextInput.focus(); nextInput.select(); }
     }
   }
-
   recalcTots(tr);
   refreshAllScoreInputStates(tr);
 }
 
+/* =====================================================
+   recalcTots — อัปเดตรวมเก็บ รวมสอบ ด้วย
+   ===================================================== */
 function recalcTots(tr) {
   const t1s = +tr.querySelector('.t1sc')?.textContent || 0;
   const t2s = +tr.querySelector('.t2sc')?.textContent || 0;
@@ -3100,17 +2807,22 @@ function recalcTots(tr) {
   const e2 = tr.querySelector('.t2tot');
   const eG = tr.querySelector('.gtot');
 
-  if (e1) {
-    e1.textContent = t1t || '-';
-    e1.className = `tbadge ${tc(t1t)} t1tot`;
+  if (e1) { e1.textContent = t1t || '-'; e1.className = `tbadge ${tc(t1t)} t1tot`; }
+  if (e2) { e2.textContent = t2t || '-'; e2.className = `tbadge ${tc(t2t)} t2tot`; }
+  if (eG) { eG.textContent = g || '-'; eG.className = `gbadge ${gc} gtot`; }
+
+  /* ✅ อัปเดต รวมเก็บ ท.1+ท.2 */
+  const eSumKeep = tr.querySelector('.sum-keep');
+  if (eSumKeep) {
+    const sumKeep = Math.round((t1s + t2s) * 100) / 100;
+    eSumKeep.textContent = sumKeep || '-';
   }
-  if (e2) {
-    e2.textContent = t2t || '-';
-    e2.className = `tbadge ${tc(t2t)} t2tot`;
-  }
-  if (eG) {
-    eG.textContent = g || '-';
-    eG.className = `gbadge ${gc} gtot`;
+
+  /* ✅ อัปเดต รวมสอบ ท.1+ท.2 */
+  const eSumExam = tr.querySelector('.sum-exam');
+  if (eSumExam) {
+    const sumExam = t1e + t2e;
+    eSumExam.textContent = sumExam || '-';
   }
 
   const finalScore = IS_SEM_MODE ? t1t : g;
@@ -3136,29 +2848,21 @@ function recalcTots(tr) {
 }
 
 /* =====================================================
-   SAVE GRADES / SAVE CONFIG
+   SAVE GRADES
    ===================================================== */
 async function saveGrades() {
   syncAutoScoreToHiddenInputs();
-
   const t1Keep = getUnitsMax(1);
   const t2Keep = getUnitsMax(2);
-
-  if (t1Keep > (IS_SEM_MODE ? 100 : 50)) {
-    return toast(`เทอม 1: คะแนนรวมหน่วยเกิน ${IS_SEM_MODE ? 100 : 50}`, 'error');
-  }
-  if (!IS_SEM_MODE && t2Keep > 50) {
-    return toast('เทอม 2: คะแนนรวมหน่วยเกิน 50', 'error');
-  }
+  if (t1Keep > (IS_SEM_MODE ? 100 : 50)) return toast(`เทอม 1: คะแนนรวมหน่วยเกิน ${IS_SEM_MODE ? 100 : 50}`, 'error');
+  if (!IS_SEM_MODE && t2Keep > 50) return toast('เทอม 2: คะแนนรวมหน่วยเกิน 50', 'error');
 
   const records = [];
-
   document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr => {
     const sid = tr.getAttribute('data-sid');
     const t1sv = [...tr.querySelectorAll('.sub1')].map(i => i.value);
     const t2sv = [...tr.querySelectorAll('.sub2')].map(i => i.value);
     const t1acc = calcKeepScoreFromFlat(1, t1sv);
-
     let t2acc = 0;
     if (IS_SEM_MODE) {
       const rSel = tr.querySelector('.r-status');
@@ -3166,33 +2870,22 @@ async function saveGrades() {
     } else {
       t2acc = calcKeepScoreFromFlat(2, t2sv);
     }
-
-    const t1ex = tr.querySelector('.s-t1e')?.value || '';
-    const t2ex = tr.querySelector('.s-t2e')?.value || '';
-
     records.push({
       studentId: sid,
-      t1_sub: t1sv,
-      t1_acc: t1acc,
-      t1_exam: t1ex,
-      t2_sub: t2sv,
-      t2_acc: t2acc,
-      t2_exam: t2ex
+      t1_sub: t1sv, t1_acc: t1acc, t1_exam: tr.querySelector('.s-t1e')?.value || '',
+      t2_sub: t2sv, t2_acc: t2acc, t2_exam: tr.querySelector('.s-t2e')?.value || ''
     });
   });
 
   if (!records.length) return toast('ยังไม่มีข้อมูล', 'warning');
-
   const config = buildConfigPayload();
-
   pg('กำลังบันทึกคะแนน...');
   try {
     const msg = await api('saveGrades', {
       year: document.getElementById('gYear').value,
       classroom: document.getElementById('gClass').value,
       subject: document.getElementById('gSubj').value,
-      config,
-      gradeRecords: records
+      config, gradeRecords: records
     });
     toast('✅ ' + msg);
   } catch (e) {
@@ -3203,7 +2896,6 @@ async function saveGrades() {
 
 async function saveSchoolProfile() {
   const profile = getSchoolProfileForm();
-
   pg('กำลังบันทึกข้อมูลโรงเรียน...');
   try {
     const msg = await api('saveSchoolProfile', profile);
@@ -3217,19 +2909,11 @@ async function saveSchoolProfile() {
 
 function buildConfigPayload() {
   const courseInfo = getCourseInfoForm();
-
   return {
-    t1_acc: getUnitsMax(1),
-    t1_exam: getExamMax(1),
-    t2_acc: IS_SEM_MODE ? 0 : getUnitsMax(2),
-    t2_exam: IS_SEM_MODE ? 0 : getExamMax(2),
-    units: {
-      t1: SI[1] || [],
-      t2: SI[2] || []
-    },
-    subItems: { t1: [], t2: [] },
-    rawMax: { t1: 0, t2: 0 },
-    courseInfo
+    t1_acc: getUnitsMax(1), t1_exam: getExamMax(1),
+    t2_acc: IS_SEM_MODE ? 0 : getUnitsMax(2), t2_exam: IS_SEM_MODE ? 0 : getExamMax(2),
+    units: { t1: SI[1] || [], t2: SI[2] || [] },
+    subItems: { t1: [], t2: [] }, rawMax: { t1: 0, t2: 0 }, courseInfo
   };
 }
 
@@ -3237,34 +2921,16 @@ async function saveConfigOnly() {
   const year = document.getElementById('gYear').value;
   const cls = document.getElementById('gClass').value;
   const subj = document.getElementById('gSubj').value;
-
   if (!subj || subj === "-- ไม่พบวิชา --") return false;
-
   const t1Keep = getUnitsMax(1);
   const t2Keep = getUnitsMax(2);
   const target = IS_SEM_MODE ? 100 : 50;
-
-  if (t1Keep > target) {
-    toast(`เทอม 1: คะแนนรวมของหน่วยเกิน ${target} คะแนน`, 'warning');
-    return false;
-  }
-
-  if (!IS_SEM_MODE && t2Keep > 50) {
-    toast(`เทอม 2: คะแนนรวมของหน่วยเกิน 50 คะแนน`, 'warning');
-    return false;
-  }
-
+  if (t1Keep > target) { toast(`เทอม 1: คะแนนรวมของหน่วยเกิน ${target} คะแนน`, 'warning'); return false; }
+  if (!IS_SEM_MODE && t2Keep > 50) { toast(`เทอม 2: คะแนนรวมของหน่วยเกิน 50 คะแนน`, 'warning'); return false; }
   const config = buildConfigPayload();
-
   pg('กำลังบันทึกการตั้งค่า...');
   try {
-    await api('saveGrades', {
-      year,
-      classroom: cls,
-      subject: subj,
-      config,
-      gradeRecords: []
-    });
+    await api('saveGrades', { year, classroom: cls, subject: subj, config, gradeRecords: [] });
     return true;
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
@@ -3275,28 +2941,15 @@ async function saveConfigOnly() {
 }
 
 async function saveCourseMetaOnly() {
-  if (!document.getElementById('ci_name').value.trim()) {
-    document.getElementById('ci_name').value = document.getElementById('gSubj').value || '';
-  }
-
+  if (!document.getElementById('ci_name').value.trim()) document.getElementById('ci_name').value = document.getElementById('gSubj').value || '';
   const ok = await saveConfigOnly();
   if (ok) toast('✅ บันทึกข้อมูลวิชาเรียบร้อย');
 }
-
-async function saveScheduleOnly() {
-  const ok = await saveConfigOnly();
-  if (ok) toast('✅ บันทึกเวลาเรียนเรียบร้อย');
-}
-
-async function saveScoreConfigOnly() {
-  const ok = await saveConfigOnly();
-  if (ok) toast('✅ บันทึกการตั้งค่าคะแนนเรียบร้อย');
-}
-
+async function saveScheduleOnly() { const ok = await saveConfigOnly(); if (ok) toast('✅ บันทึกเวลาเรียนเรียบร้อย'); }
+async function saveScoreConfigOnly() { const ok = await saveConfigOnly(); if (ok) toast('✅ บันทึกการตั้งค่าคะแนนเรียบร้อย'); }
 async function saveCourseInfo() {
   const ok = await saveConfigOnly();
   if (!ok) return;
-
   setTimeout(() => {
     const el = document.getElementById('accCourseInfo');
     const body = document.getElementById('accCourseInfoBody');
@@ -3310,31 +2963,23 @@ async function saveCourseInfo() {
    ===================================================== */
 document.addEventListener('keydown', function(event) {
   if (event.key !== 'Enter' && event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
-
   const currentInput = document.activeElement;
   if (!currentInput.classList.contains('sinput')) return;
-
   event.preventDefault();
-
   const td = currentInput.closest('td');
   const tr = currentInput.closest('tr');
   const table = currentInput.closest('table');
   const colIndex = td.cellIndex;
   const rows = Array.from(table.querySelectorAll('tbody tr'));
   const currentRowIndex = rows.indexOf(tr);
-
   let targetRowIndex = -1;
   if (event.key === 'Enter' || event.key === 'ArrowDown') targetRowIndex = currentRowIndex + 1;
   if (event.key === 'ArrowUp') targetRowIndex = currentRowIndex - 1;
-
   if (targetRowIndex > -1 && targetRowIndex < rows.length) {
     const targetRow = rows[targetRowIndex];
     const targetCell = targetRow.cells[colIndex];
     const targetInput = targetCell?.querySelector('.sinput');
-    if (targetInput) {
-      targetInput.focus();
-      targetInput.select();
-    }
+    if (targetInput) { targetInput.focus(); targetInput.select(); }
   }
 });
 
@@ -3345,26 +2990,11 @@ function openBase64PdfInPrintWindow(dataUri, fileName = 'report.pdf') {
   try {
     const printWin = window.open('', '_blank');
     if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
-
-    const finalHtml = `
-      <!DOCTYPE html>
-      <html lang="th">
-      <head>
-        <meta charset="utf-8">
-        <title>${fileName}</title>
-        <style>
-          html, body { margin:0; padding:0; height:100%; background:#fff; overflow:hidden; }
-          iframe.pdf-frame { width:100vw; height:100vh; border:none; display:block; }
-        </style>
-      </head>
-      <body>
-        <iframe class="pdf-frame" src="${dataUri}"></iframe>
-      </body>
-      </html>
-    `;
-
     printWin.document.open();
-    printWin.document.write(finalHtml);
+    printWin.document.write(`<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><title>${fileName}</title>
+      <style>html,body{margin:0;padding:0;height:100%;background:#fff;overflow:hidden;}
+      iframe.pdf-frame{width:100vw;height:100vh;border:none;display:block;}</style></head>
+      <body><iframe class="pdf-frame" src="${dataUri}"></iframe></body></html>`);
     printWin.document.close();
   } catch (err) {
     console.error(err);
@@ -3376,16 +3006,12 @@ async function printRowPDF(studentId, reportType = 'year') {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
   const reportLabel = reportType === 'term1' ? 'เทอม1' : 'ทั้งปี';
-
   const printWin = window.open('', '_blank');
   if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
   printWin.document.write('<html><head><meta charset="UTF-8"><title>กำลังโหลด...</title></head><body style="font-family:sans-serif;text-align:center;padding-top:80px;color:#666;"><h2>⏳ กำลังสร้างเอกสาร...</h2></body></html>');
-
   pg(`กำลังสร้างเอกสาร ${reportLabel}...`);
   try {
-    const html = await api('generateStudentHTML', {
-      year, classroom, studentId, ignoreR: IGNORE_R, reportType
-    });
+    const html = await api('generateStudentHTML', { year, classroom, studentId, ignoreR: IGNORE_R, reportType });
     writeToPrintWindow(printWin, html, `ปพ6_${reportLabel}_${studentId}_${classroom}`);
     toast(`เปิดหน้าพิมพ์รายบุคคล (${reportLabel}) แล้ว`);
   } catch (e) {
@@ -3399,18 +3025,13 @@ async function printClassPDF(reportType = 'year') {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
   const reportLabel = reportType === 'term1' ? 'เทอม 1' : 'ทั้งปีการศึกษา';
-
   if (!confirm(`พิมพ์รายงาน ปพ.6 ${reportLabel} ห้อง ${classroom} ปี ${year} ?`)) return;
-
   const printWin = window.open('', '_blank');
   if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
   printWin.document.write('<html><head><meta charset="UTF-8"><title>กำลังโหลด...</title></head><body style="font-family:sans-serif;text-align:center;padding-top:80px;color:#666;"><h2>⏳ กำลังสร้างเอกสาร...</h2></body></html>');
-
   pg(`กำลังสร้างเอกสาร ${reportLabel} ทั้งห้อง...`);
   try {
-    const html = await api('generateClassHTML', {
-      year, classroom, ignoreR: IGNORE_R, reportType
-    });
+    const html = await api('generateClassHTML', { year, classroom, ignoreR: IGNORE_R, reportType });
     writeToPrintWindow(printWin, html, `ปพ6_${reportLabel.replace(/\s+/g,'')}_${classroom}_ปี${year}`);
     toast(`เปิดหน้าพิมพ์ ${reportLabel} ทั้งห้องแล้ว`);
   } catch (e) {
@@ -3423,25 +3044,16 @@ async function printClassPDF(reportType = 'year') {
 async function printSummaryPDF(reportType = 'year') {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
-
   const isPrimary = !classroom.includes('เทอม');
   const reportLabel = reportType === 'term1' ? 'เทอม 1' : (reportType === 'term2' ? 'เทอม 2' : 'ทั้งปี');
-
-  if (isPrimary) {
-    closeSummaryModeModal();
-  }
-
+  if (isPrimary) closeSummaryModeModal();
   if (!confirm(`ต้องการสร้างตารางสรุปเกรดรวม (${reportLabel}) ของห้อง ${classroom} ใช่หรือไม่?`)) return;
-
   const printWin = window.open('', '_blank');
   if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
   printWin.document.write('<html><head><meta charset="UTF-8"><title>กำลังโหลด...</title></head><body style="font-family:sans-serif;text-align:center;padding-top:80px;color:#666;"><h2>⏳ กำลังรวบรวมข้อมูล...</h2></body></html>');
-
   pg(`กำลังรวบรวมข้อมูลสรุปเกรดรวม (${reportLabel})...`);
   try {
-    const html = await api('generateSummaryHTML', {
-      year, classroom, ignoreR: IGNORE_R, reportType
-    });
+    const html = await api('generateSummaryHTML', { year, classroom, ignoreR: IGNORE_R, reportType });
     writeToPrintWindow(printWin, html, `สรุปผลการเรียน_${classroom}_${reportLabel.replace(/\s+/g,'')}_ปี${year}`);
     toast(`เปิดหน้าพิมพ์สรุปผลการเรียน (${reportLabel}) แล้ว`);
   } catch (e) {
@@ -3454,37 +3066,23 @@ async function printSummaryPDF(reportType = 'year') {
 async function exportSummaryCSV() {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
-
   if (!confirm(`ต้องการดาวน์โหลดไฟล์ Excel (CSV) ของห้อง ${classroom} ใช่หรือไม่?`)) return;
-
   pg('กำลังเตรียมไฟล์...');
   try {
-    const base64Data = await api('generateSummaryCSV', {
-      year,
-      classroom,
-      ignoreR: IGNORE_R
-    });
-
+    const base64Data = await api('generateSummaryCSV', { year, classroom, ignoreR: IGNORE_R });
     const byteCharacters = atob(base64Data);
     const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-
+    for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: 'text/csv;charset=utf-8;' });
-
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    const rModeLabel = IGNORE_R ? 'ซ่อนร' : 'แสดงร';
-    link.setAttribute('download', `สรุปผลการเรียน_${classroom}_ปี${year}_${rModeLabel}.csv`);
+    link.setAttribute('download', `สรุปผลการเรียน_${classroom}_ปี${year}_${IGNORE_R ? 'ซ่อนร' : 'แสดงร'}.csv`);
     link.style.visibility = 'hidden';
-
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
     toast('✅ ดาวน์โหลดไฟล์ Excel สำเร็จ');
   } catch (e) {
     toast('เกิดข้อผิดพลาด: ' + e.message, 'error');
@@ -3497,27 +3095,17 @@ function toggleIgnoreR() {
   document.querySelectorAll('#gtBody tr[data-sid]').forEach(tr => recalcTots(tr));
 }
 
-
 /* =====================================================
    HOLISTIC / ASSESSMENT
    ===================================================== */
-function renderHolisticTable(
-  students,
-  containerId = 'assContainer',
-  tableId = 'assBody',
-  mode = 'subject'
-) {
+function renderHolisticTable(students, containerId = 'assContainer', tableId = 'assBody', mode = 'subject') {
   const assContainer = document.getElementById(containerId);
   if (!assContainer) return;
+  if (!students.length) { assContainer.innerHTML = `<div class="text-center text-muted py-3">ไม่พบข้อมูลผู้เรียน</div>`; return; }
 
-  if (!students.length) {
-    assContainer.innerHTML = `<div class="text-center text-muted py-3">ไม่พบข้อมูลผู้เรียน</div>`;
-    return;
-  }
-
-  const charItems = ["รักชาติฯ", "ซื่อสัตย์ฯ", "มีวินัย", "ใฝ่เรียนรู้", "อยู่อย่างพอเพียง", "มุ่งมั่นทำงาน", "รักความเป็นไทย", "มีจิตสาธารณะ"];
-  const rwItems   = ["สามารถอ่านฯ", "สามารถจับประเด็นฯ", "สามารถวิเคราะห์ฯ", "สามารถประเมินฯ", "สามารถเขียนฯ"];
-  const skItems   = ["สื่อสาร", "คิด", "แก้ปัญหา", "ทักษะชีวิต", "เทคโนโลยี"];
+  const charItems = ["รักชาติฯ","ซื่อสัตย์ฯ","มีวินัย","ใฝ่เรียนรู้","อยู่อย่างพอเพียง","มุ่งมั่นทำงาน","รักความเป็นไทย","มีจิตสาธารณะ"];
+  const rwItems   = ["สามารถอ่านฯ","สามารถจับประเด็นฯ","สามารถวิเคราะห์ฯ","สามารถประเมินฯ","สามารถเขียนฯ"];
+  const skItems   = ["สื่อสาร","คิด","แก้ปัญหา","ทักษะชีวิต","เทคโนโลยี"];
 
   const thItems = `
     <tr>
@@ -3529,48 +3117,35 @@ function renderHolisticTable(
     </tr>
     <tr>
       ${charItems.map((c, i) => `<th class="bg-char v-text">${i + 1}.${c}</th>`).join('')}
-      <th class="bg-sum v-text">รวม</th>
-      <th class="bg-sum">ผล</th>
+      <th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>
       ${rwItems.map((r, i) => `<th class="bg-rw v-text">${i + 1}.${r}</th>`).join('')}
-      <th class="bg-sum v-text">รวม</th>
-      <th class="bg-sum">ผล</th>
+      <th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>
       ${skItems.map((s, i) => `<th class="v-text" style="background:#e5e7eb;">${i + 1}.${s}</th>`).join('')}
-      <th class="bg-sum v-text">รวม</th>
-      <th class="bg-sum">ผล</th>
-    </tr>
-  `;
+      <th class="bg-sum v-text">รวม</th><th class="bg-sum">ผล</th>
+    </tr>`;
 
   const trs = students.map((s, idx) => {
-    const h = mode === 'homeroom'
-      ? (s.holistic_homeroom || {})
-      : (s.holistic_subject || {});
-
+    const h = mode === 'homeroom' ? (s.holistic_homeroom || {}) : (s.holistic_subject || {});
     const cVals = (h.char_scores && h.char_scores.length === 8) ? h.char_scores : Array(8).fill("");
     const rVals = (h.read_scores && h.read_scores.length === 5) ? h.read_scores : Array(5).fill("");
     const sVals = (h.skill_scores && h.skill_scores.length === 5) ? h.skill_scores : Array(5).fill("");
-
     const cHtml = cVals.map(v => `<td><input type="number" class="inp-ass c-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'c')"></td>`).join('');
     const rHtml = rVals.map(v => `<td><input type="number" class="inp-ass r-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 'r')"></td>`).join('');
     const sHtml = sVals.map(v => `<td><input type="number" class="inp-ass s-inp" min="0" max="3" value="${v}" oninput="calcAssRow(this, 's')"></td>`).join('');
-
     return `
       <tr data-hsid="${s.studentId}">
         <td class="ass-no">${idx + 1}</td>
         <td class="ass-name" style="text-align:left;font-weight:600;background:#fff;">${s.name}</td>
-
         ${cHtml}
         <td class="bg-sum c-total">-</td>
         <td><span class="res-badge c-result">-</span><input type="hidden" class="c-final-val" value="${h.char || ''}"></td>
-
         ${rHtml}
         <td class="bg-sum r-total">-</td>
         <td><span class="res-badge r-result">-</span><input type="hidden" class="r-final-val" value="${h.read || ''}"></td>
-
         ${sHtml}
         <td class="bg-sum s-total">-</td>
         <td><span class="res-badge s-result">-</span><input type="hidden" class="s-final-val" value="${h.skill || ''}"></td>
-      </tr>
-    `;
+      </tr>`;
   }).join('');
 
   assContainer.innerHTML = `
@@ -3579,8 +3154,7 @@ function renderHolisticTable(
         <thead>${thItems}</thead>
         <tbody>${trs}</tbody>
       </table>
-    </div>
-  `;
+    </div>`;
 
   document.querySelectorAll(`#${tableId} tr[data-hsid]`).forEach(tr => {
     calcAssRow(tr.querySelector('.c-inp'), 'c');
@@ -3593,86 +3167,45 @@ function calcAssRow(inputEl, type) {
   if (!inputEl) return;
   const tr = inputEl.closest('tr');
   if (!tr) return;
-
   const inputs = tr.querySelectorAll(`.${type}-inp`);
-  let sum = 0;
-  let count = 0;
-
+  let sum = 0, count = 0;
   inputs.forEach(inp => {
     let val = parseFloat(inp.value);
     if (!isNaN(val)) {
       if (val > 3) { inp.value = 3; val = 3; }
       if (val < 0) { inp.value = 0; val = 0; }
-      sum += val;
-      count++;
+      sum += val; count++;
     }
   });
-
   if (document.activeElement === inputEl && inputEl.value.length >= 1) {
     let nextTd = inputEl.closest('td').nextElementSibling;
     let nextInput = null;
-
-    while (nextTd) {
-      nextInput = nextTd.querySelector('.inp-ass');
-      if (nextInput) break;
-      nextTd = nextTd.nextElementSibling;
-    }
-
-    if (nextInput) {
-      nextInput.focus();
-      nextInput.select();
-    }
+    while (nextTd) { nextInput = nextTd.querySelector('.inp-ass'); if (nextInput) break; nextTd = nextTd.nextElementSibling; }
+    if (nextInput) { nextInput.focus(); nextInput.select(); }
   }
-
   const totalEl = tr.querySelector(`.${type}-total`);
   const resultBadge = tr.querySelector(`.${type}-result`);
   const hiddenFinal = tr.querySelector(`.${type}-final-val`);
-
   if (count === 0) {
     if (totalEl) totalEl.textContent = "-";
-    if (resultBadge) {
-      resultBadge.textContent = "-";
-      resultBadge.className = `res-badge ${type}-result`;
-    }
+    if (resultBadge) { resultBadge.textContent = "-"; resultBadge.className = `res-badge ${type}-result`; }
     if (hiddenFinal) hiddenFinal.value = "";
     return;
   }
-
   const avg = sum / count;
-  let resText = "";
-  let resClass = "";
-  let pdfValue = "";
-
-  if (avg >= 2.5) {
-    resText = "ดีเยี่ยม";
-    resClass = "res-3";
-    pdfValue = "ดีเยี่ยม (3)";
-  } else if (avg >= 1.5) {
-    resText = "ดี";
-    resClass = "res-2";
-    pdfValue = "ดี (2)";
-  } else if (avg >= 1.0) {
-    resText = "ผ่าน";
-    resClass = "res-1";
-    pdfValue = "ผ่าน (1)";
-  } else {
-    resText = "ไม่ผ่าน";
-    resClass = "res-0";
-    pdfValue = "ไม่ผ่าน (0)";
-  }
-
+  let resText = "", resClass = "", pdfValue = "";
+  if (avg >= 2.5) { resText = "ดีเยี่ยม"; resClass = "res-3"; pdfValue = "ดีเยี่ยม (3)"; }
+  else if (avg >= 1.5) { resText = "ดี"; resClass = "res-2"; pdfValue = "ดี (2)"; }
+  else if (avg >= 1.0) { resText = "ผ่าน"; resClass = "res-1"; pdfValue = "ผ่าน (1)"; }
+  else { resText = "ไม่ผ่าน"; resClass = "res-0"; pdfValue = "ไม่ผ่าน (0)"; }
   if (totalEl) totalEl.textContent = sum;
-  if (resultBadge) {
-    resultBadge.textContent = resText;
-    resultBadge.className = `res-badge ${type}-result ${resClass}`;
-  }
+  if (resultBadge) { resultBadge.textContent = resText; resultBadge.className = `res-badge ${type}-result ${resClass}`; }
   if (hiddenFinal) hiddenFinal.value = pdfValue;
 }
 
 async function saveHolisticData(mode = 'subject') {
   const tableId = mode === 'homeroom' ? '#hrAssBody' : '#assBody';
   const records = [];
-
   document.querySelectorAll(`${tableId} tr[data-hsid]`).forEach(tr => {
     records.push({
       studentId: tr.getAttribute('data-hsid'),
@@ -3687,9 +3220,7 @@ async function saveHolisticData(mode = 'subject') {
       skill: tr.querySelector('.s-final-val').value
     });
   });
-
   if (!records.length) return toast('ไม่พบรายชื่อนักเรียน', 'error');
-
   pg('กำลังบันทึกข้อมูล...');
   try {
     const msg = await api('saveHolistic', {
@@ -3714,97 +3245,63 @@ function calcTotalHours() {
     document.getElementById('ci_total_hours').textContent = 0;
     return;
   }
-
   const cls = document.getElementById('gClass').value;
   let startDateStr, endDateStr;
-
-  if (cls.includes("เทอม 2")) {
-    startDateStr = TERM_DATES['t2_start'];
-    endDateStr = TERM_DATES['t2_end'];
-  } else if (cls.includes("เทอม 1")) {
-    startDateStr = TERM_DATES['t1_start'];
-    endDateStr = TERM_DATES['t1_end'];
-  } else {
-    startDateStr = TERM_DATES['t1_start'];
-    endDateStr = TERM_DATES['t2_end'];
-  }
-
+  if (cls.includes("เทอม 2")) { startDateStr = TERM_DATES['t2_start']; endDateStr = TERM_DATES['t2_end']; }
+  else if (cls.includes("เทอม 1")) { startDateStr = TERM_DATES['t1_start']; endDateStr = TERM_DATES['t1_end']; }
+  else { startDateStr = TERM_DATES['t1_start']; endDateStr = TERM_DATES['t2_end']; }
   if (!startDateStr || !endDateStr) return;
 
   const parseDateAD = (dStr) => {
     const parts = String(dStr).split(/[\/\-]/);
     if (parts.length === 3) {
-      let d = parseInt(parts[0], 10);
-      let m = parseInt(parts[1], 10) - 1;
-      let y = parseInt(parts[2], 10);
+      let d = parseInt(parts[0], 10), m = parseInt(parts[1], 10) - 1, y = parseInt(parts[2], 10);
       if (y > 2500) y -= 543;
       return new Date(y, m, d);
     }
     return new Date();
   };
-
   const formatDateBE = (dateObj) => {
     const dd = String(dateObj.getDate()).padStart(2, '0');
     const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
     const yyyy = dateObj.getFullYear() + 543;
     return `${dd}/${mm}/${yyyy}`;
   };
-
   const start = parseDateAD(startDateStr);
   const end = parseDateAD(endDateStr);
-  start.setHours(0, 0, 0, 0);
-  end.setHours(0, 0, 0, 0);
-
+  start.setHours(0,0,0,0); end.setHours(0,0,0,0);
   const schedule = {
     1: Number(document.getElementById('sch_mon').value) || 0,
     2: Number(document.getElementById('sch_tue').value) || 0,
     3: Number(document.getElementById('sch_wed').value) || 0,
     4: Number(document.getElementById('sch_thu').value) || 0,
     5: Number(document.getElementById('sch_fri').value) || 0,
-    0: 0,
-    6: 0
+    0: 0, 6: 0
   };
-
   const holidaySet = new Set();
-  HOLIDAYS.forEach(h => {
-    if (h.type === 'holiday') holidaySet.add(h.date);
-  });
-
+  HOLIDAYS.forEach(h => { if (h.type === 'holiday') holidaySet.add(h.date); });
   let totalHours = 0;
   const current = new Date(start);
-
   while (current <= end) {
     const currentBEStr = formatDateBE(current);
-    if (!holidaySet.has(currentBEStr)) {
-      totalHours += schedule[current.getDay()];
-    }
+    if (!holidaySet.has(currentBEStr)) totalHours += schedule[current.getDay()];
     current.setDate(current.getDate() + 1);
   }
-
   totalHours += Number(document.getElementById('ci_manual_adjust').value) || 0;
   document.getElementById('ci_total_hours').textContent = totalHours;
 }
 
 function escHtml(v) {
-  return String(v ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function getAssPrintRows(mode = 'subject') {
   const tableSelector = mode === 'homeroom' ? '#hrAssBody' : '#assBody';
   const rows = [];
-  const trs = document.querySelectorAll(`${tableSelector} tr[data-hsid]`);
-
-  trs.forEach((tr, idx) => {
-    const name = tr.querySelector('.ass-name')?.textContent?.trim() || '';
-
+  document.querySelectorAll(`${tableSelector} tr[data-hsid]`).forEach((tr, idx) => {
     rows.push({
       no: idx + 1,
-      name,
+      name: tr.querySelector('.ass-name')?.textContent?.trim() || '',
       charScores: [...tr.querySelectorAll('.c-inp')].map(i => i.value || ''),
       charTotal: tr.querySelector('.c-total')?.textContent?.trim() || '-',
       charResult: tr.querySelector('.c-result')?.textContent?.trim() || '-',
@@ -3816,129 +3313,51 @@ function getAssPrintRows(mode = 'subject') {
       skillResult: tr.querySelector('.s-result')?.textContent?.trim() || '-'
     });
   });
-
   return rows;
 }
 
 function buildPrintTable(title, headers, rows, scoreKey, totalKey, resultKey, themeClass) {
   const headCols = headers.map(h => `<th class="v">${escHtml(h)}</th>`).join('');
-
   const bodyRows = rows.map(r => {
     const vals = r[scoreKey] || [];
     const scoreTds = vals.map(v => `<td>${escHtml(v || '-')}</td>`).join('');
-
-    return `
-      <tr>
-        <td class="col-no">${r.no}</td>
-        <td class="col-name">${escHtml(r.name)}</td>
-        ${scoreTds}
-        <td class="col-total">${escHtml(r[totalKey] || '-')}</td>
-        <td class="col-result">${escHtml(r[resultKey] || '-')}</td>
-      </tr>
-    `;
+    return `<tr><td class="col-no">${r.no}</td><td class="col-name">${escHtml(r.name)}</td>${scoreTds}<td class="col-total">${escHtml(r[totalKey] || '-')}</td><td class="col-result">${escHtml(r[resultKey] || '-')}</td></tr>`;
   }).join('');
-
   return `
     <section class="print-page">
       <div class="report-head">
         <div class="report-school">โรงเรียนบ้านคลอง 14</div>
         <div class="report-title">${escHtml(title)}</div>
         <div class="report-meta">
-          ชั้น ${escHtml(document.getElementById('gClass')?.value || '-')}
-          &nbsp;&nbsp;|&nbsp;&nbsp;
-          ปีการศึกษา ${escHtml(document.getElementById('gYear')?.value || '-')}
-          &nbsp;&nbsp;|&nbsp;&nbsp;
+          ชั้น ${escHtml(document.getElementById('gClass')?.value || '-')} &nbsp;|&nbsp;
+          ปีการศึกษา ${escHtml(document.getElementById('gYear')?.value || '-')} &nbsp;|&nbsp;
           รายวิชา ${escHtml(document.getElementById('gSubj')?.value || '-')}
         </div>
       </div>
-
       <table class="print-tbl ${themeClass}">
-        <thead>
-          <tr>
-            <th class="col-no">ที่</th>
-            <th class="col-name">ชื่อ-นามสกุล</th>
-            ${headCols}
-            <th class="col-total">รวม</th>
-            <th class="col-result">ผล</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${bodyRows}
-        </tbody>
+        <thead><tr><th class="col-no">ที่</th><th class="col-name">ชื่อ-นามสกุล</th>${headCols}<th class="col-total">รวม</th><th class="col-result">ผล</th></tr></thead>
+        <tbody>${bodyRows}</tbody>
       </table>
-    </section>
-  `;
+    </section>`;
 }
 
 function printHolisticReport(mode = 'subject') {
   const rows = getAssPrintRows(mode);
   const reportScope = mode === 'homeroom' ? 'ประจำชั้น' : 'รายวิชา';
-
-  if (!rows.length) {
-    toast('ไม่พบข้อมูลสำหรับพิมพ์', 'error');
-    return;
-  }
-
-  const page1 = buildPrintTable(
-    `รายงานประเมินคุณลักษณะอันพึงประสงค์ (${reportScope})`,
-    ['1.รักชาติฯ','2.ซื่อสัตย์ฯ','3.มีวินัย','4.ใฝ่เรียนรู้','5.อยู่อย่างพอเพียง','6.มุ่งมั่นทำงาน','7.รักความเป็นไทย','8.มีจิตสาธารณะ'],
-    rows, 'charScores', 'charTotal', 'charResult', 'theme-char'
-  );
-
-  const page2 = buildPrintTable(
-    `รายงานประเมินการอ่าน คิดวิเคราะห์ และเขียน (${reportScope})`,
-    ['1.สามารถอ่านฯ','2.สามารถจับประเด็นฯ','3.สามารถวิเคราะห์ฯ','4.สามารถประเมินฯ','5.สามารถเขียนฯ'],
-    rows, 'readScores', 'readTotal', 'readResult', 'theme-read'
-  );
-
-  const page3 = buildPrintTable(
-    `รายงานประเมินสมรรถนะสำคัญของผู้เรียน (${reportScope})`,
-    ['1.สื่อสาร','2.คิด','3.แก้ปัญหา','4.ทักษะชีวิต','5.เทคโนโลยี'],
-    rows, 'skillScores', 'skillTotal', 'skillResult', 'theme-skill'
-  );
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="th">
-    <head>
-      <meta charset="utf-8">
-      <title>รายงานประเมินผู้เรียน</title>
-      <style>
-        @page { size: A4 landscape; margin: 10mm; }
-        * { box-sizing: border-box; }
-        body { font-family: "Sarabun", sans-serif; margin: 0; color: #111827; background: #fff; }
-        .print-page { width: 100%; min-height: 100vh; page-break-after: always; padding: 4mm 2mm; }
-        .print-page:last-child { page-break-after: auto; }
-        .report-head { text-align: center; margin-bottom: 10px; }
-        .report-school { font-size: 18px; font-weight: 700; }
-        .report-title { font-size: 20px; font-weight: 800; margin-top: 2px; }
-        .report-meta { font-size: 12px; margin-top: 4px; color: #374151; }
-        .print-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
-        .print-tbl th, .print-tbl td {
-          border: 1px solid #9ca3af;
-          padding: 6px 4px;
-          text-align: center;
-          vertical-align: middle;
-          word-wrap: break-word;
-        }
-        .print-tbl th { font-weight: 700; }
-        .print-tbl .col-no { width: 36px; }
-        .print-tbl .col-name { width: 230px; text-align: left; font-weight: 600; }
-        .print-tbl .col-total { width: 55px; font-weight: 700; background: #f3f4f6; }
-        .print-tbl .col-result { width: 78px; font-weight: 700; background: #f9fafb; }
-        .theme-char thead th { background: #fef08a; }
-        .theme-read thead th { background: #fdba74; }
-        .theme-skill thead th { background: #d1d5db; }
-      </style>
-    </head>
-    <body>
-      ${page1}
-      ${page2}
-      ${page3}
-    </body>
-    </html>
-  `;
-
+  if (!rows.length) { toast('ไม่พบข้อมูลสำหรับพิมพ์', 'error'); return; }
+  const page1 = buildPrintTable(`รายงานประเมินคุณลักษณะอันพึงประสงค์ (${reportScope})`,['1.รักชาติฯ','2.ซื่อสัตย์ฯ','3.มีวินัย','4.ใฝ่เรียนรู้','5.อยู่อย่างพอเพียง','6.มุ่งมั่นทำงาน','7.รักความเป็นไทย','8.มีจิตสาธารณะ'],rows,'charScores','charTotal','charResult','theme-char');
+  const page2 = buildPrintTable(`รายงานประเมินการอ่าน คิดวิเคราะห์ และเขียน (${reportScope})`,['1.สามารถอ่านฯ','2.สามารถจับประเด็นฯ','3.สามารถวิเคราะห์ฯ','4.สามารถประเมินฯ','5.สามารถเขียนฯ'],rows,'readScores','readTotal','readResult','theme-read');
+  const page3 = buildPrintTable(`รายงานประเมินสมรรถนะสำคัญของผู้เรียน (${reportScope})`,['1.สื่อสาร','2.คิด','3.แก้ปัญหา','4.ทักษะชีวิต','5.เทคโนโลยี'],rows,'skillScores','skillTotal','skillResult','theme-skill');
+  const html = `<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><title>รายงานประเมินผู้เรียน</title>
+    <style>@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:"Sarabun",sans-serif;margin:0;color:#111827;background:#fff}
+    .print-page{width:100%;min-height:100vh;page-break-after:always;padding:4mm 2mm}.print-page:last-child{page-break-after:auto}
+    .report-head{text-align:center;margin-bottom:10px}.report-school{font-size:18px;font-weight:700}.report-title{font-size:20px;font-weight:800;margin-top:2px}
+    .report-meta{font-size:12px;margin-top:4px;color:#374151}.print-tbl{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
+    .print-tbl th,.print-tbl td{border:1px solid #9ca3af;padding:6px 4px;text-align:center;vertical-align:middle;word-wrap:break-word}
+    .print-tbl th{font-weight:700}.print-tbl .col-no{width:36px}.print-tbl .col-name{width:230px;text-align:left;font-weight:600}
+    .print-tbl .col-total{width:55px;font-weight:700;background:#f3f4f6}.print-tbl .col-result{width:78px;font-weight:700;background:#f9fafb}
+    .theme-char thead th{background:#fef08a}.theme-read thead th{background:#fdba74}.theme-skill thead th{background:#d1d5db}</style>
+    </head><body>${page1}${page2}${page3}</body></html>`;
   const printWin = window.open('', '_blank');
   if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
   writeToPrintWindow(printWin, html, `รายงานประเมิน_${reportScope}`);
@@ -3948,36 +3367,22 @@ function switchHolisticTab(mode, btn) {
   const tabs = document.querySelectorAll('#holisticTabs .ttab');
   tabs.forEach(t => t.classList.remove('on'));
   if (btn) btn.classList.add('on');
-
-  document.getElementById('holisticSubjectPanel').style.display =
-    mode === 'subject' ? '' : 'none';
-
-  document.getElementById('holisticHomeroomPanel').style.display =
-    mode === 'homeroom' ? '' : 'none';
+  document.getElementById('holisticSubjectPanel').style.display = mode === 'subject' ? '' : 'none';
+  document.getElementById('holisticHomeroomPanel').style.display = mode === 'homeroom' ? '' : 'none';
 }
 
 async function printPp5SubjectPDF() {
   const year = document.getElementById('gYear').value;
   const classroom = document.getElementById('gClass').value;
   const subject = document.getElementById('gSubj').value;
-
-  if (!classroom.includes('เทอม')) {
-    return toast('ปพ.5 เวอร์ชันนี้เริ่มใช้สำหรับฝั่งมัธยมก่อน', 'warning');
-  }
-
-  if (!subject || subject === '-- ไม่พบวิชา --') {
-    return toast('กรุณาเลือกรายวิชา', 'error');
-  }
-
+  if (!classroom.includes('เทอม')) return toast('ปพ.5 เวอร์ชันนี้เริ่มใช้สำหรับฝั่งมัธยมก่อน', 'warning');
+  if (!subject || subject === '-- ไม่พบวิชา --') return toast('กรุณาเลือกรายวิชา', 'error');
   const printWin = window.open('', '_blank');
   if (!printWin) { toast('เบราว์เซอร์บล็อก popup กรุณาอนุญาต', 'error'); return; }
   printWin.document.write('<html><head><meta charset="UTF-8"><title>กำลังโหลด...</title></head><body style="font-family:sans-serif;text-align:center;padding-top:80px;color:#666;"><h2>⏳ กำลังสร้าง ปพ.5 ...</h2></body></html>');
-
   pg('กำลังสร้าง ปพ.5 ...');
   try {
-    const html = await api('generatePp5SubjectHTML', {
-      year, classroom, subject
-    });
+    const html = await api('generatePp5SubjectHTML', { year, classroom, subject });
     writeToPrintWindow(printWin, html, `ปพ5_${subject}_${classroom}_ปี${year}`);
     toast('เปิดหน้าพิมพ์ ปพ.5 แล้ว');
   } catch (e) {
@@ -3987,22 +3392,11 @@ async function printPp5SubjectPDF() {
   pg_();
 }
 
-/**
- * เขียน HTML ลงใน window ที่เปิดไว้แล้ว
- * ใช้ pattern: เปิด window.open('','_blank') ก่อน await api → แล้วเรียกฟังก์ชันนี้
- * เพื่อหลีกเลี่ยง popup blocker
- */
 function writeToPrintWindow(win, html, fileName) {
   if (!win) return;
   try {
-    const finalHtml = html.includes('<html')
-      ? html
-      : `<!DOCTYPE html>
-        <html lang="th">
-        <head><meta charset="UTF-8"><title>${fileName || 'report'}</title></head>
-        <body>${html}</body>
-        </html>`;
-
+    const finalHtml = html.includes('<html') ? html :
+      `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>${fileName || 'report'}</title></head><body>${html}</body></html>`;
     win.document.open();
     win.document.write(finalHtml);
     win.document.close();
@@ -4015,65 +3409,34 @@ function writeToPrintWindow(win, html, fileName) {
 function showScoreMain(btn) {
   const scoreArea = document.getElementById('scoreMainArea');
   const settingsArea = document.getElementById('settingsContentArea');
-
   if (scoreArea) scoreArea.style.display = 'block';
   if (settingsArea) settingsArea.style.display = 'none';
-
-  document.querySelectorAll('.settings-panel').forEach(panel => {
-    panel.classList.remove('active');
-  });
-
-  document.querySelectorAll('#settingsTabs .settings-tab').forEach(tab => {
-    tab.classList.remove('active');
-  });
-
+  document.querySelectorAll('.settings-panel').forEach(panel => panel.classList.remove('active'));
+  document.querySelectorAll('#settingsTabs .settings-tab').forEach(tab => tab.classList.remove('active'));
   if (btn) btn.classList.add('active');
 }
 
 function switchSettingsTab(tabId, btn) {
   const scoreArea = document.getElementById('scoreMainArea');
   const settingsArea = document.getElementById('settingsContentArea');
-
   if (scoreArea) scoreArea.style.display = 'none';
   if (settingsArea) settingsArea.style.display = 'block';
-
-  document.querySelectorAll('.settings-panel').forEach(panel => {
-    panel.classList.remove('active');
-  });
-
-  document.querySelectorAll('#settingsTabs .settings-tab').forEach(tab => {
-    tab.classList.remove('active');
-  });
-
+  document.querySelectorAll('.settings-panel').forEach(panel => panel.classList.remove('active'));
+  document.querySelectorAll('#settingsTabs .settings-tab').forEach(tab => tab.classList.remove('active'));
   const panel = document.getElementById('panel_' + tabId);
-  if (panel) {
-    panel.classList.add('active');
-  } else {
-    console.warn('ไม่พบ panel:', 'panel_' + tabId);
-  }
-
+  if (panel) panel.classList.add('active');
+  else console.warn('ไม่พบ panel:', 'panel_' + tabId);
   if (btn) btn.classList.add('active');
 }
 
 function updateScoreInputState(input) {
   if (!input) return;
-
   input.classList.remove('score-empty', 'score-partial', 'score-full');
-
   const raw = String(input.value ?? '').trim();
   const val = Number(raw);
   const max = Number(input.getAttribute('max')) || 0;
-
-  if (raw === '' || isNaN(val) || val <= 0) {
-    input.classList.add('score-empty');
-    return;
-  }
-
-  if (max > 0 && val >= max) {
-    input.classList.add('score-full');
-    return;
-  }
-
+  if (raw === '' || isNaN(val) || val <= 0) { input.classList.add('score-empty'); return; }
+  if (max > 0 && val >= max) { input.classList.add('score-full'); return; }
   input.classList.add('score-partial');
 }
 
@@ -4083,12 +3446,7 @@ function refreshAllScoreInputStates(scope = document) {
 
 function openSummaryModeModal() {
   const classroom = document.getElementById('gClass').value || '';
-
-  if (classroom.includes('เทอม')) {
-    printSummaryPDF('term1');
-    return;
-  }
-
+  if (classroom.includes('เทอม')) { printSummaryPDF('term1'); return; }
   document.getElementById('summaryModeModal').style.display = 'flex';
 }
 
@@ -4099,8 +3457,6 @@ function closeSummaryModeModal() {
 document.getElementById('summaryModeModal')?.addEventListener('click', function(e) {
   if (e.target === this) closeSummaryModeModal();
 });
-
-/* printHtmlViaIframe removed — ใช้ writeToPrintWindow แทน */
 </script>
 </body>
 </html>
